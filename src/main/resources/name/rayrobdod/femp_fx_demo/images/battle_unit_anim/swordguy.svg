@@ -1,0 +1,44 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="600" height="150"
+	xmlns="http://www.w3.org/2000/svg" 
+	xmlns:frames="tag:rayrobdod.name,2017-11-01:femp-frames"
+>
+	<defs>
+		<filter id="pixelize">
+			<feColorMatrix values="1 0 0 0 0    0 1 0 0 0       0 0 1 0 0      0 0 0 1000 -500"/>
+		</filter>
+	</defs>
+
+	<svg viewBox="0 0 15 15" x="0" y="0" width="150" height="150" frames:frame="stand">
+		<rect x="10" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="12" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="10.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<circle cx="11" cy="12" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+		<rect x="11" y="11.7" width="4" height="0.6" fill="silver" transform="rotate(220 11,12)" filter="url(#pixelize)" />
+	</svg>
+	
+	<svg viewBox="0 0 15 15" x="150" y="0" width="150" height="150" frames:frame="attack" frames:index="1">
+		<rect x="10" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="12" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="10.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<circle cx="8" cy="5" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+		<rect x="8" y="4.7" width="4" height="0.6" fill="silver" transform="rotate(240 8,5)" filter="url(#pixelize)" />
+	</svg>
+	
+	<svg viewBox="0 0 15 15" x="300" y="0" width="150" height="150" frames:frame="attack" frames:index="2">
+		<rect x="10" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="12" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="10.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<path transform="scale(0.1,0.1)" d="m 80,42 c -8.578251,11.000085 -26.520532,43.764873 -28,58 0,4.41828 3.581722,8 8,8 4.418278,0 8,-3.58172 8,-8 C 68.142055,84.24897 76.006174,65.607134 84.712055,56.465711 86.705107,55.010736 88,52.656587 88,50 88,45.581722 84.418278,42 80,42 Z" fill="peachpuff" filter="url(#pixelize)" />
+		<path transform="scale(0.1,0.1)" d="m 62.597656,13.859375 c 0,0 -3.654041,1.725828 -5.195312,3 C 33.398927,36.703057 22.808846,66.566607 20,97 c -0.183809,1.991536 0,6 0,6 l 40,0 c 0,0 -0.363275,-4.033269 0,-6 2.949453,-15.968017 6.864467,-33.145649 17.402344,-45.5 1.29776,-1.521462 5.195312,-3 5.195312,-3 z" fill="silver" filter="url(#pixelize)" />
+	</svg>
+	
+	<svg viewBox="0 0 15 15" x="450" y="0" width="150" height="150" frames:frame="attack" frames:index="3" frames:hit="hit">
+		<rect x="10" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="12" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="10.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<circle cx="6" cy="10" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+		<rect x="6" y="9.7" width="4" height="0.6" fill="silver" transform="rotate(180 6,10)" filter="url(#pixelize)" />
+	</svg>
+	
+</svg>
