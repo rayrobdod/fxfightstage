@@ -26,13 +26,15 @@ public final class Dark {
 	
 	public Node getNode() { return this.node; }
 	
-	public Animation getAnimation() {
+	public Animation getAnimation(Animation hpAndShakeAnimation) {
 		return new SequentialTransition(
 			new FillTransition(fadeInTime, this.node, Color.BLACK, mainColor),
 			new PauseTransition(stayTime),
 			new ResizeCircleTransition(fadeOutTime, this.node, mainRadius, 0),
-			// Shake screen and lower hp bars starting here
-			new PauseTransition(endDelayTime)
+			new ParallelTransition(
+				hpAndShakeAnimation,
+				new PauseTransition(endDelayTime)
+			)
 		);
 	}
 	

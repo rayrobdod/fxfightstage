@@ -44,7 +44,7 @@ public final class PhysicalHit {
 	
 	public Node getNode() { return this.group; }
 	
-	public Animation getAnimation() {
+	public Animation getAnimation(Animation hpAndShakeAnimation) {
 		return new ParallelTransition(
 			  new SimpleDoubleTransition(animDuration, emanations[0].centerXProperty(), centerX, centerX + emanationDistance)
 			, new SimpleDoubleTransition(animDuration, emanations[1].centerXProperty(), centerX, centerX + emanationDistance)
@@ -59,6 +59,7 @@ public final class PhysicalHit {
 			, new FillTransition(animDuration, emanations[2], emanationColor, Color.TRANSPARENT)
 			, new FillTransition(animDuration, emanations[3], emanationColor, Color.TRANSPARENT)
 			, new FlarePaintTransition(animDuration.divide(3))
+			, hpAndShakeAnimation
 		);
 	}
 	
