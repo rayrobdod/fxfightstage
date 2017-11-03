@@ -26,9 +26,6 @@ public final class Dark {
 	
 	public Node getNode() { return this.node; }
 	
-	/**
-	 * @param g A foreground area which this may add effects to.
-	 */
 	public Animation getAnimation() {
 		return new SequentialTransition(
 			new FillTransition(fadeInTime, this.node, Color.BLACK, mainColor),

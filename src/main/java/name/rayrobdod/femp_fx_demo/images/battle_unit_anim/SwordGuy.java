@@ -4,6 +4,7 @@ import javafx.animation.*;
 import javafx.animation.Animation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -16,10 +17,13 @@ public final class SwordGuy {
 	private static final String filename = "/name/rayrobdod/femp_fx_demo/images/battle_unit_anim/swordguy.png";
 	private static final Rectangle2D standingViewport = new Rectangle2D(0,0,150,150);
 	private static final Duration frameLength = Duration.seconds(1.0 / 4.0);
-	private static final Rectangle2D[] attackViewports = {
+	private static final Rectangle2D[] beforeSpellViewports = {
 		standingViewport,
 		new Rectangle2D(150,0,150,150),
 		new Rectangle2D(300,0,150,150),
+		new Rectangle2D(450,0,150,150)
+	};
+	private static final Rectangle2D[] afterSpellViewports = {
 		new Rectangle2D(450,0,150,150),
 		standingViewport
 	};
@@ -28,10 +32,9 @@ public final class SwordGuy {
 	 * Sounds are played at the end of a frame, whereas one might expect them to
 	 * be played at the beginning of a frame.
 	 */
-	private static final String[] soundEffectFilenames = {
+	private static final String[] beforeSpellSoundEffectFilenames = {
 		null,
 		"name/rayrobdod/femp_fx_demo/sounds/swing.wav",
-		null,
 		null,
 		null
 	};
@@ -50,22 +53,34 @@ public final class SwordGuy {
 	 */
 	public Node getNode() { return this.node; }
 	
+	public Point2D getFootPoint() { return new Point2D(120, 150); }
+	
 	/**
 	 * Returns an animation to be used for an attack animation
 	 */
-	public Animation getAttackAnimation() {
-		final Timeline retval = new Timeline();
-		
-		for (int i = 0; i < attackViewports.length; i++) {
+	public Animation getAttackAnimation(Animation hitAnimation) {
+		final Timeline beforeSpellAnimation = new Timeline();
+		for (int i = 0; i < beforeSpellViewports.length; i++) {
 			final Duration thisTime = frameLength.multiply(i);
-			
-			retval.getKeyFrames().add(new KeyFrame(thisTime,
-				soundEffectEventHandler(soundEffectFilenames[i]),
-				new KeyValue(node.viewportProperty(), attackViewports[i], Interpolator.DISCRETE)
+			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+				soundEffectEventHandler(beforeSpellSoundEffectFilenames[i]),
+				new KeyValue(node.viewportProperty(), beforeSpellViewports[i], Interpolator.DISCRETE)
 			));
 		}
-		retval.setCycleCount(1);
-		return retval;
+		
+		final Timeline afterSpellAnimation = new Timeline();
+		for (int i = 0; i < afterSpellViewports.length; i++) {
+			final Duration thisTime = frameLength.multiply(i);
+			afterSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+				new KeyValue(node.viewportProperty(), afterSpellViewports[i], Interpolator.DISCRETE)
+			));
+		}
+		
+		return new SequentialTransition(
+			beforeSpellAnimation,
+			hitAnimation,
+			afterSpellAnimation
+		);
 	}
 	
 	/**

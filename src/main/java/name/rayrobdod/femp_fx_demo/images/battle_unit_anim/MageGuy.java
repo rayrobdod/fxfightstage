@@ -2,6 +2,7 @@ package name.rayrobdod.femp_fx_demo.images.battle_unit_anim;
 
 import javafx.animation.*;
 import javafx.animation.Animation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -45,6 +46,8 @@ public final class MageGuy {
 	 */
 	public Node getNode() { return this.node; }
 	
+	public Point2D getFootPoint() { return new Point2D(90, 150); }
+	
 	/**
 	 * Returns an animation to be used for an attack animation
 	 */
@@ -73,25 +76,16 @@ public final class MageGuy {
 			));
 		}
 		
-		
-		Animation middle;
-		if (null != spellAnimation) {
-			// Repeat duringSpellAnimation until it has about the same duration as the spell
-			duringSpellAnimation.setCycleCount((int) (
-				spellAnimation.getTotalDuration().toMillis() / duringSpellAnimation.getCycleDuration().toMillis()
-			));
-			
-			middle = new ParallelTransition(
-				spellAnimation,
-				duringSpellAnimation
-			);
-		} else {
-			middle = duringSpellAnimation;
-		}
+		duringSpellAnimation.setCycleCount((int) (
+			spellAnimation.getTotalDuration().toMillis() / duringSpellAnimation.getCycleDuration().toMillis()
+		));
 		
 		return new SequentialTransition(
 			beforeSpellAnimation,
-			middle,
+			new ParallelTransition(
+				spellAnimation,
+				duringSpellAnimation
+			),
 			afterSpellAnimation
 		);
 	}

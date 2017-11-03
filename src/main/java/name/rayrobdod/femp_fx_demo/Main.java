@@ -1,6 +1,7 @@
 package name.rayrobdod.femp_fx_demo;
 
 import javafx.application.Application;
+import javafx.geometry.Dimension2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,12 +11,14 @@ import javafx.stage.Stage;
 
 import name.rayrobdod.femp_fx_demo.images.background.Field;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.PhysicalHit;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
 
 
 public final class Main extends Application {
 	
+	private static final Dimension2D SIZE = new Dimension2D(480, 320);
 	private static final int WIDTH = 480;
 	private static final int HEIGHT = 320;
 	
@@ -32,13 +35,15 @@ public final class Main extends Application {
 		final Node rightNode = rightUnit.getNode();
 		rightNode.relocate(230, 120);
 		
-		final Dark spell = new Dark();
+		final Dark leftSpell = new Dark();
+		final PhysicalHit rightSpell = new PhysicalHit();
 		
 		final Pane gamePane = new Pane(
 			  Field.buildGroup(WIDTH, HEIGHT)
 			, leftNode
 			, rightNode
-			, spell.getNode()
+			, leftSpell.getNode()
+			, rightSpell.getNode()
 		);
 		gamePane.prefWidthProperty().set(WIDTH);
 		gamePane.prefHeightProperty().set(HEIGHT);
@@ -46,8 +51,8 @@ public final class Main extends Application {
 		final Button playButton = new Button("Play");
 		playButton.setOnAction(x ->
 			new javafx.animation.SequentialTransition(
-				leftUnit.getAttackAnimation(spell.getAnimation()),
-				rightUnit.getAttackAnimation()
+				leftUnit.getAttackAnimation(leftSpell.getAnimation()),
+				rightUnit.getAttackAnimation(rightSpell.getAnimation())
 			).playFromStart()
 		);
 		
