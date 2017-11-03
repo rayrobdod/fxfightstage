@@ -7,6 +7,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.animation.Animation;
 import javafx.animation.*;
 import javafx.util.Duration;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
+import javafx.scene.media.AudioClip;
 
 public final class SwordGuy {
 	
@@ -18,6 +21,16 @@ public final class SwordGuy {
 		new Rectangle2D(450,0,150,150)
 	};
 	
+	/*
+	 * Sounds are played at the end of a frame, whereas one might expect them to
+	 * be played at the beginning of a frame.
+	 */
+	private static final String[] soundEffectFilenames = {
+		"name/rayrobdod/femp_fx_demo/sounds/swing.wav",
+		null,
+		null
+	};
+	
 	private final ImageView node;
 	
 	public SwordGuy() {
@@ -26,8 +39,14 @@ public final class SwordGuy {
 		this.node.setViewport(standingViewport);
 	}
 	
+	/**
+	 * Returns the node associated with this object.
+	 */
 	public Node getNode() { return this.node; }
 	
+	/**
+	 * Returns an animation to be used for an attack animation
+	 */
 	public Animation getAttackAnimation() {
 		final Timeline retval = new Timeline();
 		final Duration fullTime = Duration.seconds(1);
@@ -36,6 +55,7 @@ public final class SwordGuy {
 			final Duration thisTime = fullTime.divide(attackViewports.length).multiply(i);
 			
 			retval.getKeyFrames().add(new KeyFrame(thisTime,
+				soundEffectEventHandler(soundEffectFilenames[i]),
 				new KeyValue(node.viewportProperty(), attackViewports[i], Interpolator.DISCRETE)
 			));
 		}
@@ -46,5 +66,25 @@ public final class SwordGuy {
 		return retval;
 	}
 	
+	/**
+	 * Returns an EventHandler which plays the specified sound upon being invoked.
+	 * @param filename the url of the sound file. Nullable.
+	 * @return an event handler which plays the sound effect
+	 */
+	private static EventHandler<ActionEvent> soundEffectEventHandler(String filename) {
+		if (null == filename) {
+			return null;
+		} else {
+			final java.net.URL fileurl = SwordGuy.class.getClassLoader().getResource(filename);
+			if (null == fileurl) {
+				System.out.println("Resource not found: " + filename);
+				return null;
+			} else {
+				final AudioClip clip = new AudioClip(fileurl.toString());
+				final EventHandler<ActionEvent> handler = (x -> clip.play());
+				return handler;
+			}
+		}
+	}
 	
 }
