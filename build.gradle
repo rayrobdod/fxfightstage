@@ -1,6 +1,8 @@
+plugins {
+  id "com.diffplug.gradle.spotless" version "3.6.0"
+}
 apply plugin: 'java'
 
-// gradle version = 3.2.1
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -22,6 +24,14 @@ dependencies {
 
 jar.manifest {
 	attributes 'Main-Class': project.mainClassName
+}
+
+spotless {
+	java {
+		importOrder 'java', 'javax', 'javafx', 'org', 'com', ''
+		removeUnusedImports()
+		endWithNewline()
+	}
 }
 
 task run(dependsOn: classes, type: JavaExec) {

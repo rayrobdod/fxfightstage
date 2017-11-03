@@ -8,8 +8,11 @@ Primarily because we keep finding people which have graphics cards incapable of 
 [ ] be able to switch between three at least different attack animations
   [ ] one of which should include a magic cast animation
 [ ] Include HP decrementing animations
+  [ ] Screen shake on any hit
+  [ ] the extruding spark things on a hit without a different hit effect
   [ ] Maybe including a NO DAMAGE text animation thing 
   [ ] Probably not any critical or miss animations though
 [ ] Units starting combat by walking towards the other FE4/FE9 style (as opposed to the current FEGBA or FE1 style) (enhancement?)
+[ ] Units start a distance away from each other (depending on distance in tiles on a theoretical board)
 [ ] Ideally shouldn't hardcode too much
 

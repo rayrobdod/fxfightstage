@@ -1,15 +1,15 @@
 package name.rayrobdod.femp_fx_demo.images.battle_unit_anim;
 
+import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.geometry.Rectangle2D;
-import javafx.animation.Animation;
-import javafx.animation.*;
-import javafx.util.Duration;
-import javafx.event.EventHandler;
-import javafx.event.ActionEvent;
 import javafx.scene.media.AudioClip;
+import javafx.util.Duration;
 
 public final class SwordGuy {
 	

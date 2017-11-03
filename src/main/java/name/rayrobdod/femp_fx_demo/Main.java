@@ -1,21 +1,17 @@
 package name.rayrobdod.femp_fx_demo;
 
 import javafx.application.Application;
-import javafx.stage.Stage;
 import javafx.scene.Node;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import name.rayrobdod.femp_fx_demo.images.background.Field;
-import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
-import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
+import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
+import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
 
 
 public final class Main extends Application {

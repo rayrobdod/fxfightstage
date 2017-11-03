@@ -1,12 +1,11 @@
 package name.rayrobdod.femp_fx_demo.images.battle_spell_anim;
 
-import javafx.scene.Node;
-import javafx.scene.Group;
-import javafx.animation.Animation;
 import javafx.animation.*;
-import javafx.util.Duration;
-import javafx.scene.shape.Circle;
+import javafx.animation.Animation;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 
 public final class Dark {
 	

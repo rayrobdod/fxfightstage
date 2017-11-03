@@ -1,9 +1,9 @@
 package name.rayrobdod.femp_fx_demo.images.background;
 
-import javafx.scene.Node;
 import javafx.scene.Group;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public final class Field {
 	
