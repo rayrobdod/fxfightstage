@@ -12,7 +12,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
-public final class SwordGuy {
+import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
+
+public final class SwordGuy implements UnitAnimationGroup {
 	
 	private static final String filename = "/name/rayrobdod/femp_fx_demo/images/battle_unit_anim/swordguy.png";
 	private static final Rectangle2D standingViewport = new Rectangle2D(0,0,150,150);
@@ -54,6 +56,7 @@ public final class SwordGuy {
 	public Node getNode() { return this.node; }
 	
 	public Point2D getFootPoint() { return new Point2D(120, 150); }
+	public Point2D getSpellTarget() { return new Point2D(115, 90); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation

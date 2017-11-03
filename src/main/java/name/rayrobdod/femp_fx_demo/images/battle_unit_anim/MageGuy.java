@@ -9,7 +9,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
-public final class MageGuy {
+import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
+
+public final class MageGuy implements UnitAnimationGroup {
 	
 	private static final String filename = "/name/rayrobdod/femp_fx_demo/images/battle_unit_anim/mageguy.png";
 	
@@ -46,7 +48,8 @@ public final class MageGuy {
 	 */
 	public Node getNode() { return this.node; }
 	
-	public Point2D getFootPoint() { return new Point2D(90, 150); }
+	public Point2D getFootPoint() { return new Point2D(80, 150); }
+	public Point2D getSpellTarget() { return new Point2D(75, 90); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation
