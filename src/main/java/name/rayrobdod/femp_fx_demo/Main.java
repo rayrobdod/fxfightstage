@@ -3,6 +3,7 @@ package name.rayrobdod.femp_fx_demo;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Node;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.BorderPane;
@@ -13,6 +14,8 @@ import javafx.scene.control.Button;
 
 import name.rayrobdod.femp_fx_demo.images.background.Field;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
+import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
 
 
 public final class Main extends Application {
@@ -24,7 +27,7 @@ public final class Main extends Application {
 	@Override
 	public void start(Stage stage) {
 		
-		final SwordGuy leftUnit = new SwordGuy();
+		final MageGuy leftUnit = new MageGuy();
 		final Node leftNode = leftUnit.getNode();
 		leftNode.relocate(100, 120);
 		leftNode.setScaleX(-1);
@@ -32,16 +35,19 @@ public final class Main extends Application {
 		final Node rightNode = new SwordGuy().getNode();
 		rightNode.relocate(230, 120);
 		
+		final Dark spell = new Dark();
+		
 		final Pane gamePane = new Pane(
 			  Field.buildGroup(WIDTH, HEIGHT)
 			, leftNode
 			, rightNode
+			, spell.getNode()
 		);
 		gamePane.prefWidthProperty().set(WIDTH);
 		gamePane.prefHeightProperty().set(HEIGHT);
 		
 		final Button playButton = new Button("Play");
-		playButton.setOnAction(x -> leftUnit.getAttackAnimation().playFromStart());
+		playButton.setOnAction(x -> leftUnit.getAttackAnimation(spell.getAnimation()).playFromStart());
 		
 		final BorderPane mainPane = new BorderPane();
 		mainPane.setTop(playButton);

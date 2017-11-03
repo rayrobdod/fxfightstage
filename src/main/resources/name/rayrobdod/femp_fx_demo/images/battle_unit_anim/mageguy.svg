@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="600" height="150"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:frames="tag:rayrobdod.name,2017-11-01:femp-frames"
+>
+	<defs>
+		<filter id="pixelize">
+			<feColorMatrix values="1 0 0 0 0    0 1 0 0 0       0 0 1 0 0      0 0 0 1000 -500"/>
+		</filter>
+	</defs>
+
+	<svg viewBox="0 0 12 15" x="0" y="0" width="120" height="150">
+		<rect x="6" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="8" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="6.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<path d="M4 4.5 H12 v-0.4 H11 l-3,-4 -3,4 H4 Z" fill="red" filter="url(#pixelize)" />
+		<circle cx="7" cy="12" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+	</svg>
+
+	<svg viewBox="0 0 12 15" x="120" y="0" width="120" height="150">
+		<rect x="6" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="8" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="6.6" cy="5.5" r="0.6" fill="black" filter="url(#pixelize)" />
+		<path d="M4 4.5 H12 v-0.4 H11 l-3,-4 -3,4 H4 Z" fill="red" filter="url(#pixelize)" />
+		<circle cx="5" cy="11" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+	</svg>
+
+	<svg viewBox="0 0 12 15" x="240" y="0" width="120" height="150">
+		<rect x="6" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="8" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="6.6" cy="5.5" r="0.6" fill="grey" filter="url(#pixelize)" />
+		<path d="M4 4.5 H12 v-0.4 H11 l-3,-4 -3,4 H4 Z" fill="red" filter="url(#pixelize)" />
+		<circle cx="3.5" cy="10" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+	</svg>
+
+	<svg viewBox="0 0 12 15" x="360" y="0" width="120" height="150">
+		<rect x="6" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="8" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="6.6" cy="5.5" r="0.6" fill="white" filter="url(#pixelize)" />
+		<path d="M4 4.5 H12 v-0.4 H11 l-3,-4 -3,4 H4 Z" fill="red" filter="url(#pixelize)" />
+		<circle cx="2.5" cy="8.7" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+	</svg>
+
+	<svg viewBox="0 0 12 15" x="480" y="0" width="120" height="150">
+		<rect x="6" width="4" y="8" height="7" fill="red" filter="url(#pixelize)" />
+		<circle cx="8" cy="6" r="3" fill="peachpuff" filter="url(#pixelize)" />
+		<circle cx="6.6" cy="5.5" r="0.6" fill="white" filter="url(#pixelize)" />
+		<path d="M4 4.5 H12 v-0.4 H11 l-3,-4 -3,4 H4 Z" fill="red" filter="url(#pixelize)" />
+		<circle cx="2.5" cy="9.1" r="0.8" fill="peachpuff" filter="url(#pixelize)" />
+	</svg>
+	
+</svg>

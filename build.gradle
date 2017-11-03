@@ -20,7 +20,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-manifest {
+jar.manifest {
 	attributes 'Main-Class': project.mainClassName
 }
 
