@@ -32,7 +32,8 @@ public final class Main extends Application {
 		leftNode.relocate(100, 120);
 		leftNode.setScaleX(-1);
 		
-		final Node rightNode = new SwordGuy().getNode();
+		final SwordGuy rightUnit = new SwordGuy();
+		final Node rightNode = rightUnit.getNode();
 		rightNode.relocate(230, 120);
 		
 		final Dark spell = new Dark();
@@ -47,7 +48,12 @@ public final class Main extends Application {
 		gamePane.prefHeightProperty().set(HEIGHT);
 		
 		final Button playButton = new Button("Play");
-		playButton.setOnAction(x -> leftUnit.getAttackAnimation(spell.getAnimation()).playFromStart());
+		playButton.setOnAction(x ->
+			new javafx.animation.SequentialTransition(
+				leftUnit.getAttackAnimation(spell.getAnimation()),
+				rightUnit.getAttackAnimation()
+			).playFromStart()
+		);
 		
 		final BorderPane mainPane = new BorderPane();
 		mainPane.setTop(playButton);

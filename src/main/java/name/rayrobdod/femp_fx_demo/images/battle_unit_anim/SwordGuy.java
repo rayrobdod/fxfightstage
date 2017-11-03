@@ -15,10 +15,13 @@ public final class SwordGuy {
 	
 	private static final String filename = "/name/rayrobdod/femp_fx_demo/images/battle_unit_anim/swordguy.png";
 	private static final Rectangle2D standingViewport = new Rectangle2D(0,0,150,150);
+	private static final Duration frameLength = Duration.seconds(1.0 / 4.0);
 	private static final Rectangle2D[] attackViewports = {
+		standingViewport,
 		new Rectangle2D(150,0,150,150),
 		new Rectangle2D(300,0,150,150),
-		new Rectangle2D(450,0,150,150)
+		new Rectangle2D(450,0,150,150),
+		standingViewport
 	};
 	
 	/*
@@ -26,10 +29,13 @@ public final class SwordGuy {
 	 * be played at the beginning of a frame.
 	 */
 	private static final String[] soundEffectFilenames = {
+		null,
 		"name/rayrobdod/femp_fx_demo/sounds/swing.wav",
+		null,
 		null,
 		null
 	};
+	
 	
 	private final ImageView node;
 	
@@ -49,19 +55,15 @@ public final class SwordGuy {
 	 */
 	public Animation getAttackAnimation() {
 		final Timeline retval = new Timeline();
-		final Duration fullTime = Duration.seconds(1);
 		
 		for (int i = 0; i < attackViewports.length; i++) {
-			final Duration thisTime = fullTime.divide(attackViewports.length).multiply(i);
+			final Duration thisTime = frameLength.multiply(i);
 			
 			retval.getKeyFrames().add(new KeyFrame(thisTime,
 				soundEffectEventHandler(soundEffectFilenames[i]),
 				new KeyValue(node.viewportProperty(), attackViewports[i], Interpolator.DISCRETE)
 			));
 		}
-		retval.getKeyFrames().add(new KeyFrame(fullTime,
-			new KeyValue(node.viewportProperty(), standingViewport, Interpolator.DISCRETE)
-		));
 		retval.setCycleCount(1);
 		return retval;
 	}
