@@ -1,7 +1,10 @@
 package name.rayrobdod.femp_fx_demo.images.battle_spell_anim;
 
-import javafx.animation.*;
 import javafx.animation.Animation;
+import javafx.animation.FillTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Node;
@@ -9,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import name.rayrobdod.femp_fx_demo.SimpleDoubleTransition;
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 
 public final class Dark implements SpellAnimationGroup {
@@ -27,7 +31,7 @@ public final class Dark implements SpellAnimationGroup {
 	private final DoubleProperty centerX;
 	private final DoubleProperty centerY;
 	
-	public Dark(/* ?? attacker and target locations ?? */) {
+	public Dark() {
 		this.centerX = new SimpleDoubleProperty(defaultCenterX);
 		this.centerY = new SimpleDoubleProperty(defaultCenterY);
 		
@@ -50,35 +54,12 @@ public final class Dark implements SpellAnimationGroup {
 		return new SequentialTransition(
 			new FillTransition(fadeInTime, this.node, Color.BLACK, mainColor),
 			new PauseTransition(stayTime),
-			new ResizeCircleTransition(fadeOutTime, this.node, mainRadius, 0),
+			new SimpleDoubleTransition(fadeOutTime, this.node.radiusProperty(), mainRadius, 0),
 			new ParallelTransition(
 				hpAndShakeAnimation,
 				new PauseTransition(endDelayTime)
 			)
 		);
-	}
-	
-	/** Assumes parameters are not null and that parameters are not updated after construction */
-	private static final class ResizeCircleTransition extends Transition {
-		private Circle shape;
-		private double fromRadius;
-		private double toRadius;
-		
-		/** Assumes parameters are not null */
-		public ResizeCircleTransition(Duration duration, Circle shape, double fromRadius, double toRadius) {
-			this.setCycleDuration(duration);
-			this.shape = shape;
-			this.fromRadius = fromRadius;
-			this.toRadius = toRadius;
-		}
-		
-		@Override
-		protected void interpolate(double frac) {
-			if (frac < 0.0) { frac = 0.0; }
-			if (frac > 1.0) { frac = 1.0; }
-			double newValue = this.getCachedInterpolator().interpolate(fromRadius, toRadius, frac);
-			this.shape.setRadius(newValue);
-		}
 	}
 	
 }

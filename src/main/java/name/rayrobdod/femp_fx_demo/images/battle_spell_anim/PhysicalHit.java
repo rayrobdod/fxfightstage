@@ -1,7 +1,10 @@
 package name.rayrobdod.femp_fx_demo.images.battle_spell_anim;
 
-import javafx.animation.*;
 import javafx.animation.Animation;
+import javafx.animation.FillTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.Transition;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
@@ -12,6 +15,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.util.Duration;
 
+import name.rayrobdod.femp_fx_demo.SimpleDoubleTransition;
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 
 /** A "spell" animation for physical hits */
@@ -78,30 +82,6 @@ public final class PhysicalHit implements SpellAnimationGroup {
 			, new FlarePaintTransition(animDuration.divide(3))
 			, hpAndShakeAnimation
 		);
-	}
-	
-	
-	private static final class SimpleDoubleTransition extends Transition {
-		private DoubleProperty property;
-		private double fromValue;
-		private double toValue;
-		
-		/** Assumes parameters are not null */
-		public SimpleDoubleTransition(Duration duration, DoubleProperty property, double fromValue, double toValue) {
-			this.setCycleDuration(duration);
-			this.setInterpolator(Interpolator.LINEAR);
-			this.property = property;
-			this.fromValue = fromValue;
-			this.toValue = toValue;
-		}
-		
-		@Override
-		protected void interpolate(double frac) {
-			if (frac < 0.0) { frac = 0.0; }
-			if (frac > 1.0) { frac = 1.0; }
-			double newValue = this.getCachedInterpolator().interpolate(fromValue, toValue, frac);
-			this.property.set(newValue);
-		}
 	}
 	
 	private final class FlarePaintTransition extends Transition {
