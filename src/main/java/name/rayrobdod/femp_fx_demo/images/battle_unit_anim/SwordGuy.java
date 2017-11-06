@@ -57,6 +57,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 	
 	public Point2D getFootPoint() { return new Point2D(120, 150); }
 	public Point2D getSpellTarget() { return new Point2D(115, 90); }
+	public Point2D getSpellOrigin() { return new Point2D(20, 100); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation

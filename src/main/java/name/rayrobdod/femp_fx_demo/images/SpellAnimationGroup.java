@@ -19,12 +19,21 @@ public interface SpellAnimationGroup {
 	public Animation getAnimation(Animation hpAndShakeAnimation);
 	
 	/**
-	 * Set the 'center' point of the spell animation.
+	 * Set the target point of the spell animation.
 	 */
-	public void relocate(double newX, double newY);
+	public void setTarget(double newX, double newY);
 	
-	public default void relocate(Point2D newPoint) {
-		this.relocate(newPoint.getX(), newPoint.getY());
+	public default void setTarget(Point2D newPoint) {
+		this.setTarget(newPoint.getX(), newPoint.getY());
+	}
+	
+	/**
+	 * Set the origin point of the spell animation.
+	 */
+	public void setOrigin(double newX, double newY);
+	
+	public default void setOrigin(Point2D newPoint) {
+		this.setOrigin(newPoint.getX(), newPoint.getY());
 	}
 	
 }

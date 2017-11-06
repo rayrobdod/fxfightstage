@@ -58,11 +58,14 @@ public final class PhysicalHit implements SpellAnimationGroup {
 	
 	public Node getNode() { return this.group; }
 	
-	public void relocate(double newX, double newY) {
+	public void setTarget(double newX, double newY) {
 		this.centerX.unbind();
 		this.centerY.unbind();
 		this.centerX.set(newX);
 		this.centerY.set(newY);
+	}
+	
+	public void setOrigin(double newX, double newY) {
 	}
 	
 	public Animation getAnimation(Animation hpAndShakeAnimation) {

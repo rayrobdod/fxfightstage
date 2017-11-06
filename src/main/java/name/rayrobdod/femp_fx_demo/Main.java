@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -23,6 +24,7 @@ import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.background.Field;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Lazor;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.PhysicalHit;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
@@ -39,7 +41,8 @@ public final class Main extends Application {
 	@Override
 	public void start(Stage stage) {
 		
-		final SpellAnimationGroup leftSpell = new Dark();
+		final SpellAnimationGroup leftSpell2 = new Dark();
+		final SpellAnimationGroup leftSpell = new Lazor(Color.RED);
 		final SpellAnimationGroup rightSpell = new PhysicalHit();
 		final UnitAnimationGroup leftUnit = new MageGuy();
 		final UnitAnimationGroup rightUnit = new SwordGuy();
@@ -85,6 +88,7 @@ public final class Main extends Application {
 		final Animation healthbarRightAnimation = healthbarAnimation(healthbarRight, 35, 25);
 		
 		final Button playButton = new Button("Play");
+		playButton.setMaxWidth(1d/0d);
 		playButton.setOnAction(x ->
 			new SequentialTransition(
 				leftUnit.getAttackAnimation(leftSpell.getAnimation(
@@ -110,14 +114,24 @@ public final class Main extends Application {
 		stage.show();
 		
 		// relocate spells to their target unit's spellTarget
-		leftSpell.relocate(
+		leftSpell.setTarget(
 			gameNode.sceneToLocal(
 				rightUnit.getNode().localToScene(rightUnit.getSpellTarget())
 			)
 		);
-		rightSpell.relocate(
+		rightSpell.setTarget(
 			gameNode.sceneToLocal(
 				leftUnit.getNode().localToScene(leftUnit.getSpellTarget())
+			)
+		);
+		leftSpell.setOrigin(
+			gameNode.sceneToLocal(
+				leftUnit.getNode().localToScene(leftUnit.getSpellOrigin())
+			)
+		);
+		rightSpell.setOrigin(
+			gameNode.sceneToLocal(
+				rightUnit.getNode().localToScene(rightUnit.getSpellOrigin())
 			)
 		);
 	}

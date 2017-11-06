@@ -23,6 +23,11 @@ public interface UnitAnimationGroup {
 	public Point2D getSpellTarget();
 	
 	/**
+	 * Returns the location on the node at which spells cast by this unit should originate.
+	 */
+	public Point2D getSpellOrigin();
+	
+	/**
 	 * Returns an animation to be used for an attack animation
 	 * @param spellAnimation the hit animation associated with the weapon.  This animation will be invoked exactly once in the returned animation.
 	 */
