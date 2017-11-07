@@ -98,9 +98,13 @@ public final class Main extends Application {
 		playButton.setOnAction(x ->
 			new SequentialTransition(
 				leftUnit.getAttackAnimation(leftSpell.getAnimation(
+					leftUnit.getNode().localToParent(leftUnit.getSpellOrigin()),
+					rightUnit.getNode().localToParent(rightUnit.getSpellTarget()),
 					new ParallelTransition(shakeAnimation, healthbarRightAnimation)
 				)),
 				rightUnit.getAttackAnimation(rightSpell.getAnimation(
+					rightUnit.getNode().localToParent(rightUnit.getSpellOrigin()),
+					leftUnit.getNode().localToParent(leftUnit.getSpellTarget()),
 					new ParallelTransition(shakeAnimation, healthbarLeftAnimation)
 				))
 			).playFromStart()
@@ -118,28 +122,6 @@ public final class Main extends Application {
 		stage.setTitle("Battle Animation Demo");
 		stage.setScene(mainScene);
 		stage.show();
-		
-		// relocate spells to their target unit's spellTarget
-		leftSpell.setTarget(
-			gameNode.sceneToLocal(
-				rightUnit.getNode().localToScene(rightUnit.getSpellTarget())
-			)
-		);
-		rightSpell.setTarget(
-			gameNode.sceneToLocal(
-				leftUnit.getNode().localToScene(leftUnit.getSpellTarget())
-			)
-		);
-		leftSpell.setOrigin(
-			gameNode.sceneToLocal(
-				leftUnit.getNode().localToScene(leftUnit.getSpellOrigin())
-			)
-		);
-		rightSpell.setOrigin(
-			gameNode.sceneToLocal(
-				rightUnit.getNode().localToScene(rightUnit.getSpellOrigin())
-			)
-		);
 	}
 	
 	

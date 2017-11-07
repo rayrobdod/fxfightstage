@@ -4,6 +4,7 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -36,8 +37,6 @@ public final class Arrow implements SpellAnimationGroup {
 	
 	private final Group arrow;
 	private final Group node;
-	private double originX, originY;
-	private double targetX, targetY;
 	private final PhysicalHit physicalHit;
 	
 	public Arrow() {
@@ -81,32 +80,28 @@ public final class Arrow implements SpellAnimationGroup {
 	
 	public Node getNode() { return this.node; }
 	
-	public void setOrigin(double newX, double newY) {
-		this.originX = newX;
-		this.originY = newY;
-		this.physicalHit.setOrigin(newX, newY);
-	}
-	
-	public void setTarget(double newX, double newY) {
-		this.targetX = newX;
-		this.targetY = newY;
-		this.physicalHit.setTarget(newX, newY);
-	}
-	
-	public Animation getAnimation(Animation hpAndShakeAnimation) {
-		final double deltaX = this.targetX - this.originX;
-		final double deltaY = this.targetY - this.originY;
+	public Animation getAnimation(
+		Point2D origin,
+		Point2D target,
+		Animation hpAndShakeAnimation
+	) {
+		final double originX = origin.getX();
+		final double originY = origin.getY();
+		final double targetX = target.getX();
+		final double targetY = target.getY();
+		final double deltaX = targetX - originX;
+		final double deltaY = targetY - originY;
 		final double deltaDistance = Math.sqrt(
 			Math.abs(targetX + targetX) * Math.abs(targetY + targetY)
 		);
-		final double controlX = this.originX + deltaX / 2;
-		final double controlY = this.originY + deltaY / 2 - Math.abs(deltaX) * arrowArcMultiplier;
+		final double controlX = originX + deltaX / 2;
+		final double controlY = originY + deltaY / 2 - Math.abs(deltaX) * arrowArcMultiplier;
 		final Duration duration = Duration.millis(deltaDistance / arrowSpeed);
 		
 		Shape arrowPath = new QuadCurve(
-			this.originX, this.originY,
+			originX, originY,
 			controlX, controlY,
-			this.targetX, this.targetY
+			targetX, targetY
 		);
 		
 		final SimpleBooleanTransition setArrowVisible = new SimpleBooleanTransition(
@@ -126,7 +121,7 @@ public final class Arrow implements SpellAnimationGroup {
 			setArrowVisible,
 			arrowAnimation,
 			setArrowInvisible,
-			physicalHit.getAnimation(hpAndShakeAnimation)
+			physicalHit.getAnimation(origin, target, hpAndShakeAnimation)
 		);
 	}
 }

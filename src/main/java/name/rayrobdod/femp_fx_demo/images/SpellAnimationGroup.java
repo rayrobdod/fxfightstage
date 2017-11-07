@@ -14,26 +14,14 @@ public interface SpellAnimationGroup {
 	
 	/**
 	 * Returns an animation to be used for an attack animation
+	 * @param origin the origin point of the spell animation
+	 * @param target the target point of the spell animation
 	 * @param hpAndShakeAnimation the effects that happen to indicate a hit. This animation will be invoked exactly once in the returned animation.
 	 */
-	public Animation getAnimation(Animation hpAndShakeAnimation);
-	
-	/**
-	 * Set the target point of the spell animation.
-	 */
-	public void setTarget(double newX, double newY);
-	
-	public default void setTarget(Point2D newPoint) {
-		this.setTarget(newPoint.getX(), newPoint.getY());
-	}
-	
-	/**
-	 * Set the origin point of the spell animation.
-	 */
-	public void setOrigin(double newX, double newY);
-	
-	public default void setOrigin(Point2D newPoint) {
-		this.setOrigin(newPoint.getX(), newPoint.getY());
-	}
+	public Animation getAnimation(
+		Point2D origin,
+		Point2D target,
+		Animation hpAndShakeAnimation
+	);
 	
 }

@@ -8,9 +8,6 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -32,10 +29,6 @@ public final class Lazor implements SpellAnimationGroup {
 	
 	
 	private final Path node;
-	private final DoubleProperty originX;
-	private final DoubleProperty originY;
-	private final DoubleProperty targetX;
-	private final DoubleProperty targetY;
 	
 	private final MoveTo followerLeft;
 	private final LineTo followerRight;
@@ -44,11 +37,6 @@ public final class Lazor implements SpellAnimationGroup {
 	
 	
 	public Lazor(Color color) {
-		this.originX = new SimpleDoubleProperty(200);
-		this.originY = new SimpleDoubleProperty(200);
-		this.targetX = new SimpleDoubleProperty(300);
-		this.targetY = new SimpleDoubleProperty(300);
-		
 		this.followerLeft = new MoveTo();
 		this.followerRight = new LineTo();
 		this.leaderLeft = new LineTo();
@@ -60,68 +48,43 @@ public final class Lazor implements SpellAnimationGroup {
 	
 	public Node getNode() { return this.node; }
 	
-	public void setOrigin(double newX, double newY) {
-		this.originX.unbind();
-		this.originY.unbind();
-		this.originX.set(newX);
-		this.originY.set(newY);
-	}
-	
-	public void setTarget(double newX, double newY) {
-		this.targetX.unbind();
-		this.targetY.unbind();
-		this.targetX.set(newX);
-		this.targetY.set(newY);
-	}
-	
-	public Animation getAnimation(Animation hpAndShakeAnimation) {
-		ObjectBinding<Point2D> crossSectionVector = new ObjectBinding<Point2D>() {
-			{
-				super.bind(originX);
-				super.bind(originY);
-				super.bind(targetX);
-				super.bind(targetY);
-			}
-			
-			@Override
-			protected Point2D computeValue() {
-				double deltaX = originX.getValue() - targetX.getValue();
-				double deltaY = originY.getValue() - targetY.getValue();
-				Point2D delta = new Point2D(deltaX, deltaY);
-				Point2D deltaDirection = delta.normalize();
-				Point2D crossDirection = new Point2D(-deltaDirection.getY(), deltaDirection.getX());
-				return crossDirection.multiply(crossSectionWidth / 2);
-			}
-		};
+	public Animation getAnimation(
+		Point2D origin,
+		Point2D target,
+		Animation hpAndShakeAnimation
+	) {
+		final Point2D deltaDirection = origin.subtract(target).normalize();
+		final Point2D crossSectionVector = new Point2D(-deltaDirection.getY(), deltaDirection.getX()).multiply(crossSectionWidth / 2);
+		
 		
 		final Timeline spellAnimation = new Timeline();
 		spellAnimation.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(followerLeft.yProperty(), originY.get() + crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerLeft.xProperty(), originX.get() + crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(followerRight.yProperty(), originY.get() - crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerRight.xProperty(), originX.get() - crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(leaderLeft.yProperty(), originY.get() + crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(leaderLeft.xProperty(), originX.get() + crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(leaderRight.yProperty(), originY.get() - crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(leaderRight.xProperty(), originX.get() - crossSectionVector.get().getX(), Interpolator.LINEAR)
+			new KeyValue(followerLeft.yProperty(), origin.getY() + crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerLeft.xProperty(), origin.getX() + crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(followerRight.yProperty(), origin.getY() - crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerRight.xProperty(), origin.getX() - crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(leaderLeft.yProperty(), origin.getY() + crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(leaderLeft.xProperty(), origin.getX() + crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(leaderRight.yProperty(), origin.getY() - crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(leaderRight.xProperty(), origin.getX() - crossSectionVector.getX(), Interpolator.LINEAR)
 		));
 		spellAnimation.getKeyFrames().add(new KeyFrame(followerDelay,
-			new KeyValue(followerLeft.yProperty(), originY.get() + crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerLeft.xProperty(), originX.get() + crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(followerRight.yProperty(), originY.get() - crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerRight.xProperty(), originX.get() - crossSectionVector.get().getX(), Interpolator.LINEAR)
+			new KeyValue(followerLeft.yProperty(), origin.getY() + crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerLeft.xProperty(), origin.getX() + crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(followerRight.yProperty(), origin.getY() - crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerRight.xProperty(), origin.getX() - crossSectionVector.getX(), Interpolator.LINEAR)
 		));
 		spellAnimation.getKeyFrames().add(new KeyFrame(duration,
-			new KeyValue(leaderLeft.yProperty(), targetY.get() + crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(leaderLeft.xProperty(), targetX.get() + crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(leaderRight.yProperty(), targetY.get() - crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(leaderRight.xProperty(), targetX.get() - crossSectionVector.get().getX(), Interpolator.LINEAR)
+			new KeyValue(leaderLeft.yProperty(), target.getY() + crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(leaderLeft.xProperty(), target.getX() + crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(leaderRight.yProperty(), target.getY() - crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(leaderRight.xProperty(), target.getX() - crossSectionVector.getX(), Interpolator.LINEAR)
 		));
 		spellAnimation.getKeyFrames().add(new KeyFrame(duration.add(followerDelay),
-			new KeyValue(followerLeft.yProperty(), targetY.get() + crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerLeft.xProperty(), targetX.get() + crossSectionVector.get().getX(), Interpolator.LINEAR),
-			new KeyValue(followerRight.yProperty(), targetY.get() - crossSectionVector.get().getY(), Interpolator.LINEAR),
-			new KeyValue(followerRight.xProperty(), targetX.get() - crossSectionVector.get().getX(), Interpolator.LINEAR)
+			new KeyValue(followerLeft.yProperty(), target.getY() + crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerLeft.xProperty(), target.getX() + crossSectionVector.getX(), Interpolator.LINEAR),
+			new KeyValue(followerRight.yProperty(), target.getY() - crossSectionVector.getY(), Interpolator.LINEAR),
+			new KeyValue(followerRight.xProperty(), target.getX() - crossSectionVector.getX(), Interpolator.LINEAR)
 		));
 		
 		return new ParallelTransition(
