@@ -23,9 +23,11 @@ import javafx.util.Duration;
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.background.Field;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Arrow;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Lazor;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.PhysicalHit;
+import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.BowGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.SwordGuy;
 
@@ -42,10 +44,14 @@ public final class Main extends Application {
 	public void start(Stage stage) {
 		
 		final SpellAnimationGroup leftSpell2 = new Dark();
-		final SpellAnimationGroup leftSpell = new Lazor(Color.RED);
-		final SpellAnimationGroup rightSpell = new PhysicalHit();
+		final SpellAnimationGroup leftSpell3 = new Lazor(Color.RED);
+		final SpellAnimationGroup leftSpell = new Arrow();
+		final SpellAnimationGroup rightSpell2 = new PhysicalHit();
+		final SpellAnimationGroup rightSpell3 = new Lazor(Color.BLUE);
+		final SpellAnimationGroup rightSpell = new Arrow();
 		final UnitAnimationGroup leftUnit = new MageGuy();
-		final UnitAnimationGroup rightUnit = new SwordGuy();
+		final UnitAnimationGroup rightUnit2 = new SwordGuy();
+		final UnitAnimationGroup rightUnit = new BowGuy();
 		
 		// move left and right into position, facing each other and
 		// located with their foot points at the foot targets

@@ -5,7 +5,7 @@ https://github.com/eliatlarge/FEMultiPlayer-V2 in JavaFX.
 
 Primarily because we keep finding people which have graphics cards incapable of running FEMP-V2.
 
-[ ] Create at least three classes of animations
+[x] Create at least three classes of animations
   [x] one of which should include a magic cast animation
   [ ] include a way to optionally modify the animation in case of e.g. critical hit, skill trigger, finisher
 [ ] Include HP decrementing animations
