@@ -38,9 +38,9 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	
 	public void handle(ActionEvent e) {
 		final BattleAnimation.NodeAnimationPair pair = BattleAnimation.buildAnimation(
-			Field.buildGroup(gamePane.getWidth(), gamePane.getHeight()),
+			Field::buildGroup,
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
-			gamePane.getWidth() / 2,
+			240,
 			new BattleAnimation.AggregateSideParams(
 				leftUnit.get(), leftSpell.get(), 60, 60
 			),

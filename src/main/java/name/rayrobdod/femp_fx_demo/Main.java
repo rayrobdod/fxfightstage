@@ -6,21 +6,19 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public final class Main extends Application {
 	
-	private static final Dimension2D SIZE = new Dimension2D(480, 320);
+	private static final Dimension2D gamePaneSize = new Dimension2D(480, 320);
 	
 	@Override
 	public void start(Stage stage) {
 		
 		final StackPane gamePane = new StackPane();
 		gamePane.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BLACK, null, null)));
-		gamePane.getChildren().add(
-			new Rectangle(0, 0, SIZE.getWidth(), SIZE.getHeight())
-		);
+		gamePane.setPrefWidth(gamePaneSize.getWidth());
+		gamePane.setPrefHeight(gamePaneSize.getHeight());
 		
 		final SettingsPanel settings = new SettingsPanel(gamePane);
 		

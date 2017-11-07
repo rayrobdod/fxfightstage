@@ -2,6 +2,7 @@ package name.rayrobdod.femp_fx_demo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
@@ -82,8 +83,8 @@ public final class BattleAnimation {
 	}
 	
 	public static NodeAnimationPair buildAnimation(
-		Node backgroundNode,
-		Dimension2D preferedSize,
+		Function<Dimension2D, Node> backgroundNode,
+		Dimension2D containerSize,
 		double verticalDistance,
 		AggregateSideParams left,
 		AggregateSideParams right,
@@ -91,15 +92,31 @@ public final class BattleAnimation {
 	) {
 		///////////// The node construction
 		
+		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.initialCurrentHitpoints, left.maximumHitpoints);
+		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.initialCurrentHitpoints, right.maximumHitpoints);
+		final HBox healthbars = new HBox(healthbarLeft.getNode(), healthbarRight.getNode());
+		HBox.setHgrow(healthbarLeft.getNode(), Priority.ALWAYS);
+		HBox.setHgrow(healthbarRight.getNode(), Priority.ALWAYS);
+		healthbars.setFillHeight(true);
+		healthbars.setPadding(new Insets(15, 3, 3, 3));
+		healthbars.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BURLYWOOD, null, null)));
+		
+		
+		Dimension2D gamePanelSize = new Dimension2D(
+			containerSize.getWidth(),
+			containerSize.getHeight() - healthbars.prefHeight(containerSize.getWidth())
+		);
+		
+		
 		
 		// find the locations that the units should be placed at
 		final Point2D leftFootTarget = new Point2D(
-			preferedSize.getWidth() / 2 - verticalDistance / 2,
-			preferedSize.getHeight() * 6 / 8
+			gamePanelSize.getWidth() / 2 - verticalDistance / 2,
+			gamePanelSize.getHeight() * 7 / 8
 		);
 		final Point2D rightFootTarget = new Point2D(
-			preferedSize.getWidth() / 2 + verticalDistance / 2,
-			preferedSize.getHeight() * 6 / 8
+			gamePanelSize.getWidth() / 2 + verticalDistance / 2,
+			gamePanelSize.getHeight() * 7 / 8
 		);
 		
 		// make the left unit face towards the right unit
@@ -123,23 +140,13 @@ public final class BattleAnimation {
 		
 		
 		final Node gameNode = new Group(
-			  backgroundNode
+			  backgroundNode.apply(gamePanelSize)
 			, left.unit.getNode()
 			, right.unit.getNode()
 			, left.spell.getNode()
 			, right.spell.getNode()
 		);
 		final Pane gamePane = new Pane(gameNode);
-		
-		
-		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.initialCurrentHitpoints, left.maximumHitpoints);
-		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.initialCurrentHitpoints, right.maximumHitpoints);
-		final HBox healthbars = new HBox(healthbarLeft.getNode(), healthbarRight.getNode());
-		HBox.setHgrow(healthbarLeft.getNode(), Priority.ALWAYS);
-		HBox.setHgrow(healthbarRight.getNode(), Priority.ALWAYS);
-		healthbars.setFillHeight(true);
-		healthbars.setPadding(new Insets(15, 3, 3, 3));
-		healthbars.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BURLYWOOD, null, null)));
 		
 		
 		final BorderPane retval_1 = new BorderPane();
