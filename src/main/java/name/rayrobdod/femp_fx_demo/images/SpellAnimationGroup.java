@@ -16,11 +16,13 @@ public interface SpellAnimationGroup {
 	 * Returns an animation to be used for an attack animation
 	 * @param origin the origin point of the spell animation
 	 * @param target the target point of the spell animation
+	 * @param panAnimation the effects that move the camera from the attacker to the target. This animation will be invoked exactly once in the returned animation.
 	 * @param hpAndShakeAnimation the effects that happen to indicate a hit. This animation will be invoked exactly once in the returned animation.
 	 */
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
+		Animation panAnimation,
 		Animation hpAndShakeAnimation
 	);
 	

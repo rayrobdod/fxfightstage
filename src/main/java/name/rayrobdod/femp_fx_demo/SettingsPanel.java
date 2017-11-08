@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -40,6 +41,13 @@ public final class SettingsPanel {
 		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> leftSpell = createNspChoicebox(spellOptions());
 		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> rightSpell = createNspChoicebox(spellOptions());
 		
+		final Label labelDistance = new Label("Distance (px)");
+		labelDistance.setPadding(new javafx.geometry.Insets(4));
+		final Slider distance = new Slider(100, 600, 100);
+		distance.setMajorTickUnit(100);
+		distance.setBlockIncrement(100);
+		distance.setShowTickMarks(true);
+		
 		Button playButton = new Button("Play");
 		playButton.setMaxWidth(1d/0d);
 		playButton.setOnAction(
@@ -49,6 +57,7 @@ public final class SettingsPanel {
 				, () -> rightUnit.getValue().supplier.get()
 				, () -> leftSpell.getValue().supplier.get()
 				, () -> rightSpell.getValue().supplier.get()
+				, () -> distance.getValue()
 			)
 		);
 		
@@ -67,6 +76,8 @@ public final class SettingsPanel {
 		this.node.add(labelSpell, 0, 2);
 		this.node.add(leftSpell, 1, 2);
 		this.node.add(rightSpell, 2, 2);
+		this.node.add(labelDistance, 0, 3);
+		this.node.add(distance, 1, 3, GridPane.REMAINING, 1);
 		this.node.add(playButton, 0, 4, GridPane.REMAINING, 1);
 	}
 	

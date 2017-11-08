@@ -5,10 +5,15 @@ import java.util.List;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.Timeline;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -20,6 +25,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
@@ -30,6 +38,8 @@ public final class BattleAnimation {
 	private BattleAnimation() {}
 	
 	private static final Duration pauseDuration = Duration.millis(1000);
+	private static final double distanceExtendPastPoint = 75;
+	private static final double distanceFootBelowHorizon = 50;
 	
 	public static final class AggregateSideParams {
 		public final UnitAnimationGroup unit;
@@ -51,6 +61,8 @@ public final class BattleAnimation {
 	}
 	
 	public static enum Side {LEFT, RIGHT;}
+	
+	public static enum Distance {MELEE, RANGE, SIEGE;}
 	
 	public static class Strike {
 		public final Side attacker;
@@ -111,12 +123,12 @@ public final class BattleAnimation {
 		
 		// find the locations that the units should be placed at
 		final Point2D leftFootTarget = new Point2D(
-			gamePanelSize.getWidth() / 2 - verticalDistance / 2,
-			gamePanelSize.getHeight() * 7 / 8
+			-verticalDistance / 2,
+			distanceFootBelowHorizon
 		);
 		final Point2D rightFootTarget = new Point2D(
-			gamePanelSize.getWidth() / 2 + verticalDistance / 2,
-			gamePanelSize.getHeight() * 7 / 8
+			verticalDistance / 2,
+			distanceFootBelowHorizon
 		);
 		
 		// make the left unit face towards the right unit
@@ -139,6 +151,11 @@ public final class BattleAnimation {
 		right.unit.getNode().relocate(rightOffset.getX(), rightOffset.getY());
 		
 		
+		final Translate screenShakeTranslate = new Translate();
+		final Translate centerTranslate = new Translate();
+		final Translate panTranslate = new Translate();
+		final Scale magnifyTransform = new Scale();
+		
 		final Node gameNode = new Group(
 			  backgroundNode.apply(gamePanelSize)
 			, left.unit.getNode()
@@ -146,7 +163,23 @@ public final class BattleAnimation {
 			, left.spell.getNode()
 			, right.spell.getNode()
 		);
+		gameNode.getTransforms().add(magnifyTransform);
+		gameNode.getTransforms().add(screenShakeTranslate);
+		gameNode.getTransforms().add(centerTranslate);
+		gameNode.getTransforms().add(panTranslate);
+		
 		final Pane gamePane = new Pane(gameNode);
+		final Rectangle gamePaneClip = new Rectangle();
+		final DoubleBinding magnifyBinding = new MagnificationBinding(gamePane.widthProperty(), gamePane.heightProperty());
+		gamePaneClip.heightProperty().bind(gamePane.heightProperty());
+		gamePaneClip.widthProperty().bind(gamePane.widthProperty());
+		gamePane.setClip(gamePaneClip);
+		centerTranslate.xProperty().bind(gamePane.widthProperty().divide(2));
+		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(2d/3d));
+		magnifyTransform.xProperty().bind(magnifyBinding);
+		magnifyTransform.yProperty().bind(magnifyBinding);
+		magnifyTransform.pivotXProperty().bind(centerTranslate.xProperty());
+		magnifyTransform.pivotYProperty().bind(centerTranslate.yProperty());
 		
 		
 		final BorderPane retval_1 = new BorderPane();
@@ -155,13 +188,20 @@ public final class BattleAnimation {
 		
 		////////// The animation construction
 		
-		final Animation shakeAnimation = shakeAnimation(4, gameNode);
+		final Animation shakeAnimation = shakeAnimation(4, screenShakeTranslate);
 		
 		final ArrayList<Animation> animationParts = new ArrayList<>(strikes.size());
 		animationParts.add(new PauseTransition(pauseDuration));
 		
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
+		double currentPan = 0;
+		final double leftPan = Math.max(0,
+			(verticalDistance / 2 + distanceExtendPastPoint) -
+			(gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight()) / 2)
+		);
+		final double rightPan = -leftPan;
+		
 		for (Strike strike : strikes) {
 			switch (strike.attacker) {
 				case LEFT: {
@@ -172,10 +212,24 @@ public final class BattleAnimation {
 					Point2D origin = left.unit.getNode().localToParent(left.unit.getSpellOrigin());
 					
 					animationParts.add(
+						new SimpleDoubleTransition(
+							Duration.millis(Math.abs(currentPan - leftPan)),
+							panTranslate.xProperty(),
+							currentPan,
+							leftPan
+						)
+					);
+					animationParts.add(
 						left.unit.getAttackAnimation(
 							left.spell.getAnimation(
 								origin,
 								target,
+								new SimpleDoubleTransition(
+									Duration.millis(Math.abs(rightPan - leftPan)),
+									panTranslate.xProperty(),
+									leftPan,
+									rightPan
+								),
 								new ParallelTransition(
 									  shakeAnimation
 									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
@@ -187,6 +241,7 @@ public final class BattleAnimation {
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
+					currentPan = rightPan;
 					break;
 				}
 				case RIGHT: {
@@ -197,10 +252,24 @@ public final class BattleAnimation {
 					Point2D origin = right.unit.getNode().localToParent(right.unit.getSpellOrigin());
 					
 					animationParts.add(
+						new SimpleDoubleTransition(
+							Duration.millis(Math.abs(currentPan - rightPan)),
+							panTranslate.xProperty(),
+							currentPan,
+							rightPan
+						)
+					);
+					animationParts.add(
 						right.unit.getAttackAnimation(
 							right.spell.getAnimation(
 								origin,
 								target,
+								new SimpleDoubleTransition(
+									Duration.millis(Math.abs(leftPan - rightPan)),
+									panTranslate.xProperty(),
+									rightPan,
+									leftPan
+								),
 								new ParallelTransition(
 									  shakeAnimation
 									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
@@ -212,6 +281,7 @@ public final class BattleAnimation {
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
+					currentPan = leftPan;
 					break;
 				}
 			}
@@ -234,19 +304,52 @@ public final class BattleAnimation {
 		return new SimpleIntegerTransition(time, hb.currentHealthProperty(), from, to);
 	}
 	
-	private static Animation shakeAnimation(int strength, Node node) {
+	private static Animation shakeAnimation(int strength, Translate translate) {
 		final Duration time = Duration.millis(40);
-		final TranslateTransition v1 = new TranslateTransition(time, node);
-		final TranslateTransition v2 = new TranslateTransition(time.multiply(2), node);
-		final TranslateTransition v3 = new TranslateTransition(time, node);
 		
-		v1.setByX(strength);
-		v1.setByY(strength * -1);
-		v2.setByX(strength * -2);
-		v2.setByY(strength * 2);
-		v3.setByX(strength);
-		v3.setByY(strength * -1);
+		final Timeline timeline = new Timeline();
+		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+			new KeyValue(translate.xProperty(), 0, Interpolator.LINEAR),
+			new KeyValue(translate.yProperty(), 0, Interpolator.LINEAR)
+		));
+		timeline.getKeyFrames().add(new KeyFrame(time,
+			new KeyValue(translate.xProperty(), strength, Interpolator.LINEAR),
+			new KeyValue(translate.yProperty(), -strength, Interpolator.LINEAR)
+		));
+		timeline.getKeyFrames().add(new KeyFrame(time.multiply(3),
+			new KeyValue(translate.xProperty(), -strength, Interpolator.LINEAR),
+			new KeyValue(translate.yProperty(), strength, Interpolator.LINEAR)
+		));
+		timeline.getKeyFrames().add(new KeyFrame(time.multiply(4),
+			new KeyValue(translate.xProperty(), -strength, Interpolator.LINEAR),
+			new KeyValue(translate.yProperty(), strength, Interpolator.LINEAR)
+		));
 		
-		return new SequentialTransition(v1, v2, v3);
+		return timeline;
+	}
+	
+	private static final class MagnificationBinding extends DoubleBinding {
+		private static final Dimension2D singleMagnificationSize = new Dimension2D(320, 240);
+		private final ObservableDoubleValue containerWidth;
+		private final ObservableDoubleValue containerHeight;
+		
+		public MagnificationBinding(ObservableDoubleValue containerWidth, ObservableDoubleValue containerHeight) {
+			this.containerWidth = containerWidth;
+			this.containerHeight = containerHeight;
+			super.bind(containerWidth);
+			super.bind(containerHeight);
+		}
+		
+		@Override
+		protected double computeValue() {
+			return MagnificationBinding.compute(containerWidth.get(), containerHeight.get());
+		}
+		
+		public static double compute(double width, double height) {
+			return Math.max(1, (int) Math.min(
+				width / singleMagnificationSize.getWidth(),
+				height / singleMagnificationSize.getHeight()
+			));
+		}
 	}
 }

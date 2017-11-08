@@ -51,6 +51,7 @@ public final class Lazor implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
+		Animation panAnimation,
 		Animation hpAndShakeAnimation
 	) {
 		final Point2D deltaDirection = origin.subtract(target).normalize();
@@ -88,6 +89,7 @@ public final class Lazor implements SpellAnimationGroup {
 		));
 		
 		return new ParallelTransition(
+			panAnimation,
 			spellAnimation,
 			new SequentialTransition(
 				new PauseTransition(duration),

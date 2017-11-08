@@ -1,6 +1,7 @@
 package name.rayrobdod.femp_fx_demo;
 
 import java.util.Arrays;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	private final Supplier<UnitAnimationGroup> rightUnit;
 	private final Supplier<SpellAnimationGroup> leftSpell;
 	private final Supplier<SpellAnimationGroup> rightSpell;
+	private final DoubleSupplier distance;
 	
 	public PlayBattleAnimationEventHandler(
 		  StackPane gamePane
@@ -28,19 +30,21 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		, Supplier<UnitAnimationGroup> rightUnit
 		, Supplier<SpellAnimationGroup> leftSpell
 		, Supplier<SpellAnimationGroup> rightSpell
+		, DoubleSupplier distance
 	) {
 		this.gamePane = gamePane;
 		this.leftUnit = leftUnit;
 		this.rightUnit = rightUnit;
 		this.leftSpell = leftSpell;
 		this.rightSpell = rightSpell;
+		this.distance = distance;
 	}
 	
 	public void handle(ActionEvent e) {
 		final BattleAnimation.NodeAnimationPair pair = BattleAnimation.buildAnimation(
 			Field::buildGroup,
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
-			240,
+			this.distance.getAsDouble(),
 			new BattleAnimation.AggregateSideParams(
 				leftUnit.get(), leftSpell.get(), 60, 60
 			),

@@ -53,6 +53,7 @@ public final class PhysicalHit implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
+		Animation panAnimation,
 		Animation hpAndShakeAnimation
 	) {
 		return new ParallelTransition(
@@ -71,6 +72,7 @@ public final class PhysicalHit implements SpellAnimationGroup {
 			, new FlarePaintTransition(animDuration.divide(3), target)
 			, new SimpleDoubleTransition(animDuration, flare.centerXProperty(), target.getX(), target.getX())
 			, new SimpleDoubleTransition(animDuration, flare.centerYProperty(), target.getY(), target.getY())
+			, panAnimation
 			, hpAndShakeAnimation
 		);
 	}

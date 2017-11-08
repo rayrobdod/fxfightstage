@@ -41,6 +41,7 @@ public final class Dark implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
+		Animation panAnimation,
 		Animation hpAndShakeAnimation
 	) {
 		final Timeline timeline = new Timeline();
@@ -66,6 +67,7 @@ public final class Dark implements SpellAnimationGroup {
 		));
 		
 		return new SequentialTransition(
+			panAnimation,
 			timeline,
 			new ParallelTransition(
 				hpAndShakeAnimation,

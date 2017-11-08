@@ -2,7 +2,9 @@ package name.rayrobdod.femp_fx_demo.images.battle_spell_anim;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
 import javafx.animation.PathTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -83,6 +85,7 @@ public final class Arrow implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
+		Animation panAnimation,
 		Animation hpAndShakeAnimation
 	) {
 		final double originX = origin.getX();
@@ -119,9 +122,17 @@ public final class Arrow implements SpellAnimationGroup {
 		
 		return new SequentialTransition(
 			setArrowVisible,
-			arrowAnimation,
+			new ParallelTransition(
+				arrowAnimation,
+				panAnimation
+			),
 			setArrowInvisible,
-			physicalHit.getAnimation(origin, target, hpAndShakeAnimation)
+			physicalHit.getAnimation(
+				origin,
+				target,
+				new PauseTransition(Duration.ZERO),
+				hpAndShakeAnimation
+			)
 		);
 	}
 }
