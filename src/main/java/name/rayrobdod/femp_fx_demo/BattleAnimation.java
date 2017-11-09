@@ -64,7 +64,7 @@ public final class BattleAnimation {
 	
 	public static enum Distance {MELEE, RANGE, SIEGE;}
 	
-	public static class Strike {
+	public static final class Strike {
 		public final Side attacker;
 		public final int damage;
 		public final int drain;
@@ -81,7 +81,7 @@ public final class BattleAnimation {
 		}
 	}
 	
-	public static class NodeAnimationPair {
+	public static final class NodeAnimationPair {
 		public final Node node;
 		public final Animation animation;
 		

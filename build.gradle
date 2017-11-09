@@ -1,5 +1,5 @@
 plugins {
-  id "com.diffplug.gradle.spotless" version "3.6.0"
+	id "com.diffplug.gradle.spotless" version "3.6.0"
 }
 apply plugin: 'java'
 
@@ -10,32 +10,31 @@ sourceCompatibility = 1.8
 
 
 // name = 'femp-fx-demo'
-version = '1.0'
+version = 'SNAPSHOT'
 project.ext.mainClassName = "name.rayrobdod.femp_fx_demo.Main"
 
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-    testCompile 'junit:junit:4.12'
-}
-
-jar.manifest {
-	attributes 'Main-Class': project.mainClassName
-}
+jar.manifest.attributes (
+	  'Main-Class': project.mainClassName
+	, 'Implementation-Title': name
+	, 'Implementation-Version': version
+	, 'Implementation-Vendor': 'com.rayrobdod'
+)
 
 spotless {
 	java {
-		importOrder 'java', 'javax', 'javafx', 'org', 'com', ''
+		importOrder 'java', 'javax', 'javafx', '', 'name.rayrobdod.hemp_fx_demo'
 		removeUnusedImports()
 		endWithNewline()
 	}
 }
 
 task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
+	main = project.mainClassName
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	ignoreExitValue = true
 }
