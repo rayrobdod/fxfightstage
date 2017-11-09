@@ -321,8 +321,8 @@ public final class BattleAnimation {
 			new KeyValue(translate.yProperty(), strength, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(time.multiply(4),
-			new KeyValue(translate.xProperty(), -strength, Interpolator.LINEAR),
-			new KeyValue(translate.yProperty(), strength, Interpolator.LINEAR)
+			new KeyValue(translate.xProperty(), 0, Interpolator.LINEAR),
+			new KeyValue(translate.yProperty(), 0, Interpolator.LINEAR)
 		));
 		
 		return timeline;
