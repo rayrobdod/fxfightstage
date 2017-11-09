@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Arrow;
-import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Dark;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Lazor;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.PhysicalHit;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.BowGuy;
@@ -107,7 +106,7 @@ public final class SettingsPanel {
 		return Arrays.asList(
 			  new NameSupplierPair<>("Physical Hit", () -> new PhysicalHit())
 			, new NameSupplierPair<>("Arrow", () -> new Arrow())
-			, new NameSupplierPair<>("Dark", () -> new Dark())
+			, new NameSupplierPair<>("Dark", new FxmlSpellSupplier("images/battle_spell_anim/dark.fxml"))
 			, new NameSupplierPair<>("Lazor (Blue)", () -> new Lazor(Color.BLUE))
 			, new NameSupplierPair<>("Lazor (Red)", () -> new Lazor(Color.RED))
 		);
@@ -129,5 +128,21 @@ public final class SettingsPanel {
 	private static final class NameSupplierPairStringConverter<E> extends javafx.util.StringConverter<NameSupplierPair<E>> {
 		public String toString(NameSupplierPair<E> xx) {return (null == xx ? "null" : xx.displayName);}
 		public NameSupplierPair<E> fromString(String xx) {return null;}
+	}
+	
+	private static final class FxmlSpellSupplier implements Supplier<SpellAnimationGroup> {
+		private final String path;
+		public FxmlSpellSupplier(String path) {
+			this.path = path;
+		}
+		public SpellAnimationGroup get() {
+			try {
+				final java.net.URL url = SettingsPanel.class.getResource(this.path);
+				final Object obj = javafx.fxml.FXMLLoader.load(url);
+				return (SpellAnimationGroup) obj;
+			} catch (java.io.IOException e) {
+				throw new AssertionError("Failed to read file " + this.path, e);
+			}
+		}
 	}
 }
