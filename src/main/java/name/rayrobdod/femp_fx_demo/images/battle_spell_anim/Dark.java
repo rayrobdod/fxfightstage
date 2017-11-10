@@ -10,6 +10,7 @@ import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
@@ -29,14 +30,17 @@ public final class Dark implements SpellAnimationGroup {
 	
 	
 	private final Circle node;
+	private final Circle background;
 	
 	public Dark() {
 		this.node = new Circle();
 		this.node.setFill(Color.BLACK);
-		this.node.setBlendMode(javafx.scene.effect.BlendMode.EXCLUSION);
+		this.node.setBlendMode(BlendMode.EXCLUSION);
+		this.background = new Circle();
 	}
 	
-	public Node getNode() { return this.node; }
+	public Node getBackground() { return this.background; }
+	public Node getForeground() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,

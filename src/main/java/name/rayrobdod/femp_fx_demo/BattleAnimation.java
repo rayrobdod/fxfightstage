@@ -158,10 +158,12 @@ public final class BattleAnimation {
 		
 		final Node gameNode = new Group(
 			  backgroundNode.apply(gamePanelSize)
+			, left.spell.getBackground()
+			, right.spell.getBackground()
 			, left.unit.getNode()
 			, right.unit.getNode()
-			, left.spell.getNode()
-			, right.spell.getNode()
+			, left.spell.getForeground()
+			, right.spell.getForeground()
 		);
 		gameNode.getTransforms().add(magnifyTransform);
 		gameNode.getTransforms().add(screenShakeTranslate);

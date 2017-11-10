@@ -77,10 +77,11 @@ public final class Arrow implements SpellAnimationGroup {
 		
 		this.physicalHit = new PhysicalHit();
 		
-		this.node = new Group(arrow, physicalHit.getNode());
+		this.node = new Group(arrow, physicalHit.getForeground());
 	}
 	
-	public Node getNode() { return this.node; }
+	public Node getBackground() { return physicalHit.getBackground(); }
+	public Node getForeground() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,
