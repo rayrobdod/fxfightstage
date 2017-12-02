@@ -8,21 +8,34 @@ public interface SpellAnimationGroup {
 	
 	/**
 	 * A Node that contains every visual element that will appear behinds
-	 * the characters from the perspective of the player
+	 * the characters from the perspective of the player.
+	 * 
+	 * For any given instance of SpellAnimationGroup, this method must return
+	 * the same object upon each invocation. Different instances of
+	 * SpellAnimationGroup, this function must return different objects.
 	 */
 	public Node getBackground();
+	
 	/**
 	 * A Node that contains every visual element that will appear between
 	 * the characters and the player
+	 * 
+	 * For any given instance of SpellAnimationGroup, this method must return
+	 * the same object upon each invocation. Different instances of
+	 * SpellAnimationGroup, this function must return different objects.
 	 */
 	public Node getForeground();
 	
 	/**
 	 * Returns an animation to be used for an attack animation
+	 * 
+	 * The returned Animation must include panAnimation exactly once,
+	 * and must include hpAndShakeAnimation exactly once.
+	 * 
 	 * @param origin the origin point of the spell animation
 	 * @param target the target point of the spell animation
-	 * @param panAnimation the effects that move the camera from the attacker to the target. This animation will be invoked exactly once in the returned animation.
-	 * @param hpAndShakeAnimation the effects that happen to indicate a hit. This animation will be invoked exactly once in the returned animation.
+	 * @param panAnimation the effects that move the camera from the attacker to the target.
+	 * @param hpAndShakeAnimation the effects that happen to indicate a hit.
 	 */
 	public Animation getAnimation(
 		Point2D origin,

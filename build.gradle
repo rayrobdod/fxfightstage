@@ -1,13 +1,18 @@
+buildscript {
+	dependencies {
+		classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+	}
+}
 plugins {
 	id "com.diffplug.gradle.spotless" version "3.6.0"
 }
 apply plugin: 'java'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 [compileJava, compileTestJava]*.options*.deprecation = true
 [compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
-
 
 // name = 'femp-fx-demo'
 version = 'SNAPSHOT'
@@ -15,6 +20,11 @@ project.ext.mainClassName = "name.rayrobdod.femp_fx_demo.Main"
 
 repositories {
 	mavenCentral()
+}
+
+dependencies {
+	testCompile("org.junit.jupiter:junit-jupiter-api:5.0.2")
+	testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
 }
 
 jar.manifest.attributes (
@@ -26,7 +36,7 @@ jar.manifest.attributes (
 
 spotless {
 	java {
-		importOrder 'java', 'javax', 'javafx', '', 'name.rayrobdod.hemp_fx_demo'
+		importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod.hemp_fx_demo'
 		removeUnusedImports()
 		endWithNewline()
 	}
