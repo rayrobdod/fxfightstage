@@ -11,9 +11,12 @@
 <?import name.rayrobdod.femp_fx_demo.images.FxmlSpellAnimationGroup.RelocatableKeyFrame ?>
 <?import name.rayrobdod.femp_fx_demo.images.FxmlSpellAnimationGroup.RelocatableKeyValue ?>
 <FxmlSpellAnimationGroup xmlns:fx="http://javafx.com/fxml">
-	<node>
+	<foreground>
 		<Circle fill="black" blendMode="EXCLUSION" fx:id="darkCircle" />
-	</node>
+	</foreground>
+	<background>
+		<Circle />
+	</background>
 	<anim>
 		<fx:define>
 			<Interpolator fx:constant="DISCRETE" fx:id="discrete" />

@@ -7,10 +7,15 @@ import javafx.scene.Node;
 public interface SpellAnimationGroup {
 	
 	/**
-	 * Returns the node associated with this object.
-	 * The object returned has the same identity every time. 
+	 * A Node that contains every visual element that will appear behinds
+	 * the characters from the perspective of the player
 	 */
-	public Node getNode();
+	public Node getBackground();
+	/**
+	 * A Node that contains every visual element that will appear between
+	 * the characters and the player
+	 */
+	public Node getForeground();
 	
 	/**
 	 * Returns an animation to be used for an attack animation

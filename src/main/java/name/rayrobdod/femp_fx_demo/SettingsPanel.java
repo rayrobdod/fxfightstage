@@ -19,6 +19,8 @@ import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Arrow;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.Lazor;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.LightBurst;
+import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.LightSword;
 import name.rayrobdod.femp_fx_demo.images.battle_spell_anim.PhysicalHit;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.BowGuy;
 import name.rayrobdod.femp_fx_demo.images.battle_unit_anim.MageGuy;
@@ -107,6 +109,8 @@ public final class SettingsPanel {
 			  new NameSupplierPair<>("Physical Hit", () -> new PhysicalHit())
 			, new NameSupplierPair<>("Arrow", () -> new Arrow())
 			, new NameSupplierPair<>("Dark", new FxmlSpellSupplier("images/battle_spell_anim/dark.fxml"))
+			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
+			, new NameSupplierPair<>("LightSword", () -> new LightSword())
 			, new NameSupplierPair<>("Lazor (Blue)", () -> new Lazor(Color.BLUE))
 			, new NameSupplierPair<>("Lazor (Red)", () -> new Lazor(Color.RED))
 		);

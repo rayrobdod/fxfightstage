@@ -11,6 +11,7 @@ import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -29,6 +30,7 @@ public final class Lazor implements SpellAnimationGroup {
 	
 	
 	private final Path node;
+	private final Node background;
 	
 	private final MoveTo followerLeft;
 	private final LineTo followerRight;
@@ -44,9 +46,11 @@ public final class Lazor implements SpellAnimationGroup {
 		this.node = new Path(followerLeft, followerRight, leaderRight, leaderLeft);
 		this.node.setFill(color);
 		this.node.setStroke(Color.TRANSPARENT);
+		this.background = new Circle();
 	}
 	
-	public Node getNode() { return this.node; }
+	public Node getBackground() { return this.background; }
+	public Node getForeground() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,

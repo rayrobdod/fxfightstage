@@ -19,7 +19,8 @@ import javafx.util.Duration;
  */
 public final class FxmlSpellAnimationGroup implements SpellAnimationGroup {
 	
-	private final Node node;
+	private final Node foreground;
+	private final Node background;
 	private final RelocatableTimeline anim;
 	
 	/**
@@ -117,15 +118,18 @@ public final class FxmlSpellAnimationGroup implements SpellAnimationGroup {
 	}
 	
 	public FxmlSpellAnimationGroup(
-		  @NamedArg("node") Node node
+		  @NamedArg("foreground") Node foreground
+		, @NamedArg("background") Node background
 		, @NamedArg("anim") RelocatableTimeline anim
 	) {
-		this.node = node;
+		this.foreground = foreground;
+		this.background = background;
 		this.anim = anim;
 	}
 	
 	
-	public Node getNode() { return this.node; }
+	public Node getBackground() { return this.background; }
+	public Node getForeground() { return this.foreground; }
 	
 	public Animation getAnimation(
 		Point2D origin,
@@ -141,6 +145,6 @@ public final class FxmlSpellAnimationGroup implements SpellAnimationGroup {
 	}
 	
 	public String toString() {
-		return "SpellAnimGroup[" + node + ", " + anim + "]";
+		return "SpellAnimGroup[" + foreground + ", " + background + ", " + anim + "]";
 	}
 }
