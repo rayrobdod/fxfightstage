@@ -204,7 +204,10 @@ public final class BattleAnimation {
 		);
 		final double rightPan = -leftPan;
 		
-		for (Strike strike : strikes) {
+		for (int i = 0; i < strikes.size(); i++) {
+			final Strike strike = strikes.get(i);
+			final ConsecutiveAttackDescriptor consecutiveAttackDesc = consecutiveAttackDescriptor(strikes, i);
+			
 			switch (strike.attacker) {
 				case LEFT: {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
@@ -238,6 +241,7 @@ public final class BattleAnimation {
 									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
 								)
 							)
+							, consecutiveAttackDesc
 						)
 					);
 					
@@ -278,6 +282,7 @@ public final class BattleAnimation {
 									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
 								)
 							)
+							, consecutiveAttackDesc
 						)
 					);
 					
@@ -353,5 +358,25 @@ public final class BattleAnimation {
 				height / singleMagnificationSize.getHeight()
 			));
 		}
+	}
+	
+	private static ConsecutiveAttackDescriptor consecutiveAttackDescriptor(List<Strike> strikes, final int idx) {
+		Side sideToMatch = strikes.get(idx).attacker;
+		
+		int left = 0;
+		int j = idx;
+		while (j >= 0 && strikes.get(j).attacker == sideToMatch) {
+			j--;
+			left++;
+		}
+		
+		int right = -1;
+		j = idx;
+		while (j < strikes.size() && strikes.get(j).attacker == sideToMatch) {
+			j++;
+			right++;
+		}
+		
+		return new ConsecutiveAttackDescriptor(left, left + right);
 	}
 }

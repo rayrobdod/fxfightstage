@@ -4,6 +4,8 @@ import javafx.animation.Animation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
+import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
+
 public interface UnitAnimationGroup {
 	
 	/**
@@ -31,6 +33,9 @@ public interface UnitAnimationGroup {
 	 * Returns an animation to be used for an attack animation
 	 * @param spellAnimation the hit animation associated with the weapon.  This animation will be invoked exactly once in the returned animation.
 	 */
-	public Animation getAttackAnimation(Animation spellAnimation);
+	public Animation getAttackAnimation(
+		  Animation spellAnimation
+		, ConsecutiveAttackDescriptor consecutiveAttackDesc
+	);
 	
 }

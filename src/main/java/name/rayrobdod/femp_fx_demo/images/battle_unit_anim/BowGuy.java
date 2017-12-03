@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 
 public final class BowGuy implements UnitAnimationGroup {
@@ -19,6 +20,13 @@ public final class BowGuy implements UnitAnimationGroup {
 	private static final Rectangle2D[] beforeSpellViewports = {
 		standingViewport,
 		new Rectangle2D(100,0,100,130),
+		new Rectangle2D(200,0,100,130),
+		new Rectangle2D(300,0,100,130),
+		new Rectangle2D(400,0,100,130)
+	};
+	private static final Rectangle2D[] beforeConsecutiveSpellViewports = {
+		new Rectangle2D(400,0,100,130),
+		new Rectangle2D(600,0,100,130),
 		new Rectangle2D(200,0,100,130),
 		new Rectangle2D(300,0,100,130),
 		new Rectangle2D(400,0,100,130)
@@ -50,21 +58,35 @@ public final class BowGuy implements UnitAnimationGroup {
 	/**
 	 * Returns an animation to be used for an attack animation
 	 */
-	public Animation getAttackAnimation(Animation hitAnimation) {
+	public Animation getAttackAnimation(
+		  Animation hitAnimation
+		, ConsecutiveAttackDescriptor consecutiveAttackDesc
+	) {
 		final Timeline beforeSpellAnimation = new Timeline();
-		for (int i = 0; i < beforeSpellViewports.length; i++) {
-			final Duration thisTime = frameLength.multiply(i);
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(node.viewportProperty(), beforeSpellViewports[i], Interpolator.DISCRETE)
-			));
+		if (consecutiveAttackDesc.isFirst()) {
+			for (int i = 0; i < beforeSpellViewports.length; i++) {
+				final Duration thisTime = frameLength.multiply(i);
+				beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+					new KeyValue(node.viewportProperty(), beforeSpellViewports[i], Interpolator.DISCRETE)
+				));
+			}
+		} else {
+			for (int i = 0; i < beforeConsecutiveSpellViewports.length; i++) {
+				final Duration thisTime = frameLength.multiply(i);
+				beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+					new KeyValue(node.viewportProperty(), beforeConsecutiveSpellViewports[i], Interpolator.DISCRETE)
+				));
+			}
 		}
 		
 		final Timeline afterSpellAnimation = new Timeline();
-		for (int i = 0; i < afterSpellViewports.length; i++) {
-			final Duration thisTime = frameLength.multiply(i);
-			afterSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(node.viewportProperty(), afterSpellViewports[i], Interpolator.DISCRETE)
-			));
+		if (consecutiveAttackDesc.isLast()) {
+			for (int i = 0; i < afterSpellViewports.length; i++) {
+				final Duration thisTime = frameLength.multiply(i);
+				afterSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+					new KeyValue(node.viewportProperty(), afterSpellViewports[i], Interpolator.DISCRETE)
+				));
+			}
 		}
 		
 		return new SequentialTransition(

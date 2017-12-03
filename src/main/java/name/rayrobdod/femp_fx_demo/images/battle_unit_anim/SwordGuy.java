@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
+import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 
 public final class SwordGuy implements UnitAnimationGroup {
@@ -62,7 +63,10 @@ public final class SwordGuy implements UnitAnimationGroup {
 	/**
 	 * Returns an animation to be used for an attack animation
 	 */
-	public Animation getAttackAnimation(Animation hitAnimation) {
+	public Animation getAttackAnimation(
+		  Animation hitAnimation
+		, ConsecutiveAttackDescriptor consecutiveAttackDesc
+	) {
 		final Timeline beforeSpellAnimation = new Timeline();
 		for (int i = 0; i < beforeSpellViewports.length; i++) {
 			final Duration thisTime = frameLength.multiply(i);
