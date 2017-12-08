@@ -1,9 +1,12 @@
 package name.rayrobdod.femp_fx_demo.images;
 
+import java.util.Set;
+
 import javafx.animation.Animation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
+import name.rayrobdod.femp_fx_demo.BattleAnimation.AttackModifier;
 import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
 
 public interface UnitAnimationGroup {
@@ -30,12 +33,35 @@ public interface UnitAnimationGroup {
 	public Point2D getSpellOrigin();
 	
 	/**
-	 * Returns an animation to be used for an attack animation
-	 * @param spellAnimation the hit animation associated with the weapon.  This animation will be invoked exactly once in the returned animation.
+	 * Returns an animation used to represent an attack
+	 * @param spellAnimation the hit animation associated with the weapon.  This animation must be invoked exactly once in the returned animation.
+	 * @param consecutiveAttackDesc Describes this attack's position in a sequence of consecutive strikes
+	 * @param triggeredSkills modifiers describing the current attack
+	 * @param isFinisher true if this attack reduces the opponent's HP to zero
 	 */
 	public Animation getAttackAnimation(
 		  Animation spellAnimation
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
+		, Set<AttackModifier> triggeredSkills
+		, boolean isFinisher
 	);
+	
+	/*
+	 * Returns an animation used to represent being hit by an attack
+	 */
+	// public Animation getHitAnimation(
+	//	, Set<AttackModifier> triggeredSkills
+	//	, boolean isFinisher
+	//)
+	
+	/*
+	 * Returns an animation used by the battle initiator before any attacks are played
+	 */
+	// public Animation getInitiateAnimation()
+	
+	/*
+	 * Returns an animation used after all attacks if that unit reduced it's opponent's HP to zero
+	 */
+	// public Animation getVictoryAnimation()
 	
 }

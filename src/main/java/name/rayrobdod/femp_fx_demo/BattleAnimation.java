@@ -2,6 +2,7 @@ package name.rayrobdod.femp_fx_demo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
@@ -64,20 +65,25 @@ public final class BattleAnimation {
 	
 	public static enum Distance {MELEE, RANGE, SIEGE;}
 	
+	/** a placeholder to represent a real class that this demo doesn't really care about */
+	public static enum AttackModifier {CRITICAL, MISS, LUNA;}
+	
 	public static final class Strike {
 		public final Side attacker;
 		public final int damage;
 		public final int drain;
-		// public final ??? triggeredSkills;
+		public final Set<AttackModifier> triggeredSkills;
 		
 		public Strike(
 			  Side attacker
 			, int damage
 			, int drain
+			, Set<AttackModifier> triggeredSkills
 		) {
 			this.attacker = attacker;
 			this.damage = damage;
 			this.drain = drain;
+			this.triggeredSkills = triggeredSkills;
 		}
 	}
 	
@@ -114,7 +120,7 @@ public final class BattleAnimation {
 		healthbars.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BURLYWOOD, null, null)));
 		
 		
-		Dimension2D gamePanelSize = new Dimension2D(
+		final Dimension2D gamePanelSize = new Dimension2D(
 			containerSize.getWidth(),
 			containerSize.getHeight() - healthbars.prefHeight(containerSize.getWidth())
 		);
@@ -140,10 +146,10 @@ public final class BattleAnimation {
 		left.unit.getNode().relocate(0, 0);
 		right.unit.getNode().relocate(0, 0);
 		
-		Point2D leftOffset = leftFootTarget.subtract(
+		final Point2D leftOffset = leftFootTarget.subtract(
 			left.unit.getNode().localToParent(left.unit.getFootPoint())
 		);
-		Point2D rightOffset = rightFootTarget.subtract(
+		final Point2D rightOffset = rightFootTarget.subtract(
 			right.unit.getNode().localToParent(right.unit.getFootPoint())
 		);
 		
@@ -213,8 +219,8 @@ public final class BattleAnimation {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
 					
-					Point2D target = right.unit.getNode().localToParent(right.unit.getSpellTarget());
-					Point2D origin = left.unit.getNode().localToParent(left.unit.getSpellOrigin());
+					final Point2D target = right.unit.getNode().localToParent(right.unit.getSpellTarget());
+					final Point2D origin = left.unit.getNode().localToParent(left.unit.getSpellOrigin());
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -242,6 +248,8 @@ public final class BattleAnimation {
 								)
 							)
 							, consecutiveAttackDesc
+							, strike.triggeredSkills
+							, rightNewHp <= 0
 						)
 					);
 					
@@ -283,6 +291,8 @@ public final class BattleAnimation {
 								)
 							)
 							, consecutiveAttackDesc
+							, strike.triggeredSkills
+							, leftNewHp <= 0
 						)
 					);
 					

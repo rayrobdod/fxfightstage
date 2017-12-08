@@ -1,6 +1,7 @@
 package name.rayrobdod.femp_fx_demo;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -52,10 +53,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 				rightUnit.get(), rightSpell.get(), 60, 60
 			),
 			Arrays.asList(
-				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 0),
-				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0),
-				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0),
-				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 10)
+				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 0, Collections.emptySet()),
+				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0, Collections.emptySet()),
+				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0, Collections.emptySet()),
+				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 10, Collections.emptySet())
 			)
 		);
 		

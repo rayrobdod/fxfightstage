@@ -1,5 +1,7 @@
 package name.rayrobdod.femp_fx_demo.images.battle_unit_anim;
 
+import java.util.Set;
+
 import javafx.animation.*;
 import javafx.animation.Animation;
 import javafx.geometry.Point2D;
@@ -9,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+import name.rayrobdod.femp_fx_demo.BattleAnimation.AttackModifier;
 import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 
@@ -59,6 +62,8 @@ public final class MageGuy implements UnitAnimationGroup {
 	public Animation getAttackAnimation(
 		  Animation spellAnimation
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
+		, Set<AttackModifier> triggeredSkills
+		, boolean isFinisher
 	) {
 		final Timeline beforeSpellAnimation = new Timeline();
 		for (int i = 0; i < beforeSpellViewports.length; i++) {
