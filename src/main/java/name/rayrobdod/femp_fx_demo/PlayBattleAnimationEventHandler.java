@@ -3,6 +3,7 @@ package name.rayrobdod.femp_fx_demo;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 import javafx.event.ActionEvent;
@@ -23,6 +24,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	private final Supplier<UnitAnimationGroup> rightUnit;
 	private final Supplier<SpellAnimationGroup> leftSpell;
 	private final Supplier<SpellAnimationGroup> rightSpell;
+	private final IntSupplier leftStartingHp;
+	private final IntSupplier rightStartingHp;
+	private final IntSupplier leftMaximumHp;
+	private final IntSupplier rightMaximumHp;
 	private final DoubleSupplier distance;
 	
 	public PlayBattleAnimationEventHandler(
@@ -31,6 +36,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		, Supplier<UnitAnimationGroup> rightUnit
 		, Supplier<SpellAnimationGroup> leftSpell
 		, Supplier<SpellAnimationGroup> rightSpell
+		, IntSupplier leftStartingHp
+		, IntSupplier rightStartingHp
+		, IntSupplier leftMaximumHp
+		, IntSupplier rightMaximumHp
 		, DoubleSupplier distance
 	) {
 		this.gamePane = gamePane;
@@ -38,6 +47,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		this.rightUnit = rightUnit;
 		this.leftSpell = leftSpell;
 		this.rightSpell = rightSpell;
+		this.leftStartingHp = leftStartingHp;
+		this.rightStartingHp = rightStartingHp;
+		this.leftMaximumHp = leftMaximumHp;
+		this.rightMaximumHp = rightMaximumHp;
 		this.distance = distance;
 	}
 	
@@ -47,10 +60,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
 			this.distance.getAsDouble(),
 			new BattleAnimation.AggregateSideParams(
-				leftUnit.get(), leftSpell.get(), 60, 60
+				leftUnit.get(), leftSpell.get(), leftMaximumHp.getAsInt(), leftStartingHp.getAsInt()
 			),
 			new BattleAnimation.AggregateSideParams(
-				rightUnit.get(), rightSpell.get(), 60, 60
+				rightUnit.get(), rightSpell.get(), rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
 			),
 			Arrays.asList(
 				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 0, Collections.emptySet()),

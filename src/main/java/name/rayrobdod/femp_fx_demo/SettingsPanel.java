@@ -10,10 +10,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
@@ -50,6 +53,28 @@ public final class SettingsPanel {
 		distance.setBlockIncrement(100);
 		distance.setShowTickMarks(true);
 		
+		final Label labelHp = new Label("HP");
+		labelHp.setPadding(new javafx.geometry.Insets(4));
+		final Spinner<Integer> leftCurrentHp = new Spinner<>(1, 99, 40);
+		leftCurrentHp.setMaxWidth(1d/0d);
+		leftCurrentHp.setEditable(true);
+		leftCurrentHp.getEditor().setPrefColumnCount(4);
+		final Spinner<Integer> leftMaximumHp = new Spinner<>(1, 99, 60);
+		leftMaximumHp.setMaxWidth(1d/0d);
+		leftMaximumHp.setEditable(true);
+		leftMaximumHp.getEditor().setPrefColumnCount(4);
+		final Spinner<Integer> rightCurrentHp = new Spinner<>(1, 99, 35);
+		rightCurrentHp.setMaxWidth(1d/0d);
+		rightCurrentHp.setEditable(true);
+		rightCurrentHp.getEditor().setPrefColumnCount(4);
+		final Spinner<Integer> rightMaximumHp = new Spinner<>(1, 99, 35);
+		rightMaximumHp.setMaxWidth(1d/0d);
+		rightMaximumHp.setEditable(true);
+		rightMaximumHp.getEditor().setPrefColumnCount(4);
+		final HBox leftHp = new HBox(3, leftCurrentHp, new Text("/"), leftMaximumHp);
+		final HBox rightHp = new HBox(3, rightCurrentHp, new Text("/"), rightMaximumHp);
+		
+		
 		Button playButton = new Button("Play");
 		playButton.setMaxWidth(1d/0d);
 		playButton.setOnAction(
@@ -59,6 +84,10 @@ public final class SettingsPanel {
 				, () -> rightUnit.getValue().supplier.get()
 				, () -> leftSpell.getValue().supplier.get()
 				, () -> rightSpell.getValue().supplier.get()
+				, () -> leftCurrentHp.getValue()
+				, () -> rightCurrentHp.getValue()
+				, () -> leftMaximumHp.getValue()
+				, () -> rightMaximumHp.getValue()
 				, () -> distance.getValue()
 			)
 		);
@@ -70,6 +99,10 @@ public final class SettingsPanel {
 		GridPane.setHgrow(rightUnit, Priority.ALWAYS);
 		GridPane.setHgrow(playButton, Priority.ALWAYS);
 		GridPane.setHalignment(playButton, HPos.CENTER);
+		HBox.setHgrow(leftCurrentHp, Priority.ALWAYS);
+		HBox.setHgrow(leftMaximumHp, Priority.ALWAYS);
+		HBox.setHgrow(rightCurrentHp, Priority.ALWAYS);
+		HBox.setHgrow(rightMaximumHp, Priority.ALWAYS);
 		
 		this.node = new GridPane();
 		this.node.add(labelUnit, 0, 1);
@@ -78,9 +111,12 @@ public final class SettingsPanel {
 		this.node.add(labelSpell, 0, 2);
 		this.node.add(leftSpell, 1, 2);
 		this.node.add(rightSpell, 2, 2);
-		this.node.add(labelDistance, 0, 3);
-		this.node.add(distance, 1, 3, GridPane.REMAINING, 1);
-		this.node.add(playButton, 0, 4, GridPane.REMAINING, 1);
+		this.node.add(labelHp, 0, 3);
+		this.node.add(leftHp, 1, 3);
+		this.node.add(rightHp, 2, 3);
+		this.node.add(labelDistance, 0, 15);
+		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
+		this.node.add(playButton, 0, 16, GridPane.REMAINING, 1);
 	}
 	
 	public Node getNode() { return this.node; }
