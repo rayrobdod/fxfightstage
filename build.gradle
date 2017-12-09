@@ -48,3 +48,11 @@ task run(dependsOn: classes, type: JavaExec) {
 	standardInput = System.in
 	ignoreExitValue = true
 }
+
+// Run the thing that will tell me why the java will not compile
+// before running the thing that doesn't tell my why the java
+//     will not compile and prevents the first thing from running
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {mtask ->
+	mtask.mustRunAfter(compileJava)
+	mtask.mustRunAfter(compileTestJava)
+}

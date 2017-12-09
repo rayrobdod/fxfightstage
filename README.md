@@ -7,7 +7,7 @@ Primarily because we keep finding people which have graphics cards incapable of 
 
 [x] Create at least three classes of animations
   [x] one of which should include a magic cast animation
-  [ ] include a way to optionally modify the animation in case of e.g. critical hit, skill trigger, finisher
+  [x] include a way to optionally modify the animation in case of e.g. critical hit, skill trigger, finisher
 [x] Include HP decrementing animations
   [x] Screen shake on any hit
   [x] the extruding spark things on a hit without a different hit effect
