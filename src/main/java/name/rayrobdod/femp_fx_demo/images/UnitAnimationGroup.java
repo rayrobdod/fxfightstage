@@ -3,8 +3,10 @@ package name.rayrobdod.femp_fx_demo.images;
 import java.util.Set;
 
 import javafx.animation.Animation;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.util.Duration;
 
 import name.rayrobdod.femp_fx_demo.BattleAnimation.AttackModifier;
 import name.rayrobdod.femp_fx_demo.ConsecutiveAttackDescriptor;
@@ -54,14 +56,14 @@ public interface UnitAnimationGroup {
 	//	, boolean isFinisher
 	//)
 	
-	/*
-	 * Returns an animation used by the battle initiator before any attacks are played
+	/**
+	 * Returns an animation used before any attacks are played
 	 */
-	// public Animation getInitiateAnimation()
+	default Animation getInitiateAnimation() { return new PauseTransition(Duration.ZERO); }
 	
-	/*
+	/**
 	 * Returns an animation used after all attacks if that unit reduced it's opponent's HP to zero
 	 */
-	// public Animation getVictoryAnimation()
+	default Animation getVictoryAnimation() { return new PauseTransition(Duration.ZERO); }
 	
 }

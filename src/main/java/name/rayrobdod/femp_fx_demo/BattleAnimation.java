@@ -21,6 +21,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -201,6 +202,17 @@ public final class BattleAnimation {
 		final ArrayList<Animation> animationParts = new ArrayList<>(strikes.size());
 		animationParts.add(new PauseTransition(pauseDuration));
 		
+		// show both initiation animations at the same time
+		animationParts.add(
+			new ParallelTransition(
+				  left.unit.getInitiateAnimation()
+				, right.unit.getInitiateAnimation()
+			)
+		);
+		
+		animationParts.add(new PauseTransition(pauseDuration));
+		
+		// show each attack in sequence
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
 		double currentPan = 0;
@@ -304,8 +316,31 @@ public final class BattleAnimation {
 			}
 		}
 		
-		animationParts.add(new PauseTransition(pauseDuration));
+		// If someone died, fade out the guys who died and make the ones who
+		// didn't die perform a flourish.
+		if (leftCurrentHitpoints <= 0 || rightCurrentHitpoints <= 0) {
+			animationParts.add(new PauseTransition(pauseDuration.divide(2)));
+			final ArrayList<Animation> deathParts = new ArrayList<>(2);
+			if (leftCurrentHitpoints <= 0) {
+				deathParts.add(deathFadeOutAnimation(left.unit.getNode()));
+			}
+			if (rightCurrentHitpoints <= 0) {
+				deathParts.add(deathFadeOutAnimation(right.unit.getNode()));
+			}
+			if (rightCurrentHitpoints > 0) {
+				deathParts.add(right.unit.getVictoryAnimation());
+			}
+			if (leftCurrentHitpoints > 0) {
+				deathParts.add(left.unit.getVictoryAnimation());
+			}
+			
+			final ParallelTransition deathTransition = new ParallelTransition();
+			deathTransition.getChildren().addAll(deathParts);
+			animationParts.add(deathTransition);
+		}
 		
+		// pause a bit before fading back to the overworld
+		animationParts.add(new PauseTransition(pauseDuration));
 		
 		final SequentialTransition retval_2 = new SequentialTransition();
 		retval_2.getChildren().addAll(animationParts);
@@ -388,5 +423,16 @@ public final class BattleAnimation {
 		}
 		
 		return new ConsecutiveAttackDescriptor(left, left + right);
+	}
+	
+	private static Animation deathFadeOutAnimation(Node n) {
+		final ColorAdjust toWhiteEffect = new ColorAdjust();
+		toWhiteEffect.setInput(n.getEffect());
+		n.setEffect(toWhiteEffect);
+		
+		return new SequentialTransition(
+			  new SimpleDoubleTransition(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
+			, new SimpleDoubleTransition(Duration.millis(200), n.opacityProperty(), 1, 0)
+		);
 	}
 }

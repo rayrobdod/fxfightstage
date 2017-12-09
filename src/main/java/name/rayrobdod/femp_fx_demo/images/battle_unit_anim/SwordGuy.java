@@ -24,12 +24,14 @@ import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
 public final class SwordGuy implements UnitAnimationGroup {
 	
 	private static final double swordAngleSheath = 40;
+	private static final double swordAngleMidSheath = 40;
 	private static final double swordAngleStand = 220;
 	private static final double swordAnglePose = 270;
 	private static final double swordAngleRaise = 240;
 	private static final double swordAngleLower = 140;
 	
 	private static final double swordXSheath = 110;
+	private static final double swordXMidSheath = 95;
 	private static final double swordXStand = 110;
 	private static final double swordXPose = 80;
 	private static final double swordXRaise = 85;
@@ -37,6 +39,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private static final double midSwingXDelta = -15;
 	
 	private static final double swordYSheath = 120;
+	private static final double swordYMidSheath = 105;
 	private static final double swordYStand = 120;
 	private static final double swordYPose = 80;
 	private static final double swordYRaise = 50;
@@ -83,9 +86,9 @@ public final class SwordGuy implements UnitAnimationGroup {
 		hand.centerYProperty().bind(this.swordHandY);
 		sword.getTransforms().add(swordRotate);
 		
-		this.swordAngle.set(220);
-		this.swordHandX.set(110);
-		this.swordHandY.set(120);
+		this.swordAngle.set(swordAngleSheath);
+		this.swordHandX.set(swordXSheath);
+		this.swordHandY.set(swordYSheath);
 		
 		this.node = new Group(
 			  bounds
@@ -124,95 +127,75 @@ public final class SwordGuy implements UnitAnimationGroup {
 		final boolean isOdd = consecutiveAttackDesc.current % 2 != 0;
 		
 		if (isFirst) {
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleStand, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXStand, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYStand, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleStand, swordXStand, swordYStand)
+			);
 		} else if (isEven) {
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleLower, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXLower, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYLower, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleLower, swordXLower, swordYLower)
+			);
 		} else {
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYRaise, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleRaise, swordXRaise, swordYRaise)
+			);
 		}
 		
 		if (isFinisher) {
 			thisTime = thisTime.add(Duration.millis(200));
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAnglePose, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXPose, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYPose, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAnglePose, swordXPose, swordYPose)
+			);
 			thisTime = thisTime.add(Duration.millis(400));
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAnglePose, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXPose, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYPose, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAnglePose, swordXPose, swordYPose)
+			);
 		}
 		
 		if (isFinisher || isFirst) {
 			thisTime = thisTime.add(Duration.millis(200));
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYRaise, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleRaise, swordXRaise, swordYRaise)
+			);
 		}
 		
 		beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
 			soundEffectEventHandler("name/rayrobdod/femp_fx_demo/sounds/swing.wav")
 		));
 		thisTime = thisTime.add(Duration.millis(100));
-		beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-			new KeyValue(this.swordAngle, (swordAngleRaise + swordAngleLower) / 2, Interpolator.LINEAR),
-			new KeyValue(this.swordHandX, (swordXRaise + swordXLower) / 2 + midSwingXDelta, Interpolator.LINEAR),
-			new KeyValue(this.swordHandY, (swordYRaise + swordYLower) / 2, Interpolator.LINEAR)
-		));
+		beforeSpellAnimation.getKeyFrames().add(
+			swordKeyFrame(thisTime,
+				(swordAngleRaise + swordAngleLower) / 2,
+				(swordXRaise + swordXLower) / 2 + midSwingXDelta,
+				(swordYRaise + swordYLower) / 2
+			)
+		);
 		thisTime = thisTime.add(Duration.millis(100));
 		
 		if (isFinisher || isFirst || isOdd) {
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleLower, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXLower, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYLower, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleLower, swordXLower, swordYLower)
+			);
 		} else {
-			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(this.swordAngle, swordAngleRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXRaise, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYRaise, Interpolator.LINEAR)
-			));
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleRaise, swordXRaise, swordYRaise)
+			);
 		}
 		
 		
 		if (consecutiveAttackDesc.isLast()) {
 			if (isFinisher || isFirst || isOdd) {
-				afterSpellAnimation.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-					new KeyValue(this.swordAngle, swordAngleLower, Interpolator.LINEAR),
-					new KeyValue(this.swordHandX, swordXLower, Interpolator.LINEAR),
-					new KeyValue(this.swordHandY, swordYLower, Interpolator.LINEAR)
-				));
+				afterSpellAnimation.getKeyFrames().add(
+					swordKeyFrame(Duration.ZERO, swordAngleLower, swordXLower, swordYLower)
+				);
 			} else {
-				afterSpellAnimation.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-					new KeyValue(this.swordAngle, swordAngleRaise, Interpolator.LINEAR),
-					new KeyValue(this.swordHandX, swordXRaise, Interpolator.LINEAR),
-					new KeyValue(this.swordHandY, swordYRaise, Interpolator.LINEAR)
-				));
+				afterSpellAnimation.getKeyFrames().add(
+					swordKeyFrame(Duration.ZERO, swordAngleRaise, swordXRaise, swordYRaise)
+				);
 			}
 			
-			afterSpellAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(200),
-				new KeyValue(this.swordAngle, swordAngleStand, Interpolator.LINEAR),
-				new KeyValue(this.swordHandX, swordXStand, Interpolator.LINEAR),
-				new KeyValue(this.swordHandY, swordYStand, Interpolator.LINEAR)
-			));
+			afterSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(Duration.millis(200), swordAngleStand, swordXStand, swordYStand)
+			);
 		}
 		
 		
@@ -221,6 +204,26 @@ public final class SwordGuy implements UnitAnimationGroup {
 			hitAnimation,
 			afterSpellAnimation
 		);
+	}
+	
+	public Animation getInitiateAnimation() {
+		final Timeline anim = new Timeline();
+		
+		anim.getKeyFrames().add(swordKeyFrame(Duration.ZERO, swordAngleSheath, swordXSheath, swordYSheath));
+		anim.getKeyFrames().add(swordKeyFrame(Duration.millis(150), swordAngleMidSheath, swordXMidSheath, swordYMidSheath));
+		anim.getKeyFrames().add(swordKeyFrame(Duration.millis(350), swordAngleStand, swordXStand, swordYStand));
+		
+		return anim;
+	}
+	
+	public Animation getVictoryAnimation() {
+		final Timeline anim = new Timeline();
+		
+		anim.getKeyFrames().add(swordKeyFrame(Duration.ZERO, swordAngleStand, swordXStand, swordYStand));
+		anim.getKeyFrames().add(swordKeyFrame(Duration.millis(200), swordAngleMidSheath, swordXMidSheath, swordYMidSheath));
+		anim.getKeyFrames().add(swordKeyFrame(Duration.millis(350), swordAngleSheath, swordXSheath, swordYSheath));
+		
+		return anim;
 	}
 	
 	/**
@@ -242,6 +245,19 @@ public final class SwordGuy implements UnitAnimationGroup {
 				return handler;
 			}
 		}
+	}
+	
+	private KeyFrame swordKeyFrame (
+		  Duration frameTime
+		, double swordAngle
+		, double swordX
+		, double swordY
+	) {
+		return new KeyFrame(frameTime,
+			new KeyValue(this.swordAngle, swordAngle, Interpolator.LINEAR),
+			new KeyValue(this.swordHandX, swordX, Interpolator.LINEAR),
+			new KeyValue(this.swordHandY, swordY, Interpolator.LINEAR)
+		);
 	}
 	
 }
