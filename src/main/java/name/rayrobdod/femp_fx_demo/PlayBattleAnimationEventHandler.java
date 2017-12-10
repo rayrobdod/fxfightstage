@@ -10,6 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 import name.rayrobdod.femp_fx_demo.images.SpellAnimationGroup;
 import name.rayrobdod.femp_fx_demo.images.UnitAnimationGroup;
@@ -60,10 +62,14 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
 			this.distance.getAsDouble(),
 			new BattleAnimation.AggregateSideParams(
-				leftUnit.get(), leftSpell.get(), leftMaximumHp.getAsInt(), leftStartingHp.getAsInt()
+				leftUnit.get(), leftSpell.get(), Color.RED.darker(),
+				"Garnet", "Iron Thingy", new Circle(10),
+				leftMaximumHp.getAsInt(), leftStartingHp.getAsInt()
 			),
 			new BattleAnimation.AggregateSideParams(
-				rightUnit.get(), rightSpell.get(), rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
+				rightUnit.get(), rightSpell.get(), Color.BLUE.darker(),
+				"ABCDEFGHIJKL", "ABCDEFGHIJKLMNOP", new Circle(10),
+				rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
 			),
 			Arrays.asList(
 				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 0, Collections.emptySet()),

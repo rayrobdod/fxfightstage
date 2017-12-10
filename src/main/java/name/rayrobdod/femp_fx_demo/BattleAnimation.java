@@ -1,5 +1,7 @@
 package name.rayrobdod.femp_fx_demo;
 
+import static javafx.scene.text.FontWeight.BOLD;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,17 +19,20 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
@@ -46,17 +51,31 @@ public final class BattleAnimation {
 	public static final class AggregateSideParams {
 		public final UnitAnimationGroup unit;
 		public final SpellAnimationGroup spell;
+		public final Color teamColor;
+		public final String unitName;
+		public final String weaponName;
+		public final Node weaponIcon;
+		/** The unit's maximum hitpoints */
 		public final int maximumHitpoints;
+		/** The unit's starting current hitpoints */
 		public final int initialCurrentHitpoints;
 		
 		public AggregateSideParams(
 			  UnitAnimationGroup unit
 			, SpellAnimationGroup spell
+			, Color teamColor
+			, String unitName
+			, String weaponName
+			, Node weaponIcon
 			, int maximumHitpoints
 			, int initialCurrentHitpoints
 		){
 			this.unit = unit;
 			this.spell = spell;
+			this.teamColor = teamColor;
+			this.unitName = unitName;
+			this.weaponName = weaponName;
+			this.weaponIcon = weaponIcon;
 			this.maximumHitpoints = maximumHitpoints;
 			this.initialCurrentHitpoints = initialCurrentHitpoints;
 		}
@@ -64,15 +83,21 @@ public final class BattleAnimation {
 	
 	public static enum Side {LEFT, RIGHT;}
 	
-	public static enum Distance {MELEE, RANGE, SIEGE;}
-	
 	/** a placeholder to represent a real class that this demo doesn't really care about */
 	public static enum AttackModifier {CRITICAL, MISS, LUNA;}
 	
+	/** A description of one attack */
 	public static final class Strike {
+		/** Which unit is performing an attack */
 		public final Side attacker;
+		/** The damage dealt to the defender */
 		public final int damage;
+		/**
+		 * The damage healed by the attacker.
+		 * Probably can be negative for counter-attack damage.
+		 */
 		public final int drain;
+		/** Skills triggered during this attack. Just for the sake of identity. */
 		public final Set<AttackModifier> triggeredSkills;
 		
 		public Strike(
@@ -111,19 +136,17 @@ public final class BattleAnimation {
 	) {
 		///////////// The node construction
 		
-		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.initialCurrentHitpoints, left.maximumHitpoints);
-		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.initialCurrentHitpoints, right.maximumHitpoints);
-		final HBox healthbars = new HBox(healthbarLeft.getNode(), healthbarRight.getNode());
-		HBox.setHgrow(healthbarLeft.getNode(), Priority.ALWAYS);
-		HBox.setHgrow(healthbarRight.getNode(), Priority.ALWAYS);
-		healthbars.setFillHeight(true);
-		healthbars.setPadding(new Insets(15, 3, 3, 3));
-		healthbars.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BURLYWOOD, null, null)));
+		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
+		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);
+		final Label leftUnitName = unitNameLabel(left.unitName, left.teamColor, HPos.LEFT);
+		final Label rightUnitName = unitNameLabel(right.unitName, right.teamColor, HPos.RIGHT);
+		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT);
+		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT);
 		
 		
 		final Dimension2D gamePanelSize = new Dimension2D(
 			containerSize.getWidth(),
-			containerSize.getHeight() - healthbars.prefHeight(containerSize.getWidth())
+			containerSize.getHeight()
 		);
 		
 		
@@ -184,16 +207,34 @@ public final class BattleAnimation {
 		gamePaneClip.widthProperty().bind(gamePane.widthProperty());
 		gamePane.setClip(gamePaneClip);
 		centerTranslate.xProperty().bind(gamePane.widthProperty().divide(2));
-		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(2d/3d));
+		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(1d/2d));
 		magnifyTransform.xProperty().bind(magnifyBinding);
 		magnifyTransform.yProperty().bind(magnifyBinding);
 		magnifyTransform.pivotXProperty().bind(centerTranslate.xProperty());
 		magnifyTransform.pivotYProperty().bind(centerTranslate.yProperty());
 		
 		
-		final BorderPane retval_1 = new BorderPane();
-		retval_1.setCenter(gamePane);
-		retval_1.setBottom(healthbars);
+		final GridPane bottomHud = new GridPane();
+		bottomHud.addRow(0, leftWeaponName, rightWeaponName);
+		bottomHud.addRow(1, healthbarLeft.getNode(), healthbarRight.getNode());
+		GridPane.setHgrow(healthbarLeft.getNode(), Priority.ALWAYS);
+		GridPane.setHgrow(healthbarRight.getNode(), Priority.ALWAYS);
+		GridPane.setHalignment(leftWeaponName, HPos.LEFT);
+		GridPane.setHalignment(rightWeaponName, HPos.RIGHT);
+		
+		final AnchorPane retval_1 = new AnchorPane();
+		AnchorPane.setTopAnchor(gamePane, 0.0);
+		AnchorPane.setLeftAnchor(gamePane, 0.0);
+		AnchorPane.setRightAnchor(gamePane, 0.0);
+		AnchorPane.setBottomAnchor(gamePane, 0.0);
+		AnchorPane.setLeftAnchor(bottomHud, 0.0);
+		AnchorPane.setRightAnchor(bottomHud, 0.0);
+		AnchorPane.setBottomAnchor(bottomHud, 0.0);
+		AnchorPane.setTopAnchor(leftUnitName, 15.0);
+		AnchorPane.setLeftAnchor(leftUnitName, 0.0);
+		AnchorPane.setTopAnchor(rightUnitName, 15.0);
+		AnchorPane.setRightAnchor(rightUnitName, 0.0);
+		retval_1.getChildren().addAll(gamePane, bottomHud, leftUnitName, rightUnitName);
 		
 		////////// The animation construction
 		
@@ -435,4 +476,97 @@ public final class BattleAnimation {
 			, new SimpleDoubleTransition(Duration.millis(200), n.opacityProperty(), 1, 0)
 		);
 	}
+	
+	static final javafx.scene.layout.Border solidWhiteBorder =
+		new javafx.scene.layout.Border(
+			new javafx.scene.layout.BorderStroke(
+				  Color.WHITE
+				, javafx.scene.layout.BorderStrokeStyle.SOLID
+				, javafx.scene.layout.CornerRadii.EMPTY
+				, javafx.scene.layout.BorderStroke.MEDIUM
+			)
+		);
+	
+	static final javafx.scene.layout.Background solidBackground(Color c) {
+		return new javafx.scene.layout.Background(
+			new javafx.scene.layout.BackgroundFill(c, null, null)
+		);
+	}
+	
+	private static Pos withVCenter(HPos hpos) {
+		switch (hpos) {
+			case LEFT: return Pos.CENTER_LEFT;
+			case CENTER: return Pos.CENTER;
+			case RIGHT: return Pos.CENTER_RIGHT;
+		}
+		return Pos.CENTER;
+	}
+	
+	private static HPos negate(HPos hpos) {
+		switch (hpos) {
+			case LEFT: return HPos.RIGHT;
+			case CENTER: return HPos.CENTER;
+			case RIGHT: return HPos.LEFT;
+		}
+		return HPos.CENTER;
+	}
+	
+	private static ContentDisplay toContentDisplay(HPos hpos) {
+		switch (hpos) {
+			case LEFT: return ContentDisplay.LEFT;
+			case CENTER: return ContentDisplay.CENTER;
+			case RIGHT: return ContentDisplay.RIGHT;
+		}
+		return ContentDisplay.CENTER;
+	}
+	
+	private static Label unitNameLabel(String text, Color bgColor, HPos alignment) {
+		final Label retval = new Label(text);
+		retval.setBorder(new javafx.scene.layout.Border(
+			new javafx.scene.layout.BorderStroke(
+				  Color.WHITE
+				, javafx.scene.layout.BorderStrokeStyle.SOLID
+				, javafx.scene.layout.CornerRadii.EMPTY
+				, new javafx.scene.layout.BorderWidths(
+					3,
+					(alignment == HPos.RIGHT ? 0 : 3),
+					3,
+					(alignment == HPos.LEFT ? 0 : 3)
+				  )
+			)
+		));
+		retval.setBackground(solidBackground(bgColor));
+		retval.setPrefWidth(120);
+		retval.setTextFill(Color.WHITE);
+		retval.setPadding(new javafx.geometry.Insets(3, 7, 3, 7));
+		retval.setFont(Font.font("Sans", BOLD, 15));
+		retval.setAlignment(withVCenter(alignment));
+		return retval;
+	}
+	
+	private static Label weaponLabel(String text, Node icon, Color bgColor, HPos alignment) {
+		final Label retval = new Label(text, icon);
+		retval.setBorder(new javafx.scene.layout.Border(
+			new javafx.scene.layout.BorderStroke(
+				  Color.WHITE
+				, javafx.scene.layout.BorderStrokeStyle.SOLID
+				, javafx.scene.layout.CornerRadii.EMPTY
+				, new javafx.scene.layout.BorderWidths(
+					3,
+					(alignment == HPos.RIGHT ? 0 : 3),
+					0,
+					(alignment == HPos.LEFT ? 0 : 3)
+				  )
+			)
+		));
+		retval.setBackground(solidBackground(Color.GOLDENROD.darker()));
+		retval.setPrefWidth(180);
+		retval.setTextFill(Color.WHITE);
+		retval.setPadding(new javafx.geometry.Insets(3, 3, 3, 3));
+		retval.setFont(Font.font("Sans", BOLD, 15));
+		retval.setAlignment(withVCenter(negate(alignment)));
+		retval.setContentDisplay(toContentDisplay(negate(alignment)));
+		return retval;
+	}
+	
 }
