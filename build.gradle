@@ -14,9 +14,10 @@ sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.deprecation = true
 [compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
 
-// name = 'femp-fx-demo'
+// name = 'fightStage'
 version = 'SNAPSHOT'
-project.ext.mainClassName = "name.rayrobdod.femp_fx_demo.Main"
+project.ext.mainClassName = "name.rayrobdod.fightStage.previewer.Main"
+javadoc.options.overview = new File(sourceSets.main.java.srcDirs[0], 'overview.html')
 
 repositories {
 	mavenCentral()
@@ -36,7 +37,7 @@ jar.manifest.attributes (
 
 spotless {
 	java {
-		importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod.hemp_fx_demo'
+		importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod'
 		removeUnusedImports()
 		endWithNewline()
 	}
