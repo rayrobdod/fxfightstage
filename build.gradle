@@ -54,18 +54,19 @@ subprojects {
 project(":core") {
 }
 
-project(":samples") {
+project(":demo") {
 	dependencies {
 		compile project(":core")
 	}
 }
 
-project(":demo") {
+project(":samples") {
 	project.ext.mainClassName = "name.rayrobdod.fightStage.previewer.Main"
 	
 	dependencies {
 		compile project(":core")
-		compile project(":samples")
+		compile project(":demo")
+		testCompile project(":core").sourceSets.test.output
 	}
 	
 	jar.manifest.attributes (

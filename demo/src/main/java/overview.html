@@ -5,15 +5,12 @@
 </head>
 <body>
 	<p>
-		This creates an animation of two units attacking each other. In javafx and with
-		heavy use of `javafx.animation.Animation`s.
-	</p>
-	<p>
-		The entry point is {@link name.rayrobdod.fightStage.BattleAnimation#buildAnimation}
-	</p>
-	<p>
-		The primary extension point is implementing {@link name.rayrobdod.fightStage.UnitAnimationGroup}
-		and {@link name.rayrobdod.fightStage.SpellAnimationGroup}.
+		The `demo` subproject contains an application that allows a user to set
+		parameters to a BattleAnimation, then play that animation. The main class for
+		this application is `name.rayrobdod.fightStage.previewer.Main`, and it uses two
+		Service Providers to find implementations of `UnitAnimationGroup` and
+		`SpellAnimationGroup`, so one could use this with a different classpath to view
+		custom animation groups.
 	</p>
 </body>
 </html>

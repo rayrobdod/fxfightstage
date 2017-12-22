@@ -5,15 +5,12 @@
 </head>
 <body>
 	<p>
-		This creates an animation of two units attacking each other. In javafx and with
-		heavy use of `javafx.animation.Animation`s.
-	</p>
-	<p>
-		The entry point is {@link name.rayrobdod.fightStage.BattleAnimation#buildAnimation}
-	</p>
-	<p>
-		The primary extension point is implementing {@link name.rayrobdod.fightStage.UnitAnimationGroup}
-		and {@link name.rayrobdod.fightStage.SpellAnimationGroup}.
+		The `core` subproject contains the things needed by a dependent project. The
+		entry point of the library is {@link name.rayrobdod.fightStage.BattleAnimation#buildAnimation};
+		all that method's inputs are its parameters, and it returns a Node and Animation
+		which can be added to a Scene and played, respectively. The primary extension
+		point is implementing {@link name.rayrobdod.fightStage.UnitAnimationGroup} and {@link name.rayrobdod.fightStage.SpellAnimationGroup} and
+		providing those custom implementations in `buildAnimation`'s parameters.
 	</p>
 </body>
 </html>
