@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?import java.lang.Double ?>
+<?import javafx.animation.Interpolator ?>
+<?import javafx.animation.KeyFrame ?>
+<?import javafx.animation.KeyValue ?>
+<?import javafx.animation.Timeline ?>
+<?import javafx.scene.shape.Circle ?>
+<?import javafx.scene.paint.Color ?>
+<?import name.rayrobdod.fightStage.fxml.FxmlSpellAnimationGroup ?>
+<?import name.rayrobdod.fightStage.fxml.FxmlSpellAnimationGroup.RelocatableTimeline ?>
+<?import name.rayrobdod.fightStage.fxml.FxmlSpellAnimationGroup.RelocatableKeyFrame ?>
+<?import name.rayrobdod.fightStage.fxml.FxmlSpellAnimationGroup.RelocatableKeyValue ?>
+<FxmlSpellAnimationGroup xmlns:fx="http://javafx.com/fxml">
+	<foreground>
+		<Circle fill="black" blendMode="EXCLUSION" fx:id="darkCircle" />
+	</foreground>
+	<background>
+		<Circle />
+	</background>
+	<anim>
+		<fx:define>
+			<Interpolator fx:constant="DISCRETE" fx:id="discrete" />
+			<Interpolator fx:constant="LINEAR" fx:id="linear" />
+			<Double fx:value="80" fx:id="maxRadius" />
+		</fx:define>
+		<FxmlSpellAnimationGroup.RelocatableTimeline>
+			<staticFrames>
+				<KeyFrame time="0ms">
+					<values>
+						<!-- have to explicitly give this value a type, becaue KeyValue's constructor doesn't -->
+						<fx:define><Color fx:value="black" fx:id="black" /></fx:define>
+						<KeyValue target="$darkCircle.fillProperty" endValue="$black" interpolator="$discrete" />
+						<KeyValue target="$darkCircle.radiusProperty" endValue="$maxRadius" interpolator="$discrete" />
+					</values>
+				</KeyFrame>
+				<KeyFrame time="300ms">
+					<values>
+						<!-- have to explicitly give this value a type, becaue KeyValue's constructor doesn't -->
+						<fx:define><Color fx:value="rgb(224, 196, 255)" fx:id="myValue" /></fx:define>
+						<KeyValue target="$darkCircle.fillProperty" endValue="$myValue" interpolator="$linear" />
+					</values>
+				</KeyFrame>
+				<KeyFrame time="800ms">
+					<values>
+						<KeyValue target="$darkCircle.radiusProperty" endValue="$maxRadius" interpolator="$linear" />
+					</values>
+				</KeyFrame>
+				<KeyFrame time="1000ms">
+					<values>
+						<!-- have to explicitly give this value a type, becaue KeyValue's constructor doesn't -->
+						<fx:define><Double fx:value="0" fx:id="myValue" /></fx:define>
+						<KeyValue target="$darkCircle.radiusProperty" endValue="$myValue" interpolator="$linear" />
+					</values>
+				</KeyFrame>
+			</staticFrames>
+			<relocatableFrames>
+				<FxmlSpellAnimationGroup.RelocatableKeyFrame time="0ms">
+					<values>
+						<FxmlSpellAnimationGroup.RelocatableKeyValue target="$darkCircle.centerXProperty" endValue="targetX" interpolator="$discrete" />
+						<FxmlSpellAnimationGroup.RelocatableKeyValue target="$darkCircle.centerYProperty" endValue="targetY" interpolator="$discrete" />
+					</values>
+				</FxmlSpellAnimationGroup.RelocatableKeyFrame>
+				<FxmlSpellAnimationGroup.RelocatableKeyFrame time="1ms">
+					<values>
+						<FxmlSpellAnimationGroup.RelocatableKeyValue target="$darkCircle.centerXProperty" endValue="targetX" interpolator="$discrete" />
+						<FxmlSpellAnimationGroup.RelocatableKeyValue target="$darkCircle.centerYProperty" endValue="targetY" interpolator="$discrete" />
+					</values>
+				</FxmlSpellAnimationGroup.RelocatableKeyFrame>
+			</relocatableFrames>
+		</FxmlSpellAnimationGroup.RelocatableTimeline>
+	</anim>
+</FxmlSpellAnimationGroup>

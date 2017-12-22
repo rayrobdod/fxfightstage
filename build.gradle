@@ -1,40 +1,112 @@
-plugins {
-	id "com.diffplug.gradle.spotless" version "3.6.0"
-}
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-[compileJava, compileTestJava]*.options*.deprecation = true
-[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
-
-
-// name = 'femp-fx-demo'
-version = 'SNAPSHOT'
-project.ext.mainClassName = "name.rayrobdod.femp_fx_demo.Main"
-
-repositories {
-	mavenCentral()
-}
-
-jar.manifest.attributes (
-	  'Main-Class': project.mainClassName
-	, 'Implementation-Title': name
-	, 'Implementation-Version': version
-	, 'Implementation-Vendor': 'com.rayrobdod'
-)
-
-spotless {
-	java {
-		importOrder 'java', 'javax', 'javafx', '', 'name.rayrobdod.hemp_fx_demo'
-		removeUnusedImports()
-		endWithNewline()
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
 	}
 }
 
-task run(dependsOn: classes, type: JavaExec) {
-	main = project.mainClassName
-	classpath = sourceSets.main.runtimeClasspath
-	standardInput = System.in
-	ignoreExitValue = true
+plugins {
+	id "com.diffplug.gradle.spotless" version "3.6.0"
+}
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'org.junit.platform.gradle.plugin'
+	apply plugin: "com.diffplug.gradle.spotless"
+	
+	sourceCompatibility = 1.8
+	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+	[compileJava, compileTestJava]*.options*.deprecation = true
+	[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
+	
+	// name = 'fightStage'
+	version = 'SNAPSHOT'
+	javadoc.options.overview = new File(sourceSets.main.java.srcDirs[0], 'overview.html')
+	
+	repositories {
+		mavenCentral()
+	}
+	
+	dependencies {
+		testCompile("org.junit.jupiter:junit-jupiter-api:5.0.2")
+		testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
+	}
+
+	spotless {
+		java {
+			importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod'
+			removeUnusedImports()
+			endWithNewline()
+		}
+	}
+	
+	jar.manifest.attributes (
+		  'Implementation-Title': name
+		, 'Implementation-Version': version
+		, 'Implementation-Vendor': 'com.rayrobdod'
+	)
+	
+	// Run the thing that will tell me why the java will not compile
+	// before running the thing that doesn't tell my why the java
+	//     will not compile and prevents the first thing from running
+	tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {mtask ->
+		mtask.mustRunAfter(compileJava)
+		mtask.mustRunAfter(compileTestJava)
+	}
+}
+
+project(":core") {
+	project.ext.mainClassName = null
+	
+	jar.manifest.attributes (
+		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.core'
+	)
+}
+
+project(":demo") {
+	project.ext.mainClassName = null
+	
+	dependencies {
+		compile project(":core")
+	}
+	
+	jar.manifest.attributes (
+		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.demo'
+	)
+}
+
+project(":fxml") {
+	dependencies {
+		compile project(":core")
+		testCompile project(":core").sourceSets.test.output
+	}
+	
+	jar.manifest.attributes (
+		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.fxml'
+	)
+}
+
+project(":samples") {
+	project.ext.mainClassName = "name.rayrobdod.fightStage.previewer.Main"
+	
+	dependencies {
+		compile project(":core")
+		compile project(":demo")
+		runtime project(":fxml")
+		testCompile project(":core").sourceSets.test.output
+	}
+	
+	jar.manifest.attributes (
+		  'Main-Class': project.mainClassName
+		, 'Automatic-Module-Name': 'name.rayrobdod.fightStage.samples'
+	)
+	
+	task run(dependsOn: classes, type: JavaExec) {
+		main = project.mainClassName
+		classpath = sourceSets.main.runtimeClasspath
+		standardInput = System.in
+		ignoreExitValue = true
+	}
 }

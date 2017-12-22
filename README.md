@@ -1,22 +1,24 @@
+# fx_fightStage
+
+This creates an animation of two units attacking each other. In javafx and with
+heavy use of `javafx.animation.Animation`s.
+
+The `core` subproject contains the things needed by a dependent project. The
+entry point of the library is `name.rayrobdod.fightStage.BattleAnimation::buildAnimation`;
+all that method's inputs are its parameters, and it returns a Node and Animation
+which can be added to a Scene and played, respectively. The primary extension
+point is implementing `UnitAnimationGroup` and `SpellAnimationGroup` and
+providing those custom implementations in `buildAnimation`'s parameters.
+
+The `demo` subproject contains an application that allows a user to set
+parameters to a BattleAnimation, then play that animation. The main class for
+this application is `name.rayrobdod.fightStage.previewer.Main`, and it uses two
+Service Providers to find implementations of `UnitAnimationGroup` and
+`SpellAnimationGroup`, so one could use this with a different classpath to view
+custom animation groups.
+
+The `samples` subproject contains a few implementations of `UnitAnimationGroup`
+and `SpellAnimationGroup`
 
 
-The goal of this project is to replicate the "FightStage" of
-https://github.com/eliatlarge/FEMultiPlayer-V2 in JavaFX.
-
-Primarily because we keep finding people which have graphics cards incapable of running FEMP-V2.
-
-[x] Create at least three classes of animations
-  [x] one of which should include a magic cast animation
-  [ ] include a way to optionally modify the animation in case of e.g. critical hit, skill trigger, finisher
-[x] Include HP decrementing animations
-  [x] Screen shake on any hit
-  [x] the extruding spark things on a hit without a different hit effect
-  [ ] Maybe including a NO DAMAGE text animation thing 
-  [ ] Probably not any critical or miss animations though
-[x] Support varying screen sizes
-  [x] Magnification when screen is large enough?
-[ ] Units starting combat by walking towards the other FE4/FE9 style (as opposed to the current FEGBA or FE1 style) (enhancement?)
-[x] Units start a distance away from each other (depending on distance in tiles on a theoretical board)
-[ ] Some kind of in-or-out transition
-[ ] Ideally shouldn't hardcode too much
-
+I imagine the primary use would be to be played during an attack in a turn-based tactics game.
