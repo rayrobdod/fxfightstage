@@ -42,6 +42,12 @@ subprojects {
 		}
 	}
 	
+	jar.manifest.attributes (
+		  'Implementation-Title': name
+		, 'Implementation-Version': version
+		, 'Implementation-Vendor': 'com.rayrobdod'
+	)
+	
 	// Run the thing that will tell me why the java will not compile
 	// before running the thing that doesn't tell my why the java
 	//     will not compile and prevents the first thing from running
@@ -52,12 +58,23 @@ subprojects {
 }
 
 project(":core") {
+	project.ext.mainClassName = null
+	
+	jar.manifest.attributes (
+		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.core'
+	)
 }
 
 project(":demo") {
+	project.ext.mainClassName = null
+	
 	dependencies {
 		compile project(":core")
 	}
+	
+	jar.manifest.attributes (
+		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.demo'
+	)
 }
 
 project(":samples") {
@@ -71,9 +88,7 @@ project(":samples") {
 	
 	jar.manifest.attributes (
 		  'Main-Class': project.mainClassName
-		, 'Implementation-Title': name
-		, 'Implementation-Version': version
-		, 'Implementation-Vendor': 'com.rayrobdod'
+		, 'Automatic-Module-Name': 'name.rayrobdod.fightStage.samples'
 	)
 	
 	task run(dependsOn: classes, type: JavaExec) {
