@@ -1,8 +1,6 @@
 package name.rayrobdod.fightStage.previewer;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 import javafx.geometry.HPos;
 import javafx.scene.Node;
@@ -15,20 +13,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.spellAnimationGroup.Arrow;
-import name.rayrobdod.fightStage.spellAnimationGroup.Dark;
-import name.rayrobdod.fightStage.spellAnimationGroup.Lazor;
-import name.rayrobdod.fightStage.spellAnimationGroup.LightBurst;
-import name.rayrobdod.fightStage.spellAnimationGroup.LightSword;
-import name.rayrobdod.fightStage.spellAnimationGroup.PhysicalHit;
-import name.rayrobdod.fightStage.unitAnimationGroup.BowGuy;
-import name.rayrobdod.fightStage.unitAnimationGroup.MageGuy;
-import name.rayrobdod.fightStage.unitAnimationGroup.SwordGuy;
+import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
+import name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
+import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 
 public final class SettingsPanel {
 	
@@ -134,36 +125,11 @@ public final class SettingsPanel {
 	
 	
 	private static List<NameSupplierPair<UnitAnimationGroup>> unitOptions() {
-		return Arrays.asList(
-			  new NameSupplierPair<>("SwordGuy", () -> new SwordGuy())
-			, new NameSupplierPair<>("MageGuy", () -> new MageGuy())
-			, new NameSupplierPair<>("BowGuy", () -> new BowGuy())
-		);
+		return UnitAnimationGroups.getAll();
 	}
 	
 	private static List<NameSupplierPair<SpellAnimationGroup>> spellOptions() {
-		return Arrays.asList(
-			  new NameSupplierPair<>("Physical Hit", () -> new PhysicalHit())
-			, new NameSupplierPair<>("Arrow", () -> new Arrow())
-			, new NameSupplierPair<>("Dark", () -> new Dark())
-			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
-			, new NameSupplierPair<>("LightSword", () -> new LightSword())
-			, new NameSupplierPair<>("Lazor (Blue)", () -> new Lazor(Color.BLUE))
-			, new NameSupplierPair<>("Lazor (Red)", () -> new Lazor(Color.RED))
-		);
-	}
-	
-	private static final class NameSupplierPair<E> {
-		public final String displayName;
-		public final Supplier<E> supplier;
-		
-		public NameSupplierPair(
-			String displayName,
-			Supplier<E> supplier
-		) {
-			this.displayName = displayName;
-			this.supplier = supplier;
-		}
+		return SpellAnimationGroups.getAll();
 	}
 	
 	private static final class NameSupplierPairStringConverter<E> extends javafx.util.StringConverter<NameSupplierPair<E>> {
