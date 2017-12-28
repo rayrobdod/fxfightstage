@@ -159,9 +159,10 @@ public final class BattleAnimation {
 			verticalDistance / 2,
 			distanceFootBelowHorizon
 		);
-		final Translate initialUnitTransform = new Translate(initialUnitOffset.getX(), initialUnitOffset.getY());
-		left.unit.getNode().getTransforms().add(initialUnitTransform);
-		right.unit.getNode().getTransforms().add(initialUnitTransform);
+		final Translate leftUnitTransform = new Translate(initialUnitOffset.getX(), initialUnitOffset.getY());
+		final Translate rightUnitTransform = new Translate(initialUnitOffset.getX(), initialUnitOffset.getY());
+		left.unit.getNode().getTransforms().add(leftUnitTransform);
+		right.unit.getNode().getTransforms().add(rightUnitTransform);
 		
 		
 		final Translate screenShakeTranslate = new Translate();
@@ -292,21 +293,20 @@ public final class BattleAnimation {
 						, rightNewHp <= 0
 					);
 					animationParts.add(attackAnimationPair.anim);
-					final Translate newLeftTranslate = new Translate();
-					left.unit.getNode().getTransforms().add(newLeftTranslate);
+					final Point2D newLeftOffset = currentLeftOffset.add(attackAnimationPair.offset, 0);
 					animationParts.add(
 						new SimpleDoubleTransition(
 							Duration.ONE,
-							newLeftTranslate.xProperty(),
-							0.0,
-							-attackAnimationPair.offset
+							leftUnitTransform.xProperty(),
+							-currentLeftOffset.getX(),
+							-newLeftOffset.getX()
 						)
 					);
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
 					currentPan = rightPan;
-					currentLeftOffset = currentLeftOffset.add(attackAnimationPair.offset, 0);
+					currentLeftOffset = newLeftOffset;
 					break;
 				}
 				case RIGHT: {
@@ -348,21 +348,20 @@ public final class BattleAnimation {
 						, leftNewHp <= 0
 					);
 					animationParts.add(attackAnimationPair.anim);
-					final Translate newRightTranslate = new Translate();
-					right.unit.getNode().getTransforms().add(newRightTranslate);
+					final Point2D newRightOffset = currentRightOffset.add(attackAnimationPair.offset, 0);
 					animationParts.add(
 						new SimpleDoubleTransition(
 							Duration.ONE,
-							newRightTranslate.xProperty(),
-							0.0,
-							attackAnimationPair.offset
+							rightUnitTransform.xProperty(),
+							currentRightOffset.getX(),
+							newRightOffset.getX()
 						)
 					);
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
 					currentPan = leftPan;
-					currentRightOffset = currentRightOffset.add(attackAnimationPair.offset, 0);
+					currentRightOffset = newRightOffset;
 					break;
 				}
 			}
