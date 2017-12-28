@@ -1,6 +1,7 @@
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import javafx.animation.*;
 import javafx.animation.Animation;
@@ -45,6 +46,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private static final double swordYRaise = 50 - 150;
 	private static final double swordYLower = 110 - 150;
 	
+	private static final double swordLength = 40;
 	
 	private final Group node;
 	private final DoubleProperty swordAngle;
@@ -73,7 +75,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		hand.setRadius(8);
 		hand.setFill(Color.PEACHPUFF);
 		final Rectangle sword = new Rectangle();
-		sword.setWidth(40);
+		sword.setWidth(swordLength);
 		sword.setHeight(6);
 		sword.setFill(Color.SILVER);
 		
@@ -109,13 +111,11 @@ public final class SwordGuy implements UnitAnimationGroup {
 	public Node getNode() { return this.node; }
 	
 	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
-	public Point2D getSpellOrigin() { return new Point2D(-100, -50); }
 	
-	/**
-	 * Returns an animation to be used for an attack animation
-	 */
+	@Override
 	public Animation getAttackAnimation(
-		  Animation hitAnimation
+		  Function<Point2D, Animation> spellAnimationFun
+		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
 		, boolean isFinisher
@@ -201,9 +201,15 @@ public final class SwordGuy implements UnitAnimationGroup {
 		}
 		
 		
+		final Point2D spellOrigin = (isFinisher || isFirst || isOdd
+			? new Point2D(swordXLower + Math.cos(swordAngleLower * Math.PI / 180) * swordLength, swordYLower + Math.sin(swordAngleLower * Math.PI / 180) * swordLength)
+			: new Point2D(swordXRaise + Math.cos(swordAngleRaise * Math.PI / 180) * swordLength, swordYRaise + Math.sin(swordAngleRaise * Math.PI / 180) * swordLength)
+		);
+		
+		
 		return new SequentialTransition(
 			beforeSpellAnimation,
-			hitAnimation,
+			spellAnimationFun.apply(spellOrigin),
 			afterSpellAnimation
 		);
 	}

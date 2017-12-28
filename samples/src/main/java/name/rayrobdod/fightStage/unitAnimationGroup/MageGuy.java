@@ -1,6 +1,7 @@
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import javafx.animation.*;
 import javafx.animation.Animation;
@@ -9,7 +10,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
@@ -56,13 +56,12 @@ public final class MageGuy implements UnitAnimationGroup {
 	public Node getNode() { return this.node; }
 	
 	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
-	public Point2D getSpellOrigin() { return new Point2D(-55, -61); }
+	private static final Point2D spellOrigin = new Point2D(-55, -61);
 	
-	/**
-	 * Returns an animation to be used for an attack animation
-	 */
+	@Override
 	public Animation getAttackAnimation(
-		  Animation spellAnimation
+		  Function<Point2D, Animation> spellAnimationFun
+		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
 		, boolean isFinisher
@@ -91,6 +90,7 @@ public final class MageGuy implements UnitAnimationGroup {
 			));
 		}
 		
+		final Animation spellAnimation = spellAnimationFun.apply(spellOrigin);
 		duringSpellAnimation.setCycleCount((int) (
 			spellAnimation.getTotalDuration().toMillis() / duringSpellAnimation.getCycleDuration().toMillis()
 		));

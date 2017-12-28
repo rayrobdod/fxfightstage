@@ -1,6 +1,7 @@
 package name.rayrobdod.fightStage;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
@@ -31,19 +32,18 @@ public interface UnitAnimationGroup {
 	public Point2D getSpellTarget();
 	
 	/**
-	 * Returns the location on the node at which spells cast by this unit should originate.
-	 */
-	public Point2D getSpellOrigin();
-	
-	/**
 	 * Returns an animation used to represent an attack
-	 * @param spellAnimation the hit animation associated with the weapon.  This animation must be invoked exactly once in the returned animation.
+	 * @param spellAnimationFun the hit animation associated with the weapon.
+			The function input is the spell origin.
+			This animation must be invoked exactly once in the returned animation.
+	 * @param target the target point of the spell animation
 	 * @param consecutiveAttackDesc Describes this attack's position in a sequence of consecutive strikes
 	 * @param triggeredSkills modifiers describing the current attack
 	 * @param isFinisher true if this attack reduces the opponent's HP to zero
 	 */
 	public Animation getAttackAnimation(
-		  Animation spellAnimation
+		  Function<Point2D, Animation> spellAnimationFun
+		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
 		, boolean isFinisher

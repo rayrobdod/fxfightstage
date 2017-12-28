@@ -254,9 +254,10 @@ public final class BattleAnimation {
 				case LEFT: {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
+					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
 					final Point2D target = currentRightOffset.add(right.unit.getSpellTarget());
-					final Point2D origin = currentLeftOffset.add(mirrorX(left.unit.getSpellOrigin()));
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -268,8 +269,8 @@ public final class BattleAnimation {
 					);
 					animationParts.add(
 						left.unit.getAttackAnimation(
-							left.spell.getAnimation(
-								origin,
+							(origin) -> left.spell.getAnimation(
+								mirrorX(origin).add(currentLeftOffset),
 								target,
 								new SimpleDoubleTransition(
 									Duration.millis(Math.abs(rightPan - leftPan)),
@@ -279,10 +280,11 @@ public final class BattleAnimation {
 								),
 								new ParallelTransition(
 									  shakeAnimation
-									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
-									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
+									, leftHealthbarAnimation
+									, rightHealthbarAnimation
 								)
 							)
+							, target.subtract(currentLeftOffset)
 							, consecutiveAttackDesc
 							, strike.triggeredSkills
 							, rightNewHp <= 0
@@ -297,9 +299,10 @@ public final class BattleAnimation {
 				case RIGHT: {
 					final int leftNewHp = leftCurrentHitpoints - strike.damage;
 					final int rightNewHp = rightCurrentHitpoints + strike.drain;
+					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
 					Point2D target = currentLeftOffset.add(mirrorX(left.unit.getSpellTarget()));
-					Point2D origin = currentRightOffset.add(right.unit.getSpellOrigin());
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -311,8 +314,8 @@ public final class BattleAnimation {
 					);
 					animationParts.add(
 						right.unit.getAttackAnimation(
-							right.spell.getAnimation(
-								origin,
+							(origin) -> right.spell.getAnimation(
+								origin.add(currentRightOffset),
 								target,
 								new SimpleDoubleTransition(
 									Duration.millis(Math.abs(leftPan - rightPan)),
@@ -322,10 +325,11 @@ public final class BattleAnimation {
 								),
 								new ParallelTransition(
 									  shakeAnimation
-									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
-									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
+									, leftHealthbarAnimation
+									, rightHealthbarAnimation
 								)
 							)
+							, target.subtract(currentRightOffset)
 							, consecutiveAttackDesc
 							, strike.triggeredSkills
 							, leftNewHp <= 0

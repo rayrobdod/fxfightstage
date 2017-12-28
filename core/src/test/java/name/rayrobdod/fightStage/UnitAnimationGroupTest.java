@@ -7,6 +7,7 @@ import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
@@ -40,7 +41,8 @@ public interface UnitAnimationGroupTest {
 		UnitAnimationGroup v = this.getInstance();
 		Animation spellAnim = new PauseTransition(Duration.millis(100));
 		Animation dut = v.getAttackAnimation(
-			  spellAnim
+			  (x) -> spellAnim
+			, Point2D.ZERO
 			, new ConsecutiveAttackDescriptor(1, 1)
 			, Collections.emptySet()
 			, false
