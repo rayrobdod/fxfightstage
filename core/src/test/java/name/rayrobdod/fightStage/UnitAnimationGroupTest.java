@@ -46,7 +46,7 @@ public interface UnitAnimationGroupTest {
 			, new ConsecutiveAttackDescriptor(1, 1)
 			, Collections.emptySet()
 			, false
-		);
+		).anim;
 		
 		Assertions.assertEquals(1, UnitAnimationGroupTest.subAnimCount(dut, spellAnim));
 	}

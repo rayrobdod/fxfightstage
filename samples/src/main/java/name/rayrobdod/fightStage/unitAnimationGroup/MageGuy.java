@@ -59,7 +59,7 @@ public final class MageGuy implements UnitAnimationGroup {
 	private static final Point2D spellOrigin = new Point2D(-55, -61);
 	
 	@Override
-	public Animation getAttackAnimation(
+	public AnimationOffsetPair getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
@@ -95,13 +95,16 @@ public final class MageGuy implements UnitAnimationGroup {
 			spellAnimation.getTotalDuration().toMillis() / duringSpellAnimation.getCycleDuration().toMillis()
 		));
 		
-		return new SequentialTransition(
-			beforeSpellAnimation,
-			new ParallelTransition(
-				spellAnimation,
-				duringSpellAnimation
-			),
-			afterSpellAnimation
+		return new AnimationOffsetPair(
+			new SequentialTransition(
+				beforeSpellAnimation,
+				new ParallelTransition(
+					spellAnimation,
+					duringSpellAnimation
+				),
+				afterSpellAnimation
+			)
+			, 0.0
 		);
 	}
 	

@@ -61,7 +61,7 @@ public final class BowGuy implements UnitAnimationGroup {
 	private static final Point2D spellOrigin = new Point2D(-65, -60);
 	
 	@Override
-	public Animation getAttackAnimation(
+	public AnimationOffsetPair getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
@@ -95,10 +95,13 @@ public final class BowGuy implements UnitAnimationGroup {
 			}
 		}
 		
-		return new SequentialTransition(
-			beforeSpellAnimation,
-			spellAnimationFun.apply(spellOrigin),
-			afterSpellAnimation
+		return new AnimationOffsetPair(
+			new SequentialTransition(
+				beforeSpellAnimation,
+				spellAnimationFun.apply(spellOrigin),
+				afterSpellAnimation
+			)
+			, 0.0
 		);
 	}
 	

@@ -37,6 +37,8 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.UnitAnimationGroup.AnimationOffsetPair;
+
 
 public final class BattleAnimation {
 	private BattleAnimation() {}
@@ -245,7 +247,7 @@ public final class BattleAnimation {
 		for (int i = 0; i < strikes.size(); i++) {
 			final Strike strike = strikes.get(i);
 			final ConsecutiveAttackDescriptor consecutiveAttackDesc = consecutiveAttackDescriptor(strikes, i);
-			final double centerPan = (currentLeftOffset.getX() + currentRightOffset.getX()) / 2;
+			final double centerPan = -(currentLeftOffset.getX() + currentRightOffset.getX()) / 2;
 			final boolean useCenterPan = Math.abs(currentLeftOffset.getX() - currentRightOffset.getX()) <= (logicalScreenWidth - distanceExtendPastPoint);
 			final double leftPan = (useCenterPan ? centerPan : -currentLeftOffset.getX() + distanceExtendPastPoint - logicalScreenWidth / 2);
 			final double rightPan = (useCenterPan ? centerPan : -currentRightOffset.getX() - distanceExtendPastPoint + logicalScreenWidth / 2);
@@ -256,6 +258,7 @@ public final class BattleAnimation {
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
 					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
 					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
+					final Point2D currentLeftOffsetButFinal = currentLeftOffset;
 					
 					final Point2D target = currentRightOffset.add(right.unit.getSpellTarget());
 					
@@ -267,33 +270,43 @@ public final class BattleAnimation {
 							leftPan
 						)
 					);
-					animationParts.add(
-						left.unit.getAttackAnimation(
-							(origin) -> left.spell.getAnimation(
-								mirrorX(origin).add(currentLeftOffset),
-								target,
-								new SimpleDoubleTransition(
-									Duration.millis(Math.abs(rightPan - leftPan)),
-									panTranslate.xProperty(),
-									leftPan,
-									rightPan
-								),
-								new ParallelTransition(
-									  shakeAnimation
-									, leftHealthbarAnimation
-									, rightHealthbarAnimation
-								)
+					AnimationOffsetPair attackAnimationPair = left.unit.getAttackAnimation(
+						(origin) -> left.spell.getAnimation(
+							mirrorX(origin).add(currentLeftOffsetButFinal),
+							target,
+							new SimpleDoubleTransition(
+								Duration.millis(Math.abs(rightPan - leftPan)),
+								panTranslate.xProperty(),
+								leftPan,
+								rightPan
+							),
+							new ParallelTransition(
+								  shakeAnimation
+								, leftHealthbarAnimation
+								, rightHealthbarAnimation
 							)
-							, target.subtract(currentLeftOffset)
-							, consecutiveAttackDesc
-							, strike.triggeredSkills
-							, rightNewHp <= 0
+						)
+						, target.subtract(currentLeftOffset)
+						, consecutiveAttackDesc
+						, strike.triggeredSkills
+						, rightNewHp <= 0
+					);
+					animationParts.add(attackAnimationPair.anim);
+					final Translate newLeftTranslate = new Translate();
+					left.unit.getNode().getTransforms().add(newLeftTranslate);
+					animationParts.add(
+						new SimpleDoubleTransition(
+							Duration.ONE,
+							newLeftTranslate.xProperty(),
+							0.0,
+							-attackAnimationPair.offset
 						)
 					);
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
 					currentPan = rightPan;
+					currentLeftOffset = currentLeftOffset.add(attackAnimationPair.offset, 0);
 					break;
 				}
 				case RIGHT: {
@@ -301,6 +314,7 @@ public final class BattleAnimation {
 					final int rightNewHp = rightCurrentHitpoints + strike.drain;
 					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
 					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
+					final Point2D currentRightOffsetButFinal = currentRightOffset;
 					
 					Point2D target = currentLeftOffset.add(mirrorX(left.unit.getSpellTarget()));
 					
@@ -312,33 +326,43 @@ public final class BattleAnimation {
 							rightPan
 						)
 					);
-					animationParts.add(
-						right.unit.getAttackAnimation(
-							(origin) -> right.spell.getAnimation(
-								origin.add(currentRightOffset),
-								target,
-								new SimpleDoubleTransition(
-									Duration.millis(Math.abs(leftPan - rightPan)),
-									panTranslate.xProperty(),
-									rightPan,
-									leftPan
-								),
-								new ParallelTransition(
-									  shakeAnimation
-									, leftHealthbarAnimation
-									, rightHealthbarAnimation
-								)
+					AnimationOffsetPair attackAnimationPair = right.unit.getAttackAnimation(
+						(origin) -> right.spell.getAnimation(
+							origin.add(currentRightOffsetButFinal),
+							target,
+							new SimpleDoubleTransition(
+								Duration.millis(Math.abs(leftPan - rightPan)),
+								panTranslate.xProperty(),
+								rightPan,
+								leftPan
+							),
+							new ParallelTransition(
+								  shakeAnimation
+								, leftHealthbarAnimation
+								, rightHealthbarAnimation
 							)
-							, target.subtract(currentRightOffset)
-							, consecutiveAttackDesc
-							, strike.triggeredSkills
-							, leftNewHp <= 0
+						)
+						, target.subtract(currentRightOffset)
+						, consecutiveAttackDesc
+						, strike.triggeredSkills
+						, leftNewHp <= 0
+					);
+					animationParts.add(attackAnimationPair.anim);
+					final Translate newRightTranslate = new Translate();
+					right.unit.getNode().getTransforms().add(newRightTranslate);
+					animationParts.add(
+						new SimpleDoubleTransition(
+							Duration.ONE,
+							newRightTranslate.xProperty(),
+							0.0,
+							attackAnimationPair.offset
 						)
 					);
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
 					currentPan = leftPan;
+					currentRightOffset = currentRightOffset.add(attackAnimationPair.offset, 0);
 					break;
 				}
 			}

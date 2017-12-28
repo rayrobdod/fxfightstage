@@ -41,7 +41,7 @@ public interface UnitAnimationGroup {
 	 * @param triggeredSkills modifiers describing the current attack
 	 * @param isFinisher true if this attack reduces the opponent's HP to zero
 	 */
-	public Animation getAttackAnimation(
+	public AnimationOffsetPair getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
@@ -52,7 +52,7 @@ public interface UnitAnimationGroup {
 	/*
 	 * Returns an animation used to represent being hit by an attack
 	 */
-	// public Animation getHitAnimation(
+	// public AnimationOffsetPair getHitAnimation(
 	//	, Set<AttackModifier> triggeredSkills
 	//	, boolean isFinisher
 	//)
@@ -67,4 +67,12 @@ public interface UnitAnimationGroup {
 	 */
 	default Animation getVictoryAnimation() { return new PauseTransition(Duration.ZERO); }
 	
+	public static final class AnimationOffsetPair {
+		public final Animation anim;
+		public final double offset;
+		public AnimationOffsetPair(Animation anim, double offset) {
+			this.anim = anim;
+			this.offset = offset;
+		}
+	}
 }
