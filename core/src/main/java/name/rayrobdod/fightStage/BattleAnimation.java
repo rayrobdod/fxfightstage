@@ -237,24 +237,26 @@ public final class BattleAnimation {
 		// show each attack in sequence
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
+		Point2D currentLeftOffset = mirrorX(initialUnitOffset);
+		Point2D currentRightOffset = initialUnitOffset;
 		double currentPan = 0;
-		final double leftPan = Math.max(0,
-			(verticalDistance / 2 + distanceExtendPastPoint) -
-			(gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight()) / 2)
-		);
-		final double rightPan = -leftPan;
+		final double logicalScreenWidth = gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight());
 		
 		for (int i = 0; i < strikes.size(); i++) {
 			final Strike strike = strikes.get(i);
 			final ConsecutiveAttackDescriptor consecutiveAttackDesc = consecutiveAttackDescriptor(strikes, i);
+			final double centerPan = (currentLeftOffset.getX() + currentRightOffset.getX()) / 2;
+			final boolean useCenterPan = Math.abs(currentLeftOffset.getX() - currentRightOffset.getX()) <= (logicalScreenWidth - distanceExtendPastPoint);
+			final double leftPan = (useCenterPan ? centerPan : -currentLeftOffset.getX() + distanceExtendPastPoint - logicalScreenWidth / 2);
+			final double rightPan = (useCenterPan ? centerPan : -currentRightOffset.getX() - distanceExtendPastPoint + logicalScreenWidth / 2);
 			
 			switch (strike.attacker) {
 				case LEFT: {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
 					
-					final Point2D target = initialUnitOffset.add(right.unit.getSpellTarget());
-					final Point2D origin = mirrorX(initialUnitOffset.add(left.unit.getSpellOrigin()));
+					final Point2D target = currentRightOffset.add(right.unit.getSpellTarget());
+					final Point2D origin = currentLeftOffset.add(mirrorX(left.unit.getSpellOrigin()));
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -296,8 +298,8 @@ public final class BattleAnimation {
 					final int leftNewHp = leftCurrentHitpoints - strike.damage;
 					final int rightNewHp = rightCurrentHitpoints + strike.drain;
 					
-					Point2D target = mirrorX(initialUnitOffset.add(left.unit.getSpellTarget()));
-					Point2D origin = initialUnitOffset.add(right.unit.getSpellOrigin());
+					Point2D target = currentLeftOffset.add(mirrorX(left.unit.getSpellTarget()));
+					Point2D origin = currentRightOffset.add(right.unit.getSpellOrigin());
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
