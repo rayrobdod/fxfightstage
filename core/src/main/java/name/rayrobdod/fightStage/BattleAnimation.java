@@ -147,35 +147,19 @@ public final class BattleAnimation {
 		);
 		
 		
-		
-		// find the locations that the units should be placed at
-		final Point2D leftFootTarget = new Point2D(
-			-verticalDistance / 2,
-			distanceFootBelowHorizon
-		);
-		final Point2D rightFootTarget = new Point2D(
-			verticalDistance / 2,
-			distanceFootBelowHorizon
-		);
-		
 		// make the left unit face towards the right unit
-		left.unit.getNode().setScaleX(-1);
+		left.unit.getNode().getTransforms().add(new Scale(-1, 1));
 		// the right unit already faces towards the left unit
 		
 		
-		// place the units at the desired points
-		left.unit.getNode().relocate(0, 0);
-		right.unit.getNode().relocate(0, 0);
-		
-		final Point2D leftOffset = leftFootTarget.subtract(
-			left.unit.getNode().localToParent(left.unit.getFootPoint())
+		// place the units at their starting location
+		final Point2D initialUnitOffset = new Point2D(
+			verticalDistance / 2,
+			distanceFootBelowHorizon
 		);
-		final Point2D rightOffset = rightFootTarget.subtract(
-			right.unit.getNode().localToParent(right.unit.getFootPoint())
-		);
-		
-		left.unit.getNode().relocate(leftOffset.getX(), leftOffset.getY());
-		right.unit.getNode().relocate(rightOffset.getX(), rightOffset.getY());
+		final Translate initialUnitTransform = new Translate(initialUnitOffset.getX(), initialUnitOffset.getY());
+		left.unit.getNode().getTransforms().add(initialUnitTransform);
+		right.unit.getNode().getTransforms().add(initialUnitTransform);
 		
 		
 		final Translate screenShakeTranslate = new Translate();
@@ -269,8 +253,8 @@ public final class BattleAnimation {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
 					
-					final Point2D target = right.unit.getNode().localToParent(right.unit.getSpellTarget());
-					final Point2D origin = left.unit.getNode().localToParent(left.unit.getSpellOrigin());
+					final Point2D target = initialUnitOffset.add(right.unit.getSpellTarget());
+					final Point2D origin = mirrorX(initialUnitOffset.add(left.unit.getSpellOrigin()));
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -312,8 +296,8 @@ public final class BattleAnimation {
 					final int leftNewHp = leftCurrentHitpoints - strike.damage;
 					final int rightNewHp = rightCurrentHitpoints + strike.drain;
 					
-					Point2D target = left.unit.getNode().localToParent(left.unit.getSpellTarget());
-					Point2D origin = right.unit.getNode().localToParent(right.unit.getSpellOrigin());
+					Point2D target = mirrorX(initialUnitOffset.add(left.unit.getSpellTarget()));
+					Point2D origin = initialUnitOffset.add(right.unit.getSpellOrigin());
 					
 					animationParts.add(
 						new SimpleDoubleTransition(
@@ -566,4 +550,7 @@ public final class BattleAnimation {
 		return retval;
 	}
 	
+	private static Point2D mirrorX(Point2D in) {
+		return new Point2D(-1 * in.getX(), in.getY());
+	}
 }

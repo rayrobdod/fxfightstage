@@ -9,6 +9,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
@@ -44,6 +45,8 @@ public final class MageGuy implements UnitAnimationGroup {
 	public MageGuy() {
 		final Image img = new Image(filename);
 		this.node = new ImageView(img);
+		this.node.setX(-80);
+		this.node.setY(-150);
 		this.node.setViewport(standingViewport);
 	}
 	
@@ -52,9 +55,8 @@ public final class MageGuy implements UnitAnimationGroup {
 	 */
 	public Node getNode() { return this.node; }
 	
-	public Point2D getFootPoint() { return new Point2D(80, 150); }
-	public Point2D getSpellTarget() { return new Point2D(75, 90); }
-	public Point2D getSpellOrigin() { return new Point2D(25, 89); }
+	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
+	public Point2D getSpellOrigin() { return new Point2D(-55, -61); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation

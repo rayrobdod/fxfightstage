@@ -10,6 +10,13 @@ import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
 
+/**
+ * An object that describes a unit animation.
+ * 
+ * The coordinate system should have the same scale as BattleAnimation, but 0,0
+ * is located at the unit's feet (if the unit is an infantry; probably standardize elsewhere
+ * for mounted or flying).
+ */
 public interface UnitAnimationGroup {
 	
 	/**
@@ -17,11 +24,6 @@ public interface UnitAnimationGroup {
 	 * The object returned has the same identity every time. 
 	 */
 	public Node getNode();
-	
-	/**
-	 * Returns a point relative to the node at which the standing pose of the unit is centered.
-	 */
-	public Point2D getFootPoint();
 	
 	/**
 	 * Returns the location on the node at which spells targeting this unit should be centered.

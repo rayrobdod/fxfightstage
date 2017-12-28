@@ -30,20 +30,20 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private static final double swordAngleRaise = 240;
 	private static final double swordAngleLower = 140;
 	
-	private static final double swordXSheath = 110;
-	private static final double swordXMidSheath = 95;
-	private static final double swordXStand = 110;
-	private static final double swordXPose = 80;
-	private static final double swordXRaise = 85;
-	private static final double swordXLower = 85;
+	private static final double swordXSheath = 110 - 120;
+	private static final double swordXMidSheath = 95 - 120;
+	private static final double swordXStand = 110 - 120;
+	private static final double swordXPose = 80 - 120;
+	private static final double swordXRaise = 85 - 120;
+	private static final double swordXLower = 85 - 120;
 	private static final double midSwingXDelta = -15;
 	
-	private static final double swordYSheath = 120;
-	private static final double swordYMidSheath = 105;
-	private static final double swordYStand = 120;
-	private static final double swordYPose = 80;
-	private static final double swordYRaise = 50;
-	private static final double swordYLower = 110;
+	private static final double swordYSheath = 120 - 150;
+	private static final double swordYMidSheath = 105 - 150;
+	private static final double swordYStand = 120 - 150;
+	private static final double swordYPose = 80 - 150;
+	private static final double swordYRaise = 50 - 150;
+	private static final double swordYLower = 110 - 150;
 	
 	
 	private final Group node;
@@ -52,18 +52,21 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private final DoubleProperty swordHandY;
 	
 	public SwordGuy() {
-		final Rectangle bounds = new Rectangle(0, 0, 150, 150);
+		// `bounds` prevents the group from changing size despite other components
+		// moving around by being larger than the all other nodes combined.
+		final Rectangle bounds = new Rectangle(0 - 120, 0 - 150, 150, 150);
 		bounds.setFill(Color.TRANSPARENT);
-		final Rectangle body = new Rectangle(100, 80, 40, 70);
+		
+		final Rectangle body = new Rectangle(100 - 120, 80 - 150, 40, 70);
 		body.setFill(Color.RED);
 		final Circle head = new Circle();
-		head.setCenterX(120);
-		head.setCenterY(60);
+		head.setCenterX(120 - 120);
+		head.setCenterY(60 - 150);
 		head.setRadius(30);
 		head.setFill(Color.PEACHPUFF);
 		final Circle eye = new Circle();
-		eye.setCenterX(106);
-		eye.setCenterY(55);
+		eye.setCenterX(106 - 120);
+		eye.setCenterY(55 - 150);
 		eye.setRadius(6);
 		eye.setFill(Color.BLACK);
 		final Circle hand = new Circle();
@@ -105,9 +108,8 @@ public final class SwordGuy implements UnitAnimationGroup {
 	 */
 	public Node getNode() { return this.node; }
 	
-	public Point2D getFootPoint() { return new Point2D(120, 150); }
-	public Point2D getSpellTarget() { return new Point2D(115, 90); }
-	public Point2D getSpellOrigin() { return new Point2D(20, 100); }
+	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
+	public Point2D getSpellOrigin() { return new Point2D(-100, -50); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation

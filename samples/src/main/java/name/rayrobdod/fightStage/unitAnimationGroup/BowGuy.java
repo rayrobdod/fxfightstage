@@ -9,6 +9,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
@@ -46,6 +47,8 @@ public final class BowGuy implements UnitAnimationGroup {
 	public BowGuy() {
 		final Image img = new Image(filename);
 		this.node = new ImageView(img);
+		this.node.setX(-70);
+		this.node.setY(-130);
 		this.node.setViewport(standingViewport);
 	}
 	
@@ -54,9 +57,8 @@ public final class BowGuy implements UnitAnimationGroup {
 	 */
 	public Node getNode() { return this.node; }
 	
-	public Point2D getFootPoint() { return new Point2D(70, 130); }
-	public Point2D getSpellTarget() { return new Point2D(65, 70); }
-	public Point2D getSpellOrigin() { return new Point2D(5, 70); }
+	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
+	public Point2D getSpellOrigin() { return new Point2D(-65, -60); }
 	
 	/**
 	 * Returns an animation to be used for an attack animation
