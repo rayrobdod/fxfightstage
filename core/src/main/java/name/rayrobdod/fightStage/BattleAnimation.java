@@ -257,7 +257,7 @@ public final class BattleAnimation {
 					final Point2D origin = mirrorX(initialUnitOffset.add(left.unit.getSpellOrigin()));
 					
 					animationParts.add(
-						new SimpleDoubleTransition(
+						Animations.doubleSimpleAnimation(
 							Duration.millis(Math.abs(currentPan - leftPan)),
 							panTranslate.xProperty(),
 							currentPan,
@@ -269,7 +269,7 @@ public final class BattleAnimation {
 							left.spell.getAnimation(
 								origin,
 								target,
-								new SimpleDoubleTransition(
+								Animations.doubleSimpleAnimation(
 									Duration.millis(Math.abs(rightPan - leftPan)),
 									panTranslate.xProperty(),
 									leftPan,
@@ -300,7 +300,7 @@ public final class BattleAnimation {
 					Point2D origin = initialUnitOffset.add(right.unit.getSpellOrigin());
 					
 					animationParts.add(
-						new SimpleDoubleTransition(
+						Animations.doubleSimpleAnimation(
 							Duration.millis(Math.abs(currentPan - rightPan)),
 							panTranslate.xProperty(),
 							currentPan,
@@ -312,7 +312,7 @@ public final class BattleAnimation {
 							right.spell.getAnimation(
 								origin,
 								target,
-								new SimpleDoubleTransition(
+								Animations.doubleSimpleAnimation(
 									Duration.millis(Math.abs(leftPan - rightPan)),
 									panTranslate.xProperty(),
 									rightPan,
@@ -375,7 +375,7 @@ public final class BattleAnimation {
 		final Duration timePerTick = Duration.millis(50);
 		final Duration time = timePerTick.multiply(Math.abs(to - from));
 		
-		return new SimpleIntegerTransition(time, hb.currentHealthProperty(), from, to);
+		return Animations.integerSimpleAnimation(time, hb.currentHealthProperty(), from, to);
 	}
 	
 	private static Animation shakeAnimation(int strength, Translate translate) {
@@ -453,8 +453,8 @@ public final class BattleAnimation {
 		n.setEffect(toWhiteEffect);
 		
 		return new SequentialTransition(
-			  new SimpleDoubleTransition(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
-			, new SimpleDoubleTransition(Duration.millis(200), n.opacityProperty(), 1, 0)
+			  Animations.doubleSimpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
+			, Animations.doubleSimpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
 		);
 	}
 	
