@@ -4,7 +4,6 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PathTransition;
-import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -16,7 +15,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 
-import name.rayrobdod.fightStage.SimpleBooleanTransition;
+import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -108,30 +107,24 @@ public final class Arrow implements SpellAnimationGroup {
 			targetX, targetY
 		);
 		
-		final SimpleBooleanTransition setArrowVisible = new SimpleBooleanTransition(
-			Duration.ONE, this.arrow.visibleProperty(), false, true
-		);
 		final PathTransition arrowAnimation = new PathTransition(
 			duration, arrowPath, this.arrow
-		);
-		final SimpleBooleanTransition setArrowInvisible = new SimpleBooleanTransition(
-			Duration.ONE, this.arrow.visibleProperty(), true, false
 		);
 		arrowAnimation.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
 		arrowAnimation.setInterpolator(Interpolator.LINEAR);
 		
 		
 		return new SequentialTransition(
-			setArrowVisible,
+			Animations.booleanSetAnimation(this.arrow.visibleProperty(), true),
 			new ParallelTransition(
 				arrowAnimation,
 				panAnimation
 			),
-			setArrowInvisible,
+			Animations.booleanSetAnimation(this.arrow.visibleProperty(), false),
 			physicalHit.getAnimation(
 				origin,
 				target,
-				new PauseTransition(Duration.ZERO),
+				Animations.nil(),
 				hpAndShakeAnimation
 			)
 		);

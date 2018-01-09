@@ -10,7 +10,10 @@ import javafx.util.Duration;
  * 
  * Unlike fx's built-in Transitions, this cannot reset properties upon an animation reset or
  * do any relative operations as the necessary-to-override methods are package-private.
+ * 
+ * @deprecated use {@link Animations#booleanSetAnimation} instead
  */
+@Deprecated
 public final class SimpleBooleanTransition extends Transition {
 	private final BooleanProperty property;
 	private final boolean fromValue;

@@ -4,10 +4,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
-import javafx.animation.PauseTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
 
@@ -60,12 +58,12 @@ public interface UnitAnimationGroup {
 	/**
 	 * Returns an animation used before any attacks are played
 	 */
-	default Animation getInitiateAnimation() { return new PauseTransition(Duration.ZERO); }
+	default Animation getInitiateAnimation() { return Animations.nil(); }
 	
 	/**
 	 * Returns an animation used after all attacks if that unit reduced it's opponent's HP to zero
 	 */
-	default Animation getVictoryAnimation() { return new PauseTransition(Duration.ZERO); }
+	default Animation getVictoryAnimation() { return Animations.nil(); }
 	
 	public static final class AnimationOffsetPair {
 		public final Animation anim;

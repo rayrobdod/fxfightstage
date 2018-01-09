@@ -10,7 +10,10 @@ import javafx.util.Duration;
  * 
  * Unlike fx's built-in Transitions, this cannot reset properties upon an animation reset or
  * do any relative operations as the necessary-to-override methods are package-private.
+ * 
+ * @deprecated use {@link Animations#doubleSimpleAnimation} instead
  */
+@Deprecated
 public final class SimpleDoubleTransition extends Transition {
 	private final DoubleProperty property;
 	private final double fromValue;
