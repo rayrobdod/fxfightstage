@@ -1,9 +1,11 @@
 package name.rayrobdod.fightStage;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
@@ -12,9 +14,10 @@ import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
 /**
  * An object that describes a unit animation.
  * 
- * The coordinate system should have the same scale as BattleAnimation, but 0,0
- * is located at the unit's feet (if the unit is an infantry; probably standardize elsewhere
- * for mounted or flying).
+ * An implementor may find it easiest to add a {@link javafx.scene.transform.Scale}
+ * and a {@link javafx.scene.transform.Translate} to the node's transforms, us
+ * those to describe the node's offsets, and otherwise have operations take place
+ * as if on a personal coordinate system.
  */
 public interface UnitAnimationGroup {
 	
@@ -27,7 +30,16 @@ public interface UnitAnimationGroup {
 	/**
 	 * Returns the location on the node at which spells targeting this unit should be centered.
 	 */
-	public Point2D getSpellTarget();
+	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues);
+	
+	/**
+	 * Returns the offset of this unit in the x-direction.
+	 * 
+	 * Barring any mutations of rolloverKeyValues by {@code getAttackAnimation},
+	 * this should have the same value as the x-coordinate of the point passed to {@link getInitializingKeyValues}
+	 * when rolloverKeyValues was returned from that function.
+	 */
+	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues);
 	
 	/**
 	 * Returns an animation used to represent an attack
@@ -38,9 +50,11 @@ public interface UnitAnimationGroup {
 	 * @param consecutiveAttackDesc Describes this attack's position in a sequence of consecutive strikes
 	 * @param triggeredSkills modifiers describing the current attack
 	 * @param isFinisher true if this attack reduces the opponent's HP to zero
+	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
-	public AnimationOffsetPair getAttackAnimation(
+	public Animation getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
+		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
@@ -65,12 +79,8 @@ public interface UnitAnimationGroup {
 	 */
 	default Animation getVictoryAnimation() { return Animations.nil(); }
 	
-	public static final class AnimationOffsetPair {
-		public final Animation anim;
-		public final double offset;
-		public AnimationOffsetPair(Animation anim, double offset) {
-			this.anim = anim;
-			this.offset = offset;
-		}
-	}
+	public Map<DoubleProperty, Double> getInitializingKeyValues(
+		  BattleAnimation.Side side
+		, Point2D initialOffset
+	);
 }
