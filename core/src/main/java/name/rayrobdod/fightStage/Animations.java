@@ -45,17 +45,26 @@ public final class Animations {
 	/**
 	 * An animation that changes the value of the specified property between the specified values.
 	 */
-	@SuppressWarnings("deprecation")
 	public static Animation doubleSimpleAnimation(
 		Duration duration,
 		DoubleProperty property,
 		double fromValue,
 		double toValue
 	) {
-		// If this uses a timeline instead (like `integerSimpleAnimation`),
-		// BattleAnimation will only show a black screen. I don't know why.
-		
-		return new SimpleDoubleTransition(duration, property, fromValue, toValue);
+		if (fromValue != toValue) {
+			final Timeline retval = new Timeline();
+			retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+				new KeyValue(property, fromValue, Interpolator.DISCRETE)
+			));
+			retval.getKeyFrames().add(new KeyFrame(duration,
+				new KeyValue(property, toValue, Interpolator.LINEAR)
+			));
+			return retval;
+		} else {
+			// Timeline does not like when a value doesn't change over the Timeline's duration
+			// Using a timeline in that case will break things; this isn't due to an optimization attempt
+			return new PauseTransition(duration);
+		}
 	}
 	
 	/**
@@ -67,13 +76,19 @@ public final class Animations {
 		int fromValue,
 		int toValue
 	) {
-		final Timeline retval = new Timeline();
-		retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(property, fromValue, Interpolator.DISCRETE)
-		));
-		retval.getKeyFrames().add(new KeyFrame(duration,
-			new KeyValue(property, toValue, Interpolator.LINEAR)
-		));
-		return retval;
+		if (fromValue != toValue) {
+			final Timeline retval = new Timeline();
+			retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+				new KeyValue(property, fromValue, Interpolator.DISCRETE)
+			));
+			retval.getKeyFrames().add(new KeyFrame(duration,
+				new KeyValue(property, toValue, Interpolator.LINEAR)
+			));
+			return retval;
+		} else {
+			// Timeline does not like when a value doesn't change over the Timeline's duration
+			// Using a timeline in that case will break things; this isn't due to an optimization attempt
+			return new PauseTransition(duration);
+		}
 	}
 }
