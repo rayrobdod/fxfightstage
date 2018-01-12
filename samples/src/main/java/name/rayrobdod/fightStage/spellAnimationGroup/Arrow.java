@@ -33,7 +33,7 @@ public final class Arrow implements SpellAnimationGroup {
 	private static final int featherWidth = 6;
 	private static final int featherLength = 18;
 	private static final int featherSkew = 5;
-	private static final double arrowSpeed = 1.4;
+	private static final double arrowSpeed = 2.5;
 	private static final double arrowArcMultiplier = 0.08;
 	
 	private final Group arrow;
@@ -94,9 +94,7 @@ public final class Arrow implements SpellAnimationGroup {
 		final double targetY = target.getY();
 		final double deltaX = targetX - originX;
 		final double deltaY = targetY - originY;
-		final double deltaDistance = Math.sqrt(
-			Math.abs(targetX + targetX) * Math.abs(targetY + targetY)
-		);
+		final double deltaDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 		final double controlX = originX + deltaX / 2;
 		final double controlY = originY + deltaY / 2 - Math.abs(deltaX) * arrowArcMultiplier;
 		final Duration duration = Duration.millis(deltaDistance / arrowSpeed);
