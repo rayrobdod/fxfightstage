@@ -1,18 +1,27 @@
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
-import javafx.animation.*;
 import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
+import name.rayrobdod.fightStage.BattleAnimation.Side;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 
@@ -41,30 +50,54 @@ public final class BowGuy implements UnitAnimationGroup {
 		standingViewport
 	};
 	
-	
 	private final ImageView node;
+	private final DoubleProperty scaleXProp;
+	private final DoubleProperty translateXProp;
+	private final DoubleProperty translateYProp;
 	
 	public BowGuy() {
+		final Translate footPointTranslate = new Translate(-70, -130);
+		final Scale scale = new Scale();
+		this.scaleXProp = scale.xProperty();
+		final Translate moveTranslate = new Translate();
+		this.translateXProp = moveTranslate.xProperty();
+		this.translateYProp = moveTranslate.yProperty();
 		final Image img = new Image(filename);
 		this.node = new ImageView(img);
-		this.node.setX(-70);
-		this.node.setY(-130);
+		this.node.getTransforms().add(moveTranslate);
+		this.node.getTransforms().add(scale);
+		this.node.getTransforms().add(footPointTranslate);
 		this.node.setViewport(standingViewport);
 	}
 	
-	/**
-	 * Returns the node associated with this object.
-	 */
+	@Override
 	public Node getNode() { return this.node; }
 	
-	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
-	public Point2D getSpellOrigin() { return new Point2D(-65, -60); }
+	@Override
+	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
+		return new Point2D(
+			rolloverKeyValues.get(translateXProp) - rolloverKeyValues.get(scaleXProp) * 5,
+			rolloverKeyValues.get(translateYProp) - 60
+		);
+	}
 	
-	/**
-	 * Returns an animation to be used for an attack animation
-	 */
+	@Override
+	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues) {
+		return rolloverKeyValues.get(translateXProp);
+	}
+
+	private Point2D getSpellOrigin(Map<DoubleProperty, Double> rolloverKeyValues) {
+		return new Point2D(
+			rolloverKeyValues.get(translateXProp) - rolloverKeyValues.get(scaleXProp) * 65,
+			rolloverKeyValues.get(translateYProp) - 60
+		);
+	}
+	
+	@Override
 	public Animation getAttackAnimation(
-		  Animation hitAnimation
+		  Function<Point2D, Animation> spellAnimationFun
+		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
 		, boolean isFinisher
@@ -98,9 +131,19 @@ public final class BowGuy implements UnitAnimationGroup {
 		
 		return new SequentialTransition(
 			beforeSpellAnimation,
-			hitAnimation,
+			spellAnimationFun.apply(this.getSpellOrigin(rolloverKeyValues)),
 			afterSpellAnimation
 		);
 	}
 	
+	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
+		  Side side
+		, Point2D footPoint
+	) {
+		final Map<DoubleProperty, Double> retval = new java.util.HashMap<>();
+		retval.put(scaleXProp, (side == Side.LEFT ? -1.0 : 1.0));
+		retval.put(translateXProp, footPoint.getX());
+		retval.put(translateYProp, footPoint.getY());
+		return retval;
+	}
 }

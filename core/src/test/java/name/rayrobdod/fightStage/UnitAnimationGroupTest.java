@@ -2,17 +2,19 @@ package name.rayrobdod.fightStage;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.beans.property.DoubleProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 
 public interface UnitAnimationGroupTest {
 	
@@ -40,13 +42,36 @@ public interface UnitAnimationGroupTest {
 		UnitAnimationGroup v = this.getInstance();
 		Animation spellAnim = new PauseTransition(Duration.millis(100));
 		Animation dut = v.getAttackAnimation(
-			  spellAnim
+			  (x) -> spellAnim
+			, v.getInitializingKeyValues(BattleAnimation.Side.LEFT, Point2D.ZERO)
+			, Point2D.ZERO
 			, new ConsecutiveAttackDescriptor(1, 1)
 			, Collections.emptySet()
 			, false
 		);
 		
 		Assertions.assertEquals(1, UnitAnimationGroupTest.subAnimCount(dut, spellAnim));
+	}
+	
+	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues(double value) {
+		UnitAnimationGroup v = this.getInstance();
+		Map<DoubleProperty, Double> map = v.getInitializingKeyValues(BattleAnimation.Side.LEFT, new Point2D(value, 0.0));
+		Assertions.assertEquals(value, v.getCurrentXOffset(map));
+	}
+	
+	@Test
+	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues_0() {
+		this.getCurrentXOffset_matchesValuePassedToInitializingKeyValues(0);
+	}
+	
+	@Test
+	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues_50() {
+		this.getCurrentXOffset_matchesValuePassedToInitializingKeyValues(50);
+	}
+	
+	@Test
+	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues_Neg50() {
+		this.getCurrentXOffset_matchesValuePassedToInitializingKeyValues(-50);
 	}
 	
 	

@@ -1,9 +1,16 @@
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
-import java.util.Set;
 
-import javafx.animation.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,9 +22,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
+import name.rayrobdod.fightStage.BattleAnimation.Side;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 
@@ -45,11 +55,16 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private static final double swordYRaise = 50 - 150;
 	private static final double swordYLower = 110 - 150;
 	
+	private static final double swordLength = 40;
+	private static final double approachToDistance = 100;
 	
 	private final Group node;
 	private final DoubleProperty swordAngle;
 	private final DoubleProperty swordHandX;
 	private final DoubleProperty swordHandY;
+	private final DoubleProperty facingScaleX;
+	private final DoubleProperty approachX;
+	private final DoubleProperty approachY;
 	
 	public SwordGuy() {
 		// `bounds` prevents the group from changing size despite other components
@@ -73,7 +88,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		hand.setRadius(8);
 		hand.setFill(Color.PEACHPUFF);
 		final Rectangle sword = new Rectangle();
-		sword.setWidth(40);
+		sword.setWidth(swordLength);
 		sword.setHeight(6);
 		sword.setFill(Color.SILVER);
 		
@@ -82,6 +97,11 @@ public final class SwordGuy implements UnitAnimationGroup {
 		this.swordAngle = swordRotate.angleProperty();
 		this.swordHandX = swordRotate.pivotXProperty();
 		this.swordHandY = swordRotate.pivotYProperty();
+		final Translate approachTranslate = new Translate();
+		this.approachX = approachTranslate.xProperty();
+		this.approachY = approachTranslate.yProperty();
+		final Scale facingScale = new Scale();
+		this.facingScaleX = facingScale.xProperty();
 		
 		sword.xProperty().bind(this.swordHandX);
 		sword.yProperty().bind(this.swordHandY.subtract(3));
@@ -101,25 +121,36 @@ public final class SwordGuy implements UnitAnimationGroup {
 			, hand
 			, sword
 		);
+		this.node.getTransforms().add(approachTranslate);
+		this.node.getTransforms().add(facingScale);
 	}
 	
-	/**
-	 * Returns the node associated with this object.
-	 */
+	@Override
 	public Node getNode() { return this.node; }
 	
-	public Point2D getSpellTarget() { return new Point2D(-5, -60); }
-	public Point2D getSpellOrigin() { return new Point2D(-100, -50); }
+	@Override
+	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
+		return new Point2D(
+			rolloverKeyValues.get(approachX) - rolloverKeyValues.get(facingScaleX) * 5,
+			rolloverKeyValues.get(approachY) - 60
+		);
+	}
 	
-	/**
-	 * Returns an animation to be used for an attack animation
-	 */
+	@Override
+	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues) {
+		return rolloverKeyValues.get(approachX);
+	}
+	
+	@Override
 	public Animation getAttackAnimation(
-		  Animation hitAnimation
+		  Function<Point2D, Animation> spellAnimationFun
+		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> triggeredSkills
 		, boolean isFinisher
 	) {
+		final Timeline approachAnimation = new Timeline();
 		final Timeline beforeSpellAnimation = new Timeline();
 		final Timeline afterSpellAnimation = new Timeline();
 		Duration thisTime = Duration.ZERO;
@@ -127,6 +158,40 @@ public final class SwordGuy implements UnitAnimationGroup {
 		final boolean isFirst = consecutiveAttackDesc.isFirst();
 		final boolean isEven = consecutiveAttackDesc.current % 2 == 0;
 		final boolean isOdd = consecutiveAttackDesc.current % 2 != 0;
+		
+		if (isFirst) {
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleStand, swordXStand, swordYStand)
+			);
+		} else if (isEven) {
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleLower, swordXLower, swordYLower)
+			);
+		} else {
+			beforeSpellAnimation.getKeyFrames().add(
+				swordKeyFrame(thisTime, swordAngleRaise, swordXRaise, swordYRaise)
+			);
+		}
+
+		final double startCurrentXOffset = this.getCurrentXOffset(rolloverKeyValues);
+		final double startingVector = target.getX() - startCurrentXOffset;
+		final double startingDistance = Math.abs(startingVector);
+		final double approachDistance = Math.max(0, startingDistance - approachToDistance);
+		final double approachVector = Math.signum(startingVector) * approachDistance;
+		final double endCurrentXOffset = startCurrentXOffset + approachVector;
+		
+		if (approachDistance > 0) {
+			final Duration approachDuration = Duration.millis(approachDistance * 5);
+			
+			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+				new KeyValue(this.approachX, startCurrentXOffset, Interpolator.LINEAR)
+			));
+			thisTime = thisTime.add(approachDuration);
+			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
+				new KeyValue(this.approachX, endCurrentXOffset, Interpolator.LINEAR)
+			));
+		}
+		rolloverKeyValues.put(approachX, endCurrentXOffset);
 		
 		if (isFirst) {
 			beforeSpellAnimation.getKeyFrames().add(
@@ -183,7 +248,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 			);
 		}
 		
-		
+		thisTime = Duration.ZERO;
 		if (consecutiveAttackDesc.isLast()) {
 			if (isFinisher || isFirst || isOdd) {
 				afterSpellAnimation.getKeyFrames().add(
@@ -198,16 +263,28 @@ public final class SwordGuy implements UnitAnimationGroup {
 			afterSpellAnimation.getKeyFrames().add(
 				swordKeyFrame(Duration.millis(200), swordAngleStand, swordXStand, swordYStand)
 			);
+			thisTime = thisTime.add(Duration.millis(200));
 		}
 		
+		final double facingScaleXValue = rolloverKeyValues.get(facingScaleX);
+		final Point2D spellOriginRelative = (isFinisher || isFirst || isOdd
+			? new Point2D(facingScaleXValue * (swordXLower + Math.cos(swordAngleLower * Math.PI / 180) * swordLength), swordYLower + Math.sin(swordAngleLower * Math.PI / 180) * swordLength)
+			: new Point2D(facingScaleXValue * (swordXRaise + Math.cos(swordAngleRaise * Math.PI / 180) * swordLength), swordYRaise + Math.sin(swordAngleRaise * Math.PI / 180) * swordLength)
+		);
+		final Point2D currentOffset = new Point2D(
+			rolloverKeyValues.get(approachX),
+			rolloverKeyValues.get(approachY)
+		);
+		final Point2D spellOrigin = spellOriginRelative.add(currentOffset);
 		
 		return new SequentialTransition(
 			beforeSpellAnimation,
-			hitAnimation,
+			spellAnimationFun.apply(spellOrigin),
 			afterSpellAnimation
 		);
 	}
 	
+	@Override
 	public Animation getInitiateAnimation() {
 		final Timeline anim = new Timeline();
 		
@@ -218,6 +295,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		return anim;
 	}
 	
+	@Override
 	public Animation getVictoryAnimation() {
 		final Timeline anim = new Timeline();
 		
@@ -226,6 +304,17 @@ public final class SwordGuy implements UnitAnimationGroup {
 		anim.getKeyFrames().add(swordKeyFrame(Duration.millis(350), swordAngleSheath, swordXSheath, swordYSheath));
 		
 		return anim;
+	}
+	
+	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
+		  Side side
+		, Point2D footPoint
+	) {
+		final Map<DoubleProperty, Double> retval = new java.util.HashMap<>();
+		retval.put(facingScaleX, (side == Side.LEFT ? -1.0 : 1.0));
+		retval.put(approachX, footPoint.getX());
+		retval.put(approachY, footPoint.getY());
+		return retval;
 	}
 	
 	/**
