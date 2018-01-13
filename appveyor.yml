@@ -1,0 +1,17 @@
+version: 'alpha-{build}'
+os: Windows Server 2012
+cache:
+   - '%USERPROFILE%\.gradle\caches\'
+   - '%USERPROFILE%\.gradle\wrapper\'
+environment:
+   matrix:
+   - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
+init:
+   - 'git config --global core.autocrlf true'
+build_script:
+   - 'gradlew --no-daemon assemble'
+test_script:
+   - 'gradlew --no-daemon check'
+artifacts:
+   - path: build
+     name: build_directory

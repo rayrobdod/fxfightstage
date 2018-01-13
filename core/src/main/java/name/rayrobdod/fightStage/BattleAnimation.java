@@ -4,7 +4,7 @@ import static javafx.scene.text.FontWeight.BOLD;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
@@ -16,6 +16,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.HPos;
@@ -37,7 +38,9 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
-
+/**
+ * The entry point to this library.
+ */
 public final class BattleAnimation {
 	private BattleAnimation() {}
 	
@@ -45,83 +48,6 @@ public final class BattleAnimation {
 	private static final double distanceExtendPastPoint = 75;
 	private static final double distanceFootBelowHorizon = 50;
 	
-	public static final class AggregateSideParams {
-		public final UnitAnimationGroup unit;
-		public final SpellAnimationGroup spell;
-		public final Color teamColor;
-		public final String unitName;
-		public final String weaponName;
-		public final Node weaponIcon;
-		/** The unit's maximum hitpoints */
-		public final int maximumHitpoints;
-		/** The unit's starting current hitpoints */
-		public final int initialCurrentHitpoints;
-		
-		public AggregateSideParams(
-			  UnitAnimationGroup unit
-			, SpellAnimationGroup spell
-			, Color teamColor
-			, String unitName
-			, String weaponName
-			, Node weaponIcon
-			, int maximumHitpoints
-			, int initialCurrentHitpoints
-		){
-			this.unit = unit;
-			this.spell = spell;
-			this.teamColor = teamColor;
-			this.unitName = unitName;
-			this.weaponName = weaponName;
-			this.weaponIcon = weaponIcon;
-			this.maximumHitpoints = maximumHitpoints;
-			this.initialCurrentHitpoints = initialCurrentHitpoints;
-		}
-	}
-	
-	public static enum Side {LEFT, RIGHT;}
-	
-	/** a placeholder to represent a real class that this demo doesn't really care about */
-	public static enum AttackModifier {CRITICAL, MISS, LUNA;}
-	
-	/** A description of one attack */
-	public static final class Strike {
-		/** Which unit is performing an attack */
-		public final Side attacker;
-		/** The damage dealt to the defender */
-		public final int damage;
-		/**
-		 * The damage healed by the attacker.
-		 * Probably can be negative for counter-attack damage.
-		 */
-		public final int drain;
-		/** Skills triggered during this attack. Just for the sake of identity. */
-		public final Set<AttackModifier> triggeredSkills;
-		
-		public Strike(
-			  Side attacker
-			, int damage
-			, int drain
-			, Set<AttackModifier> triggeredSkills
-		) {
-			this.attacker = attacker;
-			this.damage = damage;
-			this.drain = drain;
-			this.triggeredSkills = triggeredSkills;
-		}
-	}
-	
-	public static final class NodeAnimationPair {
-		public final Node node;
-		public final Animation animation;
-		
-		public NodeAnimationPair(
-			  Node node
-			, Animation animation
-		) {
-			this.node = node;
-			this.animation = animation;
-		}
-	}
 	
 	public static NodeAnimationPair buildAnimation(
 		Function<Dimension2D, Node> backgroundNode,
@@ -140,43 +66,13 @@ public final class BattleAnimation {
 		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT);
 		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT);
 		
-		
 		final Dimension2D gamePanelSize = new Dimension2D(
 			containerSize.getWidth(),
 			containerSize.getHeight()
 		);
 		
-		
-		
-		// find the locations that the units should be placed at
-		final Point2D leftFootTarget = new Point2D(
-			-verticalDistance / 2,
-			distanceFootBelowHorizon
-		);
-		final Point2D rightFootTarget = new Point2D(
-			verticalDistance / 2,
-			distanceFootBelowHorizon
-		);
-		
-		// make the left unit face towards the right unit
-		left.unit.getNode().setScaleX(-1);
-		// the right unit already faces towards the left unit
-		
-		
-		// place the units at the desired points
-		left.unit.getNode().relocate(0, 0);
-		right.unit.getNode().relocate(0, 0);
-		
-		final Point2D leftOffset = leftFootTarget.subtract(
-			left.unit.getNode().localToParent(left.unit.getFootPoint())
-		);
-		final Point2D rightOffset = rightFootTarget.subtract(
-			right.unit.getNode().localToParent(right.unit.getFootPoint())
-		);
-		
-		left.unit.getNode().relocate(leftOffset.getX(), leftOffset.getY());
-		right.unit.getNode().relocate(rightOffset.getX(), rightOffset.getY());
-		
+		final Rectangle footPointIndicator = new Rectangle(-verticalDistance / 2, -500, verticalDistance, 1000);
+		footPointIndicator.setFill(Color.rgb(255, 0, 255, 0.5));
 		
 		final Translate screenShakeTranslate = new Translate();
 		final Translate centerTranslate = new Translate();
@@ -191,6 +87,7 @@ public final class BattleAnimation {
 			, right.unit.getNode()
 			, left.spell.getForeground()
 			, right.spell.getForeground()
+			// , footPointIndicator
 		);
 		gameNode.getTransforms().add(magnifyTransform);
 		gameNode.getTransforms().add(screenShakeTranslate);
@@ -235,9 +132,26 @@ public final class BattleAnimation {
 		
 		////////// The animation construction
 		
+		final ArrayList<Animation> animationParts = new ArrayList<>(strikes.size());
 		final Animation shakeAnimation = shakeAnimation(4, screenShakeTranslate);
 		
-		final ArrayList<Animation> animationParts = new ArrayList<>(strikes.size());
+		// place the units at their starting location
+		final Point2D initialUnitOffset = new Point2D(
+			verticalDistance / 2,
+			distanceFootBelowHorizon
+		);
+		final Map<DoubleProperty, Double> leftRolloverValues = left.unit.getInitializingKeyValues(Side.LEFT, mirrorX(initialUnitOffset));
+		final Map<DoubleProperty, Double> rightRolloverValues = right.unit.getInitializingKeyValues(Side.RIGHT, initialUnitOffset);
+		{
+			final Map<DoubleProperty, Double> initialValues = new java.util.HashMap<>();
+			initialValues.putAll(leftRolloverValues);
+			initialValues.putAll(rightRolloverValues);
+			final Timeline initializeAnim = new Timeline();
+			initializeAnim.getKeyFrames().add(propValueMapToDiscreteKeyFrame(initialValues, Duration.ZERO));
+			initializeAnim.getKeyFrames().add(propValueMapToDiscreteKeyFrame(initialValues, Duration.ONE));
+			animationParts.add(initializeAnim);
+		}
+		
 		animationParts.add(new PauseTransition(pauseDuration));
 		
 		// show both initiation animations at the same time
@@ -254,54 +168,57 @@ public final class BattleAnimation {
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
 		double currentPan = 0;
-		final double leftPan = Math.max(0,
-			(verticalDistance / 2 + distanceExtendPastPoint) -
-			(gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight()) / 2)
-		);
-		final double rightPan = -leftPan;
+		final double logicalScreenWidth = gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight());
 		
 		for (int i = 0; i < strikes.size(); i++) {
+			final double currentLeftOffset = left.unit.getCurrentXOffset(leftRolloverValues);
+			final double currentRightOffset = right.unit.getCurrentXOffset(rightRolloverValues);
 			final Strike strike = strikes.get(i);
 			final ConsecutiveAttackDescriptor consecutiveAttackDesc = consecutiveAttackDescriptor(strikes, i);
+			final double centerPan = -(currentLeftOffset + currentRightOffset) / 2;
+			final boolean useCenterPan = Math.abs(currentLeftOffset - currentRightOffset) <= (logicalScreenWidth - distanceExtendPastPoint);
+			final double leftPan = (useCenterPan ? centerPan : -currentLeftOffset + distanceExtendPastPoint - logicalScreenWidth / 2);
+			final double rightPan = (useCenterPan ? centerPan : -currentRightOffset - distanceExtendPastPoint + logicalScreenWidth / 2);
 			
 			switch (strike.attacker) {
 				case LEFT: {
 					final int leftNewHp = leftCurrentHitpoints + strike.drain;
 					final int rightNewHp = rightCurrentHitpoints - strike.damage;
+					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
-					final Point2D target = right.unit.getNode().localToParent(right.unit.getSpellTarget());
-					final Point2D origin = left.unit.getNode().localToParent(left.unit.getSpellOrigin());
+					final Point2D target = right.unit.getSpellTarget(rightRolloverValues);
 					
 					animationParts.add(
-						new SimpleDoubleTransition(
+						Animations.doubleSimpleAnimation(
 							Duration.millis(Math.abs(currentPan - leftPan)),
 							panTranslate.xProperty(),
 							currentPan,
 							leftPan
 						)
 					);
-					animationParts.add(
-						left.unit.getAttackAnimation(
-							left.spell.getAnimation(
-								origin,
-								target,
-								new SimpleDoubleTransition(
-									Duration.millis(Math.abs(rightPan - leftPan)),
-									panTranslate.xProperty(),
-									leftPan,
-									rightPan
-								),
-								new ParallelTransition(
-									  shakeAnimation
-									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
-									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
-								)
+					animationParts.add(left.unit.getAttackAnimation(
+						(origin) -> left.spell.getAnimation(
+							origin,
+							target,
+							Animations.doubleSimpleAnimation(
+								Duration.millis(Math.abs(rightPan - leftPan)),
+								panTranslate.xProperty(),
+								leftPan,
+								rightPan
+							),
+							new ParallelTransition(
+								  shakeAnimation
+								, leftHealthbarAnimation
+								, rightHealthbarAnimation
 							)
-							, consecutiveAttackDesc
-							, strike.triggeredSkills
-							, rightNewHp <= 0
 						)
-					);
+						, leftRolloverValues
+						, target
+						, consecutiveAttackDesc
+						, strike.triggeredSkills
+						, rightNewHp <= 0
+					));
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
@@ -311,40 +228,41 @@ public final class BattleAnimation {
 				case RIGHT: {
 					final int leftNewHp = leftCurrentHitpoints - strike.damage;
 					final int rightNewHp = rightCurrentHitpoints + strike.drain;
+					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
-					Point2D target = left.unit.getNode().localToParent(left.unit.getSpellTarget());
-					Point2D origin = right.unit.getNode().localToParent(right.unit.getSpellOrigin());
+					Point2D target = left.unit.getSpellTarget(leftRolloverValues);
 					
 					animationParts.add(
-						new SimpleDoubleTransition(
+						Animations.doubleSimpleAnimation(
 							Duration.millis(Math.abs(currentPan - rightPan)),
 							panTranslate.xProperty(),
 							currentPan,
 							rightPan
 						)
 					);
-					animationParts.add(
-						right.unit.getAttackAnimation(
-							right.spell.getAnimation(
-								origin,
-								target,
-								new SimpleDoubleTransition(
-									Duration.millis(Math.abs(leftPan - rightPan)),
-									panTranslate.xProperty(),
-									rightPan,
-									leftPan
-								),
-								new ParallelTransition(
-									  shakeAnimation
-									, healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp)
-									, healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp)
-								)
+					animationParts.add(right.unit.getAttackAnimation(
+						(origin) -> right.spell.getAnimation(
+							origin,
+							target,
+							Animations.doubleSimpleAnimation(
+								Duration.millis(Math.abs(leftPan - rightPan)),
+								panTranslate.xProperty(),
+								rightPan,
+								leftPan
+							),
+							new ParallelTransition(
+								  shakeAnimation
+								, leftHealthbarAnimation
+								, rightHealthbarAnimation
 							)
-							, consecutiveAttackDesc
-							, strike.triggeredSkills
-							, leftNewHp <= 0
 						)
-					);
+						, rightRolloverValues
+						, target
+						, consecutiveAttackDesc
+						, strike.triggeredSkills
+						, leftNewHp <= 0
+					));
 					
 					leftCurrentHitpoints = leftNewHp;
 					rightCurrentHitpoints = rightNewHp;
@@ -391,7 +309,7 @@ public final class BattleAnimation {
 		final Duration timePerTick = Duration.millis(50);
 		final Duration time = timePerTick.multiply(Math.abs(to - from));
 		
-		return new SimpleIntegerTransition(time, hb.currentHealthProperty(), from, to);
+		return Animations.integerSimpleAnimation(time, hb.currentHealthProperty(), from, to);
 	}
 	
 	private static Animation shakeAnimation(int strength, Translate translate) {
@@ -469,8 +387,8 @@ public final class BattleAnimation {
 		n.setEffect(toWhiteEffect);
 		
 		return new SequentialTransition(
-			  new SimpleDoubleTransition(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
-			, new SimpleDoubleTransition(Duration.millis(200), n.opacityProperty(), 1, 0)
+			  Animations.doubleSimpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
+			, Animations.doubleSimpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
 		);
 	}
 	
@@ -566,4 +484,17 @@ public final class BattleAnimation {
 		return retval;
 	}
 	
+	private static Point2D mirrorX(Point2D in) {
+		return new Point2D(-1 * in.getX(), in.getY());
+	}
+	
+	public static KeyFrame propValueMapToDiscreteKeyFrame(
+		Map<DoubleProperty, Double> map,
+		Duration time
+	) {
+		KeyValue[] values = map.entrySet().stream()
+			.map(x -> new KeyValue(x.getKey(), x.getValue(), Interpolator.DISCRETE))
+			.toArray(KeyValue[]::new);
+		return new KeyFrame(time, values);
+	}
 }

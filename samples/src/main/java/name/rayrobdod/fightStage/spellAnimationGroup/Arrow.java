@@ -4,7 +4,6 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PathTransition;
-import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -16,7 +15,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 
-import name.rayrobdod.fightStage.SimpleBooleanTransition;
+import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -34,7 +33,7 @@ public final class Arrow implements SpellAnimationGroup {
 	private static final int featherWidth = 6;
 	private static final int featherLength = 18;
 	private static final int featherSkew = 5;
-	private static final double arrowSpeed = 1.4;
+	private static final double arrowSpeed = 2.5;
 	private static final double arrowArcMultiplier = 0.08;
 	
 	private final Group arrow;
@@ -95,9 +94,7 @@ public final class Arrow implements SpellAnimationGroup {
 		final double targetY = target.getY();
 		final double deltaX = targetX - originX;
 		final double deltaY = targetY - originY;
-		final double deltaDistance = Math.sqrt(
-			Math.abs(targetX + targetX) * Math.abs(targetY + targetY)
-		);
+		final double deltaDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 		final double controlX = originX + deltaX / 2;
 		final double controlY = originY + deltaY / 2 - Math.abs(deltaX) * arrowArcMultiplier;
 		final Duration duration = Duration.millis(deltaDistance / arrowSpeed);
@@ -108,30 +105,24 @@ public final class Arrow implements SpellAnimationGroup {
 			targetX, targetY
 		);
 		
-		final SimpleBooleanTransition setArrowVisible = new SimpleBooleanTransition(
-			Duration.ONE, this.arrow.visibleProperty(), false, true
-		);
 		final PathTransition arrowAnimation = new PathTransition(
 			duration, arrowPath, this.arrow
-		);
-		final SimpleBooleanTransition setArrowInvisible = new SimpleBooleanTransition(
-			Duration.ONE, this.arrow.visibleProperty(), true, false
 		);
 		arrowAnimation.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
 		arrowAnimation.setInterpolator(Interpolator.LINEAR);
 		
 		
 		return new SequentialTransition(
-			setArrowVisible,
+			Animations.booleanSetAnimation(this.arrow.visibleProperty(), true),
 			new ParallelTransition(
 				arrowAnimation,
 				panAnimation
 			),
-			setArrowInvisible,
+			Animations.booleanSetAnimation(this.arrow.visibleProperty(), false),
 			physicalHit.getAnimation(
 				origin,
 				target,
-				new PauseTransition(Duration.ZERO),
+				Animations.nil(),
 				hpAndShakeAnimation
 			)
 		);

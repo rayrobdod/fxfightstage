@@ -13,8 +13,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import name.rayrobdod.fightStage.AggregateSideParams;
 import name.rayrobdod.fightStage.BattleAnimation;
+import name.rayrobdod.fightStage.NodeAnimationPair;
+import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
+import name.rayrobdod.fightStage.Strike;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 import name.rayrobdod.fightStage.background.Field;
 
@@ -58,25 +62,25 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	}
 	
 	public void handle(ActionEvent e) {
-		final BattleAnimation.NodeAnimationPair pair = BattleAnimation.buildAnimation(
+		final NodeAnimationPair pair = BattleAnimation.buildAnimation(
 			Field::buildGroup,
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
 			this.distance.getAsDouble(),
-			new BattleAnimation.AggregateSideParams(
+			new AggregateSideParams(
 				leftUnit.get(), leftSpell.get(), Color.RED.darker(),
 				"Garnet", "Iron Thingy", new Circle(10),
 				leftMaximumHp.getAsInt(), leftStartingHp.getAsInt()
 			),
-			new BattleAnimation.AggregateSideParams(
+			new AggregateSideParams(
 				rightUnit.get(), rightSpell.get(), Color.BLUE.darker(),
 				"ABCDEFGHIJKL", "ABCDEFGHIJKLMNOP", new Circle(10),
 				rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
 			),
 			Arrays.asList(
-				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 0, Collections.emptySet()),
-				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0, Collections.emptySet()),
-				new BattleAnimation.Strike(BattleAnimation.Side.LEFT, 15, 0, Collections.emptySet()),
-				new BattleAnimation.Strike(BattleAnimation.Side.RIGHT, 20, 10, Collections.emptySet())
+				new Strike(Side.RIGHT, 20, 0, Collections.emptySet()),
+				new Strike(Side.LEFT, 15, 0, Collections.emptySet()),
+				new Strike(Side.LEFT, 15, 0, Collections.emptySet()),
+				new Strike(Side.RIGHT, 20, 10, Collections.emptySet())
 			)
 		);
 		
