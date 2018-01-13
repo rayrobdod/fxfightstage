@@ -29,6 +29,8 @@ public interface UnitAnimationGroup {
 	
 	/**
 	 * Returns the location on the node at which spells targeting this unit should be centered.
+	 * 
+	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
 	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues);
 	
@@ -38,6 +40,8 @@ public interface UnitAnimationGroup {
 	 * Barring any mutations of rolloverKeyValues by {@code getAttackAnimation},
 	 * this should have the same value as the x-coordinate of the point passed to {@link getInitializingKeyValues}
 	 * when rolloverKeyValues was returned from that function.
+	 * 
+	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
 	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues);
 	
@@ -64,13 +68,14 @@ public interface UnitAnimationGroup {
 	/*
 	 * Returns an animation used to represent being hit by an attack
 	 */
-	// public AnimationOffsetPair getHitAnimation(
+	// public Tuple2<Animation, Point2D> getHitAnimation(
+	//	  Map<DoubleProperty, Double> rolloverKeyValues
 	//	, Set<AttackModifier> triggeredSkills
 	//	, boolean isFinisher
 	//)
 	
 	/**
-	 * Returns an animation used before any attacks are played
+	 * Returns an animation used once before any attacks are played
 	 */
 	default Animation getInitiateAnimation() { return Animations.nil(); }
 	
@@ -79,6 +84,14 @@ public interface UnitAnimationGroup {
 	 */
 	default Animation getVictoryAnimation() { return Animations.nil(); }
 	
+	/**
+	 * Returns a map of property-value pairs which compose the starting
+	 * values of the rolloverKeyValues map
+	 * 
+	 * @param side The side of the battle that is unit is on.
+	 * @param initialOffst The initial 'foot point' of the unit
+	 * @return a map of Properties and their values
+	 */
 	public Map<DoubleProperty, Double> getInitializingKeyValues(
 		  BattleAnimation.Side side
 		, Point2D initialOffset
