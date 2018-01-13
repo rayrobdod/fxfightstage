@@ -21,9 +21,9 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
-import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
-import name.rayrobdod.fightStage.BattleAnimation.Side;
+import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
+import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 
 public final class MageGuy implements UnitAnimationGroup {

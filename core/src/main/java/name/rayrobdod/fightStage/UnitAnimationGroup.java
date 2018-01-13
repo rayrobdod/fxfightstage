@@ -9,8 +9,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
-import name.rayrobdod.fightStage.BattleAnimation.AttackModifier;
-
 /**
  * An object that describes a unit animation.
  * 
@@ -93,7 +91,7 @@ public interface UnitAnimationGroup {
 	 * @return a map of Properties and their values
 	 */
 	public Map<DoubleProperty, Double> getInitializingKeyValues(
-		  BattleAnimation.Side side
+		  Side side
 		, Point2D initialOffset
 	);
 }

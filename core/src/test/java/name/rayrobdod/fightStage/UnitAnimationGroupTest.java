@@ -43,7 +43,7 @@ public interface UnitAnimationGroupTest {
 		Animation spellAnim = new PauseTransition(Duration.millis(100));
 		Animation dut = v.getAttackAnimation(
 			  (x) -> spellAnim
-			, v.getInitializingKeyValues(BattleAnimation.Side.LEFT, Point2D.ZERO)
+			, v.getInitializingKeyValues(Side.LEFT, Point2D.ZERO)
 			, Point2D.ZERO
 			, new ConsecutiveAttackDescriptor(1, 1)
 			, Collections.emptySet()
@@ -55,7 +55,7 @@ public interface UnitAnimationGroupTest {
 	
 	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues(double value) {
 		UnitAnimationGroup v = this.getInstance();
-		Map<DoubleProperty, Double> map = v.getInitializingKeyValues(BattleAnimation.Side.LEFT, new Point2D(value, 0.0));
+		Map<DoubleProperty, Double> map = v.getInitializingKeyValues(Side.LEFT, new Point2D(value, 0.0));
 		Assertions.assertEquals(value, v.getCurrentXOffset(map));
 	}
 	

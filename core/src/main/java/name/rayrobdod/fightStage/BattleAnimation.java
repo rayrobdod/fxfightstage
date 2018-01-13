@@ -5,7 +5,6 @@ import static javafx.scene.text.FontWeight.BOLD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
@@ -39,8 +38,9 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
-
-
+/**
+ * The entry point to this library.
+ */
 public final class BattleAnimation {
 	private BattleAnimation() {}
 	
@@ -48,83 +48,6 @@ public final class BattleAnimation {
 	private static final double distanceExtendPastPoint = 75;
 	private static final double distanceFootBelowHorizon = 50;
 	
-	public static final class AggregateSideParams {
-		public final UnitAnimationGroup unit;
-		public final SpellAnimationGroup spell;
-		public final Color teamColor;
-		public final String unitName;
-		public final String weaponName;
-		public final Node weaponIcon;
-		/** The unit's maximum hitpoints */
-		public final int maximumHitpoints;
-		/** The unit's starting current hitpoints */
-		public final int initialCurrentHitpoints;
-		
-		public AggregateSideParams(
-			  UnitAnimationGroup unit
-			, SpellAnimationGroup spell
-			, Color teamColor
-			, String unitName
-			, String weaponName
-			, Node weaponIcon
-			, int maximumHitpoints
-			, int initialCurrentHitpoints
-		){
-			this.unit = unit;
-			this.spell = spell;
-			this.teamColor = teamColor;
-			this.unitName = unitName;
-			this.weaponName = weaponName;
-			this.weaponIcon = weaponIcon;
-			this.maximumHitpoints = maximumHitpoints;
-			this.initialCurrentHitpoints = initialCurrentHitpoints;
-		}
-	}
-	
-	public static enum Side {LEFT, RIGHT;}
-	
-	/** a placeholder to represent a real class that this demo doesn't really care about */
-	public static enum AttackModifier {CRITICAL, MISS, LUNA;}
-	
-	/** A description of one attack */
-	public static final class Strike {
-		/** Which unit is performing an attack */
-		public final Side attacker;
-		/** The damage dealt to the defender */
-		public final int damage;
-		/**
-		 * The damage healed by the attacker.
-		 * Probably can be negative for counter-attack damage.
-		 */
-		public final int drain;
-		/** Skills triggered during this attack. Just for the sake of identity. */
-		public final Set<AttackModifier> triggeredSkills;
-		
-		public Strike(
-			  Side attacker
-			, int damage
-			, int drain
-			, Set<AttackModifier> triggeredSkills
-		) {
-			this.attacker = attacker;
-			this.damage = damage;
-			this.drain = drain;
-			this.triggeredSkills = triggeredSkills;
-		}
-	}
-	
-	public static final class NodeAnimationPair {
-		public final Node node;
-		public final Animation animation;
-		
-		public NodeAnimationPair(
-			  Node node
-			, Animation animation
-		) {
-			this.node = node;
-			this.animation = animation;
-		}
-	}
 	
 	public static NodeAnimationPair buildAnimation(
 		Function<Dimension2D, Node> backgroundNode,
