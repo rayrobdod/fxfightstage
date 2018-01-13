@@ -188,6 +188,11 @@ public final class BattleAnimation {
 					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
 					final Point2D target = right.unit.getSpellTarget(rightRolloverValues);
+					final Animation hitAnimation = right.unit.getHitAnimation(
+						  rightRolloverValues
+						, strike.triggeredSkills
+						, rightNewHp <= 0
+					);
 					
 					animationParts.add(
 						Animations.doubleSimpleAnimation(
@@ -209,6 +214,7 @@ public final class BattleAnimation {
 							),
 							new ParallelTransition(
 								  shakeAnimation
+								, hitAnimation
 								, leftHealthbarAnimation
 								, rightHealthbarAnimation
 							)
@@ -232,6 +238,11 @@ public final class BattleAnimation {
 					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
 					
 					Point2D target = left.unit.getSpellTarget(leftRolloverValues);
+					final Animation hitAnimation = left.unit.getHitAnimation(
+						  leftRolloverValues
+						, strike.triggeredSkills
+						, leftNewHp <= 0
+					);
 					
 					animationParts.add(
 						Animations.doubleSimpleAnimation(
@@ -253,6 +264,7 @@ public final class BattleAnimation {
 							),
 							new ParallelTransition(
 								  shakeAnimation
+								, hitAnimation
 								, leftHealthbarAnimation
 								, rightHealthbarAnimation
 							)

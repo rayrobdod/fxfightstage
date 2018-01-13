@@ -63,14 +63,14 @@ public interface UnitAnimationGroup {
 		, boolean isFinisher
 	);
 	
-	/*
+	/**
 	 * Returns an animation used to represent being hit by an attack
 	 */
-	// public Tuple2<Animation, Point2D> getHitAnimation(
-	//	  Map<DoubleProperty, Double> rolloverKeyValues
-	//	, Set<AttackModifier> triggeredSkills
-	//	, boolean isFinisher
-	//)
+	default Animation getHitAnimation(
+		  Map<DoubleProperty, Double> rolloverKeyValues
+		, Set<AttackModifier> triggeredSkills
+		, boolean isFinisher
+	) { return Animations.nil(); }
 	
 	/**
 	 * Returns an animation used once before any attacks are played
