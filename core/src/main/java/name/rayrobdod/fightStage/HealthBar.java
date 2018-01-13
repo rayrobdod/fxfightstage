@@ -17,7 +17,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
-public final class HealthBar {
+/**
+ * A component that displays a unit's current and maximum health
+ */
+final class HealthBar {
 	
 	private final IntegerProperty maximumHealth;
 	private final IntegerProperty currentHealth;
@@ -102,6 +105,10 @@ public final class HealthBar {
 		));
 	}
 	
+	/**
+	 * Returns the node associated with this component.
+	 * The object returned has the same identity each time.
+	 */
 	public Node getNode() { return this.node; }
 	
 	public IntegerProperty maximumHealthProperty() { return this.maximumHealth; }
