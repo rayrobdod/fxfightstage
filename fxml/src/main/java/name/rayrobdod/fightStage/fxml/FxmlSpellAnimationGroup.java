@@ -1,6 +1,7 @@
 package name.rayrobdod.fightStage.fxml;
 
 import java.util.List;
+import java.util.function.DoubleBinaryOperator;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -15,6 +16,13 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.CharIn;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.DelayedConstructionParser;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.End;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.IsString;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.ParseResult;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.Parser;
+import name.rayrobdod.fightStage.fxml.PoorManParserCombinator.Tuple2;
 
 /**
  * An implementation of SpellAnimationGroup which can be more-easily constructed via fxml
@@ -105,17 +113,87 @@ public final class FxmlSpellAnimationGroup implements SpellAnimationGroup {
 	public interface OffsetFunction {
 		public double apply(double originX, double originY, double targetX, double targetY);
 		
+		default OffsetFunction zipMap(OffsetFunction rhs, DoubleBinaryOperator combiner) {
+			return (ox, oy, tx, ty) -> combiner.applyAsDouble(
+				this.apply(ox, oy, tx, ty),
+				rhs.apply(ox, oy, tx, ty)
+			);
+		}
+		
 		/**
-		 * @TODO support actual expressions, not just values.
 		 */
 		public static OffsetFunction valueOf(String spec) {
-			switch(spec) {
-				case "offsetX": return (ox, oy, tx, ty) -> ox;
-				case "offsetY": return (ox, oy, tx, ty) -> oy;
-				case "targetX": return (ox, oy, tx, ty) -> tx;
-				case "targetY": return (ox, oy, tx, ty) -> ty;
-				default: throw new IllegalArgumentException("OffsetFunction spec");
+			ParseResult<OffsetFunction> res = MyParsers.valueOfParser().parse(spec);
+			if (res.isSuccess) {
+				return res.value;
+			} else {
+				String expectingString = (res.expecting.size() == 0 ? "???" :
+					(res.expecting.size() == 1 ? res.expecting.get(0) :
+						res.expecting.stream().collect(java.util.stream.Collectors.joining(", "))
+					));
+				
+				throw new IllegalArgumentException("At " + res.charsRead + ": expecting one of <" + expectingString + ">");
 			}
+		}
+		
+		public static OffsetFunction constant(double value) { return (a,b,c,d) -> value; }
+		public static OffsetFunction originX() { return (ox,oy,tx,ty) -> ox; }
+		public static OffsetFunction originY() { return (ox,oy,tx,ty) -> oy; }
+		public static OffsetFunction targetX() { return (ox,oy,tx,ty) -> tx; }
+		public static OffsetFunction targetY() { return (ox,oy,tx,ty) -> ty; }
+		
+		public static class MyParsers {
+			private MyParsers() {}
+			private static final Parser<String> digits = new CharIn("0123456789").repAsString(1);
+			private static final Parser<String> fracPart = (new CharIn(".").andThen(digits).map(x -> x.zip((a,b) -> a + b))).optionally("");
+			private static final Parser<Double> number = digits.andThen(fracPart).map(x -> x.zip((a,b) -> a + b)).map(Double::parseDouble).opaque("A number");
+			private static final Parser<OffsetFunction> constFun = number.map(OffsetFunction::constant);
+			
+			private static final Parser<OffsetFunction> variableFun = (
+				new IsString("originX").map(x -> OffsetFunction.originX()).orElse(
+				new IsString("originY").map(x -> OffsetFunction.originY()).orElse(
+				new IsString("targetX").map(x -> OffsetFunction.targetX()).orElse(
+				new IsString("targetY").map(x -> OffsetFunction.targetY())
+			))));
+			
+			private static final Parser<OffsetFunction> parens() {return new DelayedConstructionParser<>(() ->
+				(new IsString("(").andThen(plusMinus()).andThen(new IsString(")"))).map(x -> x._1._2)
+			);}
+			
+			private static final Parser<OffsetFunction> factor() {return new DelayedConstructionParser<>(() ->
+				constFun.orElse(variableFun).orElse(parens())
+			);}
+			
+			private static final Parser<OffsetFunction> divMul() {return new DelayedConstructionParser<>(() ->
+				factor().andThen( new CharIn("*/").andThen(factor()).rep() ).map(MyParsers::binaryOperatorMappingList)
+			);}
+			private static final Parser<OffsetFunction> plusMinus() {return new DelayedConstructionParser<>(() ->
+				divMul().andThen( new CharIn("+-").andThen(divMul()).rep() ).map(MyParsers::binaryOperatorMappingList)
+			);}
+			
+			private static final OffsetFunction binaryOperatorMappingList(Tuple2<OffsetFunction,List<Tuple2<Character,OffsetFunction>>> desc) {
+				OffsetFunction left = desc._1;
+				final List<Tuple2<Character,OffsetFunction>> opRightList = desc._2;
+				for (Tuple2<Character,OffsetFunction> opRight : opRightList) {
+					Character op = opRight._1;
+					OffsetFunction right = opRight._2;
+					left = binaryOperatorMapping(left, op, right);
+				}
+				return left;
+			}
+			private static final OffsetFunction binaryOperatorMapping(OffsetFunction left, Character operator, OffsetFunction right) {
+				switch (operator) {
+					case '+': return left.zipMap(right, (a,b) -> a + b);
+					case '-': return left.zipMap(right, (a,b) -> a - b);
+					case '*': return left.zipMap(right, (a,b) -> a * b);
+					case '/': return left.zipMap(right, (a,b) -> a / b);
+					case '%': return left.zipMap(right, (a,b) -> a % b);
+					default: throw new IllegalArgumentException("binaryOperatorMapping operator: " + operator);
+				}
+			}
+			
+			
+			public static final Parser<OffsetFunction> valueOfParser() {return plusMinus().andThen(new End()).map(x -> x._1);}
 		}
 	}
 	
