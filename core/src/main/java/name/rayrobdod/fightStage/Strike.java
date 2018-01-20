@@ -13,18 +13,26 @@ public final class Strike {
 	 * Probably can be negative for counter-attack damage.
 	 */
 	public final int drain;
-	/** Skills triggered during this attack. Just for the sake of identity. */
-	public final Set<AttackModifier> triggeredSkills;
+	/** Skills triggered by the attacker during this strike */
+	public final Set<AttackModifier> attackerModifiers;
+	/** Skills triggered by the defender during this strike */
+	public final Set<AttackModifier> defenderModifiers;
 	
 	public Strike(
 		  Side attacker
 		, int damage
 		, int drain
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
+		, Set<AttackModifier> defenderModifiers
 	) {
 		this.attacker = attacker;
 		this.damage = damage;
 		this.drain = drain;
-		this.triggeredSkills = triggeredSkills;
+		this.attackerModifiers = attackerModifiers;
+		this.defenderModifiers = defenderModifiers;
+	}
+	
+	public int maxModifierSize() {
+		return Math.max(attackerModifiers.size(), defenderModifiers.size());
 	}
 }

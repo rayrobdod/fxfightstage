@@ -107,7 +107,7 @@ public final class MageGuy implements UnitAnimationGroup {
 		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	) {
 		final Timeline beforeSpellAnimation = new Timeline();
@@ -152,7 +152,8 @@ public final class MageGuy implements UnitAnimationGroup {
 	@Override
 	public Animation getHitAnimation(
 		  Map<DoubleProperty, Double> rolloverKeyValues
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
+		, Set<AttackModifier> defenderModifiers
 		, boolean isFinisher
 	) {
 		if (isFinisher) {

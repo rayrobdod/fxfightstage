@@ -59,7 +59,7 @@ public interface UnitAnimationGroup {
 		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	);
 	
@@ -68,7 +68,8 @@ public interface UnitAnimationGroup {
 	 */
 	default Animation getHitAnimation(
 		  Map<DoubleProperty, Double> rolloverKeyValues
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
+		, Set<AttackModifier> defenderModifiers
 		, boolean isFinisher
 	) { return Animations.nil(); }
 	

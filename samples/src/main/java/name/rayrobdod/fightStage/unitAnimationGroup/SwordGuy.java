@@ -147,7 +147,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	) {
 		final Timeline approachAnimation = new Timeline();

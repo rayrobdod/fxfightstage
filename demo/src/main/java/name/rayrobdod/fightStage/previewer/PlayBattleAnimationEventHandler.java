@@ -2,6 +2,8 @@ package name.rayrobdod.fightStage.previewer;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -14,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import name.rayrobdod.fightStage.AggregateSideParams;
+import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.BattleAnimation;
 import name.rayrobdod.fightStage.NodeAnimationPair;
 import name.rayrobdod.fightStage.Side;
@@ -62,6 +65,13 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	}
 	
 	public void handle(ActionEvent e) {
+		Set<AttackModifier> oneMods = new HashSet<>();
+		oneMods.add(new FakeAttackModifier("Modifier"));
+		Set<AttackModifier> threeMods = new HashSet<>();
+		threeMods.add(new FakeAttackModifier("Modifier 1"));
+		threeMods.add(new FakeAttackModifier("Modifier 2"));
+		threeMods.add(new FakeAttackModifier("Modifier 3"));
+		
 		final NodeAnimationPair pair = BattleAnimation.buildAnimation(
 			Field::buildGroup,
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
@@ -77,10 +87,10 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 				rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
 			),
 			Arrays.asList(
-				new Strike(Side.RIGHT, 20, 0, Collections.emptySet()),
-				new Strike(Side.LEFT, 15, 0, Collections.emptySet()),
-				new Strike(Side.LEFT, 15, 0, Collections.emptySet()),
-				new Strike(Side.RIGHT, 20, 10, Collections.emptySet())
+				new Strike(Side.RIGHT, 20, 0, oneMods, Collections.emptySet()),
+				new Strike(Side.LEFT, 15, 0, Collections.emptySet(), Collections.emptySet()),
+				new Strike(Side.LEFT, 15, 0, threeMods, threeMods),
+				new Strike(Side.RIGHT, 20, 10, Collections.emptySet(), Collections.emptySet())
 			)
 		);
 		
