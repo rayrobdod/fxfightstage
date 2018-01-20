@@ -180,108 +180,63 @@ public final class BattleAnimation {
 			final double leftPan = (useCenterPan ? centerPan : -currentLeftOffset + distanceExtendPastPoint - logicalScreenWidth / 2);
 			final double rightPan = (useCenterPan ? centerPan : -currentRightOffset - distanceExtendPastPoint + logicalScreenWidth / 2);
 			
-			switch (strike.attacker) {
-				case LEFT: {
-					final int leftNewHp = leftCurrentHitpoints + strike.drain;
-					final int rightNewHp = rightCurrentHitpoints - strike.damage;
-					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
-					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
-					
-					final Point2D target = right.unit.getSpellTarget(rightRolloverValues);
-					final Animation hitAnimation = right.unit.getHitAnimation(
-						  rightRolloverValues
-						, strike.triggeredSkills
-						, rightNewHp <= 0
-					);
-					
-					animationParts.add(
-						Animations.doubleSimpleAnimation(
-							Duration.millis(Math.abs(currentPan - leftPan)),
-							panTranslate.xProperty(),
-							currentPan,
-							leftPan
-						)
-					);
-					animationParts.add(left.unit.getAttackAnimation(
-						(origin) -> left.spell.getAnimation(
-							origin,
-							target,
-							Animations.doubleSimpleAnimation(
-								Duration.millis(Math.abs(rightPan - leftPan)),
-								panTranslate.xProperty(),
-								leftPan,
-								rightPan
-							),
-							new ParallelTransition(
-								  shakeAnimation
-								, hitAnimation
-								, leftHealthbarAnimation
-								, rightHealthbarAnimation
-							)
-						)
-						, leftRolloverValues
-						, target
-						, consecutiveAttackDesc
-						, strike.triggeredSkills
-						, rightNewHp <= 0
-					));
-					
-					leftCurrentHitpoints = leftNewHp;
-					rightCurrentHitpoints = rightNewHp;
-					currentPan = rightPan;
-					break;
-				}
-				case RIGHT: {
-					final int leftNewHp = leftCurrentHitpoints - strike.damage;
-					final int rightNewHp = rightCurrentHitpoints + strike.drain;
-					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
-					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
-					
-					Point2D target = left.unit.getSpellTarget(leftRolloverValues);
-					final Animation hitAnimation = left.unit.getHitAnimation(
-						  leftRolloverValues
-						, strike.triggeredSkills
-						, leftNewHp <= 0
-					);
-					
-					animationParts.add(
-						Animations.doubleSimpleAnimation(
-							Duration.millis(Math.abs(currentPan - rightPan)),
-							panTranslate.xProperty(),
-							currentPan,
-							rightPan
-						)
-					);
-					animationParts.add(right.unit.getAttackAnimation(
-						(origin) -> right.spell.getAnimation(
-							origin,
-							target,
-							Animations.doubleSimpleAnimation(
-								Duration.millis(Math.abs(leftPan - rightPan)),
-								panTranslate.xProperty(),
-								rightPan,
-								leftPan
-							),
-							new ParallelTransition(
-								  shakeAnimation
-								, hitAnimation
-								, leftHealthbarAnimation
-								, rightHealthbarAnimation
-							)
-						)
-						, rightRolloverValues
-						, target
-						, consecutiveAttackDesc
-						, strike.triggeredSkills
-						, leftNewHp <= 0
-					));
-					
-					leftCurrentHitpoints = leftNewHp;
-					rightCurrentHitpoints = rightNewHp;
-					currentPan = leftPan;
-					break;
-				}
-			}
+			
+			final int leftHpDelta = (strike.attacker == Side.LEFT ? strike.drain : -strike.damage);
+			final int rightHpDelta = (strike.attacker == Side.RIGHT ? strike.drain : -strike.damage);
+			final int leftNewHp = leftCurrentHitpoints + leftHpDelta;
+			final int rightNewHp = rightCurrentHitpoints + rightHpDelta;
+			final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+			final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
+			final boolean isFinisher = (strike.attacker == Side.LEFT ? rightNewHp : leftNewHp) <= 0;
+			
+			AggregateSideParams attacker = (strike.attacker == Side.LEFT ? left : right);
+			AggregateSideParams defender = (strike.attacker == Side.LEFT ? right : left);
+			final Map<DoubleProperty, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
+			final Map<DoubleProperty, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
+			final double attackerPan = (strike.attacker == Side.LEFT ? leftPan : rightPan);
+			final double defenderPan = (strike.attacker == Side.LEFT ? rightPan : leftPan);
+			
+			final Point2D target = defender.unit.getSpellTarget(defenderRolloverValues);
+			final Animation hitAnimation = defender.unit.getHitAnimation(
+				  defenderRolloverValues
+				, strike.triggeredSkills
+				, isFinisher
+			);
+			animationParts.add(
+				Animations.doubleSimpleAnimation(
+					Duration.millis(Math.abs(currentPan - attackerPan)),
+					panTranslate.xProperty(),
+					currentPan,
+					attackerPan
+				)
+			);
+			animationParts.add(attacker.unit.getAttackAnimation(
+				(origin) -> attacker.spell.getAnimation(
+					origin,
+					target,
+					Animations.doubleSimpleAnimation(
+						Duration.millis(Math.abs(defenderPan - attackerPan)),
+						panTranslate.xProperty(),
+						attackerPan,
+						defenderPan
+					),
+					new ParallelTransition(
+						  shakeAnimation
+						, hitAnimation
+						, leftHealthbarAnimation
+						, rightHealthbarAnimation
+					)
+				  )
+				, attackerRolloverValues
+				, target
+				, consecutiveAttackDesc
+				, strike.triggeredSkills
+				, isFinisher
+			));
+			
+			leftCurrentHitpoints = leftNewHp;
+			rightCurrentHitpoints = rightNewHp;
+			currentPan = defenderPan;
 		}
 		
 		// If someone died, fade out the guys who died and make the ones who
