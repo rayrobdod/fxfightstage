@@ -2,18 +2,26 @@ package name.rayrobdod.fightStage.previewer;
 
 import java.util.List;
 
+import javafx.animation.Animation;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
@@ -24,8 +32,10 @@ import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 public final class SettingsPanel {
 	
 	private final GridPane node;
+	private final List<Animation> currentAnimations;
 	
 	public SettingsPanel(StackPane gamePane) {
+		this.currentAnimations = new java.util.ArrayList<>(4);
 		
 		final Label labelUnit = new Label("Unit Animation");
 		labelUnit.setPadding(new javafx.geometry.Insets(4));
@@ -71,6 +81,7 @@ public final class SettingsPanel {
 		playButton.setOnAction(
 			new PlayBattleAnimationEventHandler(
 				  gamePane
+				, this.currentAnimations
 				, () -> leftUnit.getValue().supplier.get()
 				, () -> rightUnit.getValue().supplier.get()
 				, () -> leftSpell.getValue().supplier.get()
@@ -82,6 +93,14 @@ public final class SettingsPanel {
 				, () -> distance.getValue()
 			)
 		);
+		
+		Button pauseButton = new Button("Pause");
+		pauseButton.setMaxWidth(1d/0d);
+		pauseButton.setOnAction(new PauseButtonActionHandler());
+		
+		Button snapshotButton = new Button("Snapshot");
+		snapshotButton.setMaxWidth(1d/0d);
+		snapshotButton.setOnAction(new SnapshotButtonActionHandler());
 		
 		GridPane.setFillWidth(leftUnit, true);
 		GridPane.setFillWidth(rightUnit, true);
@@ -108,6 +127,8 @@ public final class SettingsPanel {
 		this.node.add(labelDistance, 0, 15);
 		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
 		this.node.add(playButton, 0, 16, GridPane.REMAINING, 1);
+		this.node.add(pauseButton, 0, 17, GridPane.REMAINING, 1);
+		this.node.add(snapshotButton, 0, 18, GridPane.REMAINING, 1);
 	}
 	
 	public Node getNode() { return this.node; }
@@ -135,5 +156,38 @@ public final class SettingsPanel {
 	private static final class NameSupplierPairStringConverter<E> extends javafx.util.StringConverter<NameSupplierPair<E>> {
 		public String toString(NameSupplierPair<E> xx) {return (null == xx ? "null" : xx.displayName);}
 		public NameSupplierPair<E> fromString(String xx) {return null;}
+	}
+	
+	private final class PauseButtonActionHandler implements EventHandler<ActionEvent> {
+		public void handle(ActionEvent event) {
+			for (Animation anim : currentAnimations) {
+				if (anim.getStatus() == Animation.Status.RUNNING) {
+					anim.pause();
+				} else {
+					anim.play();
+				}
+			}
+		}
+	}
+	
+	private final class SnapshotButtonActionHandler implements EventHandler<ActionEvent> {
+		public void handle(ActionEvent event) {
+			WritableImage snapshot = node.getScene().snapshot(null);
+			WritableImage trimmedSnapshot = new WritableImage(
+				snapshot.getPixelReader(),
+				0,
+				(int) node.getHeight(),
+				(int) snapshot.getWidth(),
+				(int) (snapshot.getHeight() - node.getHeight())
+			);
+			
+			// TRYTHIS: copy to BufferedImage and save to file with ImageIO instead?
+			
+			Stage snapshotWindow = new Stage(StageStyle.UTILITY);
+			snapshotWindow.initOwner(node.getScene().getWindow());
+			snapshotWindow.setScene(new Scene(new StackPane(new ImageView(trimmedSnapshot))));
+			snapshotWindow.setTitle("Snapshot");
+			snapshotWindow.show();
+		}
 	}
 }

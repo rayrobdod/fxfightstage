@@ -3,11 +3,13 @@ package name.rayrobdod.fightStage.previewer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
+import javafx.animation.Animation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
@@ -30,6 +32,7 @@ import name.rayrobdod.fightStage.background.Field;
  */
 public final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent> {
 	private final StackPane gamePane;
+	private final List<Animation> currentAnimations;
 	private final Supplier<UnitAnimationGroup> leftUnit;
 	private final Supplier<UnitAnimationGroup> rightUnit;
 	private final Supplier<SpellAnimationGroup> leftSpell;
@@ -42,6 +45,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	
 	public PlayBattleAnimationEventHandler(
 		  StackPane gamePane
+		, List<Animation> currentAnimations
 		, Supplier<UnitAnimationGroup> leftUnit
 		, Supplier<UnitAnimationGroup> rightUnit
 		, Supplier<SpellAnimationGroup> leftSpell
@@ -53,6 +57,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		, DoubleSupplier distance
 	) {
 		this.gamePane = gamePane;
+		this.currentAnimations = currentAnimations;
 		this.leftUnit = leftUnit;
 		this.rightUnit = rightUnit;
 		this.leftSpell = leftSpell;
@@ -95,7 +100,17 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		);
 		
 		gamePane.getChildren().add(pair.node);
-		pair.animation.setOnFinished(x -> gamePane.getChildren().remove(pair.node));
+		currentAnimations.add(pair.animation);
+		pair.animation.setOnFinished(cleanUpPair(pair));
 		pair.animation.playFromStart();
+	}
+	
+	private EventHandler<ActionEvent> cleanUpPair(final NodeAnimationPair pair) {
+		return new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent ignored) {
+				gamePane.getChildren().remove(pair.node);
+				currentAnimations.remove(pair.animation);
+			}
+		};
 	}
 }
