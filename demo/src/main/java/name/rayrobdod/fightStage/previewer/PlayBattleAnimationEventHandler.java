@@ -3,13 +3,13 @@ package name.rayrobdod.fightStage.previewer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 import javafx.animation.Animation;
+import javafx.beans.property.ObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
@@ -32,7 +32,7 @@ import name.rayrobdod.fightStage.background.Field;
  */
 public final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent> {
 	private final StackPane gamePane;
-	private final List<Animation> currentAnimations;
+	private final ObjectProperty<Animation> currentAnimationProperty;
 	private final Supplier<UnitAnimationGroup> leftUnit;
 	private final Supplier<UnitAnimationGroup> rightUnit;
 	private final Supplier<SpellAnimationGroup> leftSpell;
@@ -45,7 +45,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 	
 	public PlayBattleAnimationEventHandler(
 		  StackPane gamePane
-		, List<Animation> currentAnimations
+		, ObjectProperty<Animation> currentAnimationProperty
 		, Supplier<UnitAnimationGroup> leftUnit
 		, Supplier<UnitAnimationGroup> rightUnit
 		, Supplier<SpellAnimationGroup> leftSpell
@@ -57,7 +57,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		, DoubleSupplier distance
 	) {
 		this.gamePane = gamePane;
-		this.currentAnimations = currentAnimations;
+		this.currentAnimationProperty = currentAnimationProperty;
 		this.leftUnit = leftUnit;
 		this.rightUnit = rightUnit;
 		this.leftSpell = leftSpell;
@@ -99,8 +99,12 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 			)
 		);
 		
+		if (currentAnimationProperty.getValue() != null) {
+			currentAnimationProperty.getValue().stop();
+			currentAnimationProperty.getValue().getOnFinished().handle(null);
+		}
 		gamePane.getChildren().add(pair.node);
-		currentAnimations.add(pair.animation);
+		currentAnimationProperty.setValue(pair.animation);
 		pair.animation.setOnFinished(cleanUpPair(pair));
 		pair.animation.playFromStart();
 	}
@@ -109,7 +113,7 @@ public final class PlayBattleAnimationEventHandler implements EventHandler<Actio
 		return new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent ignored) {
 				gamePane.getChildren().remove(pair.node);
-				currentAnimations.remove(pair.animation);
+				currentAnimationProperty.setValue(null);
 			}
 		};
 	}
