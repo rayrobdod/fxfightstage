@@ -22,6 +22,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -75,6 +76,23 @@ public final class MediaControlPanel {
 			playButton.setDefaultButton(true);
 		}
 		
+		Button stopButton = new Button(); {
+			final Shape stopGraphic = new Rectangle(10, 10);
+			
+			stopButton.setGraphic(stopGraphic);
+			stopButton.setText("Stop");
+			stopButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			stopButton.setOnAction(x ->
+				animationProperty.get().getOnFinished().handle(null)
+			);
+			stopButton.setTooltip(new Tooltip("Stop"));
+			stopButton.disableProperty().bind(
+				new AnimationPlayPauseBinding<>(animationProperty, true, false, false)
+			);
+			stopButton.setMaxWidth(1d/0d);
+			
+		}
+		
 		Button snapshotButton = new Button(); {
 			final SVGPath snapshotGraphic = new SVGPath();
 			snapshotGraphic.setContent("M 3 0.5 L 2.25 2 L 0 2 L 0 8 L 2.0410156 8 A 3 3 0 0 1 2 7.5 A 3 3 0 0 1 5 4.5 A 3 3 0 0 1 8 7.5 A 3 3 0 0 1 7.953125 8 L 10 8 L 10 2 L 7.75 2 L 7 0.5 L 3 0.5 z M 1 3 L 2 3 L 2 4 L 1 4 L 1 3 z M 5 5.5 A 2 2 0 0 0 3 7.5 A 2 2 0 0 0 5 9.5 A 2 2 0 0 0 7 7.5 A 2 2 0 0 0 5 5.5 z ");
@@ -93,12 +111,14 @@ public final class MediaControlPanel {
 		this.node = new GridPane();
 		this.node.add(playButton, 0, 0, GridPane.REMAINING, 1);
 		this.node.add(progress, 0, 1, 2, 1);
-		this.node.add(snapshotButton, 2, 1);
+		this.node.add(stopButton, 2, 1);
+		this.node.add(snapshotButton, 3, 1);
 		
 		this.node.getColumnConstraints().addAll(
 			  percentColumnConstraint(50)
-			, percentColumnConstraint(42.5)
-			, percentColumnConstraint(7.5)
+			, percentColumnConstraint(40)
+			, percentColumnConstraint(5)
+			, percentColumnConstraint(5)
 		);
 	}
 	
