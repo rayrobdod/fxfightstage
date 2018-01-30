@@ -12,7 +12,10 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -20,12 +23,12 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
+ * First time I've used a ListProperty, if nothing else.
  */
 public final class Lightning implements SpellAnimationGroup {
 	
@@ -53,15 +56,11 @@ public final class Lightning implements SpellAnimationGroup {
 	private final Node foreground;
 	private final Polyline line1;
 	private final Polyline line2;
-	private final DoubleProperty targetTranslateX;
-	private final DoubleProperty targetTranslateY;
+	private final ListProperty<Double> linePoints;
 	
 	public Lightning() {
-		final List<Double> listPoints = generateLightningPoints();
 		this.line1 = new Polyline();
-		this.line1.getPoints().addAll(listPoints);
 		this.line2 = new Polyline();
-		this.line2.getPoints().addAll(listPoints);
 		
 		this.line1.setOpacity(0);
 		this.line1.setStroke(Color.hsb(240, 0.2, 0.95, 0.9));
@@ -74,16 +73,16 @@ public final class Lightning implements SpellAnimationGroup {
 		this.line2.setStrokeLineCap(StrokeLineCap.ROUND);
 		this.line2.setEffect(new GaussianBlur(6));
 		
+		// I don't know what `SimpleListProperty<>(line1)` does, but `line1` is not updated with the property in that case.
+		this.linePoints = new SimpleListProperty<>();
+		this.linePoints.addListener(reverseBind(line1.getPoints()));
+		this.linePoints.addListener(reverseBind(line2.getPoints()));
+		
 		this.background = new Group();
 		this.foreground = new Group(
 			this.line1,
 			this.line2
 		);
-		
-		final Translate targetTranslate = new Translate();
-		this.foreground.getTransforms().add(targetTranslate);
-		this.targetTranslateX = targetTranslate.xProperty();
-		this.targetTranslateY = targetTranslate.yProperty();
 	}
 	
 	public Node getBackground() { return this.background; }
@@ -96,20 +95,18 @@ public final class Lightning implements SpellAnimationGroup {
 		Animation hpAndShakeAnimation
 	) {
 		final Random rng = new Random();
-		final List<Double> points = new ArrayList<>();
-		
+		final ObservableList<Double> points = javafx.collections.FXCollections
+				.observableList(generateLightningPoints(target));
 		
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(this.targetTranslateX, target.getX(), Interpolator.DISCRETE),
-			new KeyValue(this.targetTranslateY, target.getY(), Interpolator.DISCRETE),
+			new KeyValue(linePoints, points, Interpolator.DISCRETE),
 			new KeyValue(line1.opacityProperty(), 0.0, Interpolator.DISCRETE),
 			new KeyValue(line2.opacityProperty(), 0.0, Interpolator.DISCRETE)
 		));
 		// Timeline apparently will not touch something without it being mentioned at least twice
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ONE,
-			new KeyValue(this.targetTranslateX, target.getX(), Interpolator.DISCRETE),
-			new KeyValue(this.targetTranslateY, target.getY(), Interpolator.DISCRETE)
+			new KeyValue(linePoints, points, Interpolator.DISCRETE)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(explodeStartTime,
 			new KeyValue(line1.opacityProperty(), 1.0, Interpolator.DISCRETE),
@@ -134,10 +131,10 @@ public final class Lightning implements SpellAnimationGroup {
 		);
 	}
 	
-	private static List<Double> generateLightningPoints() {
+	/** Creates a vertical jagged line */
+	private static List<Double> generateLightningPoints(final Point2D target) {
 		final Random rng = new Random();
 		final List<Double> retval = new ArrayList<>();
-		final Point2D target = new Point2D(0,0);
 		
 		final double maxY = target.getY() + aboveSpellTarget;
 		double currentX = target.getX();
@@ -154,5 +151,9 @@ public final class Lightning implements SpellAnimationGroup {
 		} while (currentY >= maxY);
 		
 		return retval;
+	}
+	
+	private static ChangeListener<ObservableList<Double>> reverseBind(final ObservableList<Double> list) {
+		return (observable, oldValue, newValue) -> list.setAll(newValue);
 	}
 }
