@@ -38,6 +38,7 @@ subprojects {
 		java {
 			importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod'
 			removeUnusedImports()
+			licenseHeaderFile '../spotless-license-java'
 			endWithNewline()
 		}
 	}
