@@ -28,11 +28,17 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-
+/**
+ * A panel which control the playing of an animation
+ */
 public final class MediaControlPanel {
 	
 	private final GridPane node;
 	
+	/**
+	 * @param animationProperty the animation that this's actions act upon
+	 * @param playButtonEvent the action that is to occur upon
+	 */
 	public MediaControlPanel(
 		  final ObjectProperty<Animation> animationProperty
 		, final EventHandler<ActionEvent> playButtonEvent
@@ -124,7 +130,11 @@ public final class MediaControlPanel {
 	
 	public Node getNode() { return this.node; }
 	
-	
+	/**
+	 * A binding that displays represents the progress of an animation.
+	 * <p>
+	 * The output value is in the range [0.0-1.0]. The output value is 0.0 if the animation is {@code null}.
+	 */
 	private static final class AnimationProgressBinding extends DoubleBinding {
 		private final ObjectProperty<Animation> animationProperty;
 		private ObservableValue<Duration> currentCurrentTime;
@@ -242,6 +252,7 @@ public final class MediaControlPanel {
 		}
 	}
 	
+	/** Creates a ColumnConstraints representing a percent of an area */
 	private final ColumnConstraints percentColumnConstraint(double percent) {
 		ColumnConstraints retval = new ColumnConstraints();
 		retval.setPercentWidth(percent);

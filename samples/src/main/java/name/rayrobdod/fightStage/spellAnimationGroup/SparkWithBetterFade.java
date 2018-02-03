@@ -33,7 +33,7 @@ import javafx.util.Duration;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * @see https://www.patreon.com/posts/electricity-7075305
+ * @see <a href="https://www.patreon.com/posts/electricity-7075305">Medeiros electricity animation tutorial</a>
  */
 public final class SparkWithBetterFade implements SpellAnimationGroup {
 	
@@ -249,8 +249,8 @@ public final class SparkWithBetterFade implements SpellAnimationGroup {
 	}
 	
 	/**
-	 * A WritableValue which sets and gets the values from a given ObservableList
-	 * 
+	 * A WritableValue which sets and gets the values from a given ObservableList.
+	 * <p>
 	 * Mostly intended for KeyValue animations. Especially since attempts to use
 	 * `ListProperty` failed, especially with multiple ListProperties in the same
 	 * animation, or was unduly cumbersome.
@@ -267,7 +267,7 @@ public final class SparkWithBetterFade implements SpellAnimationGroup {
 		/**
 		 * Clears the backing list, then copies elements from the parameter to the
 		 * backing list.
-		 * @see ObservableList#setAll-java.util.Collection-
+		 * @see ObservableList#setAll
 		 */
 		public void setValue(List<T> vals) {
 			backing.setAll(vals);

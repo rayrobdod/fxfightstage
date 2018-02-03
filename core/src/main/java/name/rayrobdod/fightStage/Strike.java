@@ -32,6 +32,9 @@ public final class Strike {
 		this.defenderModifiers = defenderModifiers;
 	}
 	
+	/**
+	 * The larger of `attackModifiers`'s size or `defenderModifiers`'s size
+	 */
 	public int maxModifierSize() {
 		return Math.max(attackerModifiers.size(), defenderModifiers.size());
 	}

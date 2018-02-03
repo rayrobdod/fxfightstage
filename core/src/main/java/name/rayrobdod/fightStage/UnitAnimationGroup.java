@@ -50,7 +50,7 @@ public interface UnitAnimationGroup {
 			This animation must be invoked exactly once in the returned animation.
 	 * @param target the target point of the spell animation
 	 * @param consecutiveAttackDesc Describes this attack's position in a sequence of consecutive strikes
-	 * @param triggeredSkills modifiers describing the current attack
+	 * @param attackerModifiers modifiers describing the current attack
 	 * @param isFinisher true if this attack reduces the opponent's HP to zero
 	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
@@ -88,7 +88,7 @@ public interface UnitAnimationGroup {
 	 * values of the rolloverKeyValues map
 	 * 
 	 * @param side The side of the battle that is unit is on.
-	 * @param initialOffst The initial 'foot point' of the unit
+	 * @param initialOffset The initial 'foot point' of the unit
 	 * @return a map of Properties and their values
 	 */
 	public Map<DoubleProperty, Double> getInitializingKeyValues(

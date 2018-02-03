@@ -22,6 +22,9 @@ import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
 import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 
+/**
+ * A panel that allows a user to set battle animation properties
+ */
 public final class SettingsPanel {
 	
 	private final GridPane node;
