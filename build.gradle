@@ -38,6 +38,12 @@ subprojects {
 		java {
 			importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod'
 			removeUnusedImports()
+			licenseHeaderFile '../spotless-license-java'
+			endWithNewline()
+		}
+		format 'fxml', {
+			target '**/*.fxml'
+			// TODO: license header? Default isn't designed for xml.
 			endWithNewline()
 		}
 	}

@@ -1,10 +1,26 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package name.rayrobdod.fightStage.previewer;
 
 import java.util.List;
 
-import javafx.geometry.HPos;
+import javafx.animation.Animation;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -21,11 +37,16 @@ import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
 import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 
+/**
+ * A panel that allows a user to set battle animation properties
+ */
 public final class SettingsPanel {
 	
 	private final GridPane node;
+	private final ObjectProperty<Animation> currentAnimationProperty;
 	
 	public SettingsPanel(StackPane gamePane) {
+		this.currentAnimationProperty = new SimpleObjectProperty<>();
 		
 		final Label labelUnit = new Label("Unit Animation");
 		labelUnit.setPadding(new javafx.geometry.Insets(4));
@@ -65,12 +86,11 @@ public final class SettingsPanel {
 		final HBox leftHp = new HBox(3, leftCurrentHp, new Text("/"), leftMaximumHp);
 		final HBox rightHp = new HBox(3, rightCurrentHp, new Text("/"), rightMaximumHp);
 		
-		
-		Button playButton = new Button("Play");
-		playButton.setMaxWidth(1d/0d);
-		playButton.setOnAction(
-			new PlayBattleAnimationEventHandler(
+		MediaControlPanel mediaControlPanel = new MediaControlPanel(
+			  this.currentAnimationProperty
+			, new PlayBattleAnimationEventHandler(
 				  gamePane
+				, this.currentAnimationProperty
 				, () -> leftUnit.getValue().supplier.get()
 				, () -> rightUnit.getValue().supplier.get()
 				, () -> leftSpell.getValue().supplier.get()
@@ -80,16 +100,13 @@ public final class SettingsPanel {
 				, () -> leftMaximumHp.getValue()
 				, () -> rightMaximumHp.getValue()
 				, () -> distance.getValue()
-			)
+			  )
 		);
 		
 		GridPane.setFillWidth(leftUnit, true);
 		GridPane.setFillWidth(rightUnit, true);
-		GridPane.setFillWidth(playButton, true);
 		GridPane.setHgrow(leftUnit, Priority.ALWAYS);
 		GridPane.setHgrow(rightUnit, Priority.ALWAYS);
-		GridPane.setHgrow(playButton, Priority.ALWAYS);
-		GridPane.setHalignment(playButton, HPos.CENTER);
 		HBox.setHgrow(leftCurrentHp, Priority.ALWAYS);
 		HBox.setHgrow(leftMaximumHp, Priority.ALWAYS);
 		HBox.setHgrow(rightCurrentHp, Priority.ALWAYS);
@@ -107,7 +124,7 @@ public final class SettingsPanel {
 		this.node.add(rightHp, 2, 3);
 		this.node.add(labelDistance, 0, 15);
 		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
-		this.node.add(playButton, 0, 16, GridPane.REMAINING, 1);
+		this.node.add(mediaControlPanel.getNode(), 0, 16, GridPane.REMAINING, 1);
 	}
 	
 	public Node getNode() { return this.node; }

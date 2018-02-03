@@ -15,21 +15,27 @@
  */
 package name.rayrobdod.fightStage;
 
-import javafx.animation.Animation;
-import javafx.scene.Node;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-/**
- * A pair with one Node and one Animation
- */
-public final class NodeAnimationPair {
-	public final Node node;
-	public final Animation animation;
+public final class ConsecutiveAttackDescriptorTest {
 	
-	public NodeAnimationPair(
-		  Node node
-		, Animation animation
-	) {
-		this.node = node;
-		this.animation = animation;
+	@Test
+	public void when11_thenIsOnly() {
+		ConsecutiveAttackDescriptor dut = new ConsecutiveAttackDescriptor(1, 1);
+		Assertions.assertTrue(dut.isOnly());
 	}
+	
+	@Test
+	public void when11_thenIsFirst() {
+		ConsecutiveAttackDescriptor dut = new ConsecutiveAttackDescriptor(1, 1);
+		Assertions.assertTrue(dut.isFirst());
+	}
+	
+	@Test
+	public void when11_thenIsLast() {
+		ConsecutiveAttackDescriptor dut = new ConsecutiveAttackDescriptor(1, 1);
+		Assertions.assertTrue(dut.isLast());
+	}
+	
 }

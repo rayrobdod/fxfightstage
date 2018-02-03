@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
 import java.util.Map;
@@ -17,10 +32,12 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.Side;
@@ -54,6 +71,7 @@ public final class MageGuy implements UnitAnimationGroup {
 	private final DoubleProperty scaleXProp;
 	private final DoubleProperty translateXProp;
 	private final DoubleProperty translateYProp;
+	private final DoubleProperty deathRotateProp;
 	
 	public MageGuy() {
 		final Translate footPointTranslate = new Translate(-80, -150);
@@ -62,10 +80,15 @@ public final class MageGuy implements UnitAnimationGroup {
 		final Translate moveTranslate = new Translate();
 		this.translateXProp = moveTranslate.xProperty();
 		this.translateYProp = moveTranslate.yProperty();
+		final Rotate deathRotate = new Rotate();
+		this.deathRotateProp = deathRotate.angleProperty();
+		deathRotate.setPivotX(20);
+		deathRotate.setPivotY(0);
 		final Image img = new Image(filename);
 		this.node = new ImageView(img);
 		this.node.getTransforms().add(moveTranslate);
 		this.node.getTransforms().add(scale);
+		this.node.getTransforms().add(deathRotate);
 		this.node.getTransforms().add(footPointTranslate);
 		this.node.setViewport(standingViewport);
 	}
@@ -99,7 +122,7 @@ public final class MageGuy implements UnitAnimationGroup {
 		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	) {
 		final Timeline beforeSpellAnimation = new Timeline();
@@ -139,6 +162,25 @@ public final class MageGuy implements UnitAnimationGroup {
 			),
 			afterSpellAnimation
 		);
+	}
+	
+	@Override
+	public Animation getHitAnimation(
+		  Map<DoubleProperty, Double> rolloverKeyValues
+		, Set<AttackModifier> attackerModifiers
+		, Set<AttackModifier> defenderModifiers
+		, boolean isFinisher
+	) {
+		if (isFinisher) {
+			return Animations.doubleSimpleAnimation(
+				Duration.millis(250),
+				deathRotateProp,
+				0,
+				90
+			);
+		} else {
+			return Animations.nil();
+		}
 	}
 	
 	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(

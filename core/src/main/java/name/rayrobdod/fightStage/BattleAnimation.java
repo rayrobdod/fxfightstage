@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package name.rayrobdod.fightStage;
 
 import static javafx.scene.text.FontWeight.BOLD;
@@ -5,7 +20,10 @@ import static javafx.scene.text.FontWeight.BOLD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -47,6 +65,7 @@ public final class BattleAnimation {
 	private static final Duration pauseDuration = Duration.millis(1000);
 	private static final double distanceExtendPastPoint = 75;
 	private static final double distanceFootBelowHorizon = 50;
+	private static final double sideNoteWidth = 120;
 	
 	
 	public static NodeAnimationPair buildAnimation(
@@ -58,6 +77,7 @@ public final class BattleAnimation {
 		List<Strike> strikes
 	) {
 		///////////// The node construction
+		final int maxModifiersSize = strikes.stream().mapToInt(Strike::maxModifierSize).max().orElse(0);
 		
 		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
 		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);
@@ -65,6 +85,8 @@ public final class BattleAnimation {
 		final Label rightUnitName = unitNameLabel(right.unitName, right.teamColor, HPos.RIGHT);
 		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT);
 		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT);
+		final List<Label> leftModifiers = Stream.generate(() -> newModifierLabel(HPos.LEFT)).limit(maxModifiersSize).collect(Collectors.toList());
+		final List<Label> rightModifiers = Stream.generate(() -> newModifierLabel(HPos.RIGHT)).limit(maxModifiersSize).collect(Collectors.toList());
 		
 		final Dimension2D gamePanelSize = new Dimension2D(
 			containerSize.getWidth(),
@@ -128,7 +150,15 @@ public final class BattleAnimation {
 		AnchorPane.setLeftAnchor(leftUnitName, 0.0);
 		AnchorPane.setTopAnchor(rightUnitName, 15.0);
 		AnchorPane.setRightAnchor(rightUnitName, 0.0);
+		for (int i = 0; i < maxModifiersSize; i++) {
+			AnchorPane.setTopAnchor(leftModifiers.get(i), 55.0 + 40 * i);
+			AnchorPane.setLeftAnchor(leftModifiers.get(i), 0.0);
+			AnchorPane.setTopAnchor(rightModifiers.get(i), 55.0 + 40 * i);
+			AnchorPane.setRightAnchor(rightModifiers.get(i), 0.0);
+		}
 		retval_1.getChildren().addAll(gamePane, bottomHud, leftUnitName, rightUnitName);
+		retval_1.getChildren().addAll(leftModifiers);
+		retval_1.getChildren().addAll(rightModifiers);
 		
 		////////// The animation construction
 		
@@ -180,96 +210,89 @@ public final class BattleAnimation {
 			final double leftPan = (useCenterPan ? centerPan : -currentLeftOffset + distanceExtendPastPoint - logicalScreenWidth / 2);
 			final double rightPan = (useCenterPan ? centerPan : -currentRightOffset - distanceExtendPastPoint + logicalScreenWidth / 2);
 			
-			switch (strike.attacker) {
-				case LEFT: {
-					final int leftNewHp = leftCurrentHitpoints + strike.drain;
-					final int rightNewHp = rightCurrentHitpoints - strike.damage;
-					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
-					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
-					
-					final Point2D target = right.unit.getSpellTarget(rightRolloverValues);
-					
-					animationParts.add(
+			
+			final int leftHpDelta = (strike.attacker == Side.LEFT ? strike.drain : -strike.damage);
+			final int rightHpDelta = (strike.attacker == Side.RIGHT ? strike.drain : -strike.damage);
+			final int leftNewHp = leftCurrentHitpoints + leftHpDelta;
+			final int rightNewHp = rightCurrentHitpoints + rightHpDelta;
+			final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
+			final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
+			final boolean isFinisher = (strike.attacker == Side.LEFT ? rightNewHp : leftNewHp) <= 0;
+			
+			AggregateSideParams attacker = (strike.attacker == Side.LEFT ? left : right);
+			AggregateSideParams defender = (strike.attacker == Side.LEFT ? right : left);
+			final Map<DoubleProperty, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
+			final Map<DoubleProperty, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
+			final double attackerPan = (strike.attacker == Side.LEFT ? leftPan : rightPan);
+			final double defenderPan = (strike.attacker == Side.LEFT ? rightPan : leftPan);
+			
+			final Animation attackModifierInAnims = modifiersLabelsFadeInAnim(
+				strike.attackerModifiers,
+				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers)
+			);
+			final Animation defenderModifierInAnims = modifiersLabelsFadeInAnim(
+				strike.defenderModifiers,
+				(strike.attacker == Side.LEFT ? rightModifiers : leftModifiers)
+			);
+			final Animation attackModifierOutAnims = modifiersLabelsFadeOutAnim(
+				strike.attackerModifiers,
+				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers)
+			);
+			final Animation defenderModifierOutAnims = modifiersLabelsFadeOutAnim(
+				strike.defenderModifiers,
+				(strike.attacker == Side.LEFT ? rightModifiers : leftModifiers)
+			);
+			
+			final Point2D target = defender.unit.getSpellTarget(defenderRolloverValues);
+			final Animation hitAnimation = defender.unit.getHitAnimation(
+				  defenderRolloverValues
+				, strike.attackerModifiers
+				, strike.defenderModifiers
+				, isFinisher
+			);
+			animationParts.add(
+				Animations.doubleSimpleAnimation(
+					Duration.millis(Math.abs(currentPan - attackerPan)),
+					panTranslate.xProperty(),
+					currentPan,
+					attackerPan
+				)
+			);
+			animationParts.add(new ParallelTransition(
+				attackModifierInAnims,
+				attacker.unit.getAttackAnimation(
+					(origin) -> attacker.spell.getAnimation(
+						origin,
+						target,
 						Animations.doubleSimpleAnimation(
-							Duration.millis(Math.abs(currentPan - leftPan)),
+							Duration.millis(Math.abs(defenderPan - attackerPan)),
 							panTranslate.xProperty(),
-							currentPan,
-							leftPan
+							attackerPan,
+							defenderPan
+						),
+						new ParallelTransition(
+							  shakeAnimation
+							, hitAnimation
+							, defenderModifierInAnims
+							, leftHealthbarAnimation
+							, rightHealthbarAnimation
 						)
-					);
-					animationParts.add(left.unit.getAttackAnimation(
-						(origin) -> left.spell.getAnimation(
-							origin,
-							target,
-							Animations.doubleSimpleAnimation(
-								Duration.millis(Math.abs(rightPan - leftPan)),
-								panTranslate.xProperty(),
-								leftPan,
-								rightPan
-							),
-							new ParallelTransition(
-								  shakeAnimation
-								, leftHealthbarAnimation
-								, rightHealthbarAnimation
-							)
-						)
-						, leftRolloverValues
-						, target
-						, consecutiveAttackDesc
-						, strike.triggeredSkills
-						, rightNewHp <= 0
-					));
-					
-					leftCurrentHitpoints = leftNewHp;
-					rightCurrentHitpoints = rightNewHp;
-					currentPan = rightPan;
-					break;
-				}
-				case RIGHT: {
-					final int leftNewHp = leftCurrentHitpoints - strike.damage;
-					final int rightNewHp = rightCurrentHitpoints + strike.drain;
-					final Animation leftHealthbarAnimation = healthbarAnimation(healthbarLeft, leftCurrentHitpoints, leftNewHp);
-					final Animation rightHealthbarAnimation = healthbarAnimation(healthbarRight, rightCurrentHitpoints, rightNewHp);
-					
-					Point2D target = left.unit.getSpellTarget(leftRolloverValues);
-					
-					animationParts.add(
-						Animations.doubleSimpleAnimation(
-							Duration.millis(Math.abs(currentPan - rightPan)),
-							panTranslate.xProperty(),
-							currentPan,
-							rightPan
-						)
-					);
-					animationParts.add(right.unit.getAttackAnimation(
-						(origin) -> right.spell.getAnimation(
-							origin,
-							target,
-							Animations.doubleSimpleAnimation(
-								Duration.millis(Math.abs(leftPan - rightPan)),
-								panTranslate.xProperty(),
-								rightPan,
-								leftPan
-							),
-							new ParallelTransition(
-								  shakeAnimation
-								, leftHealthbarAnimation
-								, rightHealthbarAnimation
-							)
-						)
-						, rightRolloverValues
-						, target
-						, consecutiveAttackDesc
-						, strike.triggeredSkills
-						, leftNewHp <= 0
-					));
-					
-					leftCurrentHitpoints = leftNewHp;
-					rightCurrentHitpoints = rightNewHp;
-					currentPan = leftPan;
-					break;
-				}
-			}
+					  )
+					, attackerRolloverValues
+					, target
+					, consecutiveAttackDesc
+					, strike.attackerModifiers
+					, isFinisher
+				)
+			));
+			animationParts.add(new ParallelTransition(
+				attackModifierOutAnims,
+				defenderModifierOutAnims
+			));
+			
+			leftCurrentHitpoints = leftNewHp;
+			rightCurrentHitpoints = rightNewHp;
+			currentPan = defenderPan;
 		}
 		
 		// If someone died, fade out the guys who died and make the ones who
@@ -392,16 +415,6 @@ public final class BattleAnimation {
 		);
 	}
 	
-	static final javafx.scene.layout.Border solidWhiteBorder =
-		new javafx.scene.layout.Border(
-			new javafx.scene.layout.BorderStroke(
-				  Color.WHITE
-				, javafx.scene.layout.BorderStrokeStyle.SOLID
-				, javafx.scene.layout.CornerRadii.EMPTY
-				, javafx.scene.layout.BorderStroke.MEDIUM
-			)
-		);
-	
 	static final javafx.scene.layout.Background solidBackground(Color c) {
 		return new javafx.scene.layout.Background(
 			new javafx.scene.layout.BackgroundFill(c, null, null)
@@ -451,7 +464,7 @@ public final class BattleAnimation {
 			)
 		));
 		retval.setBackground(solidBackground(bgColor));
-		retval.setPrefWidth(120);
+		retval.setPrefWidth(sideNoteWidth);
 		retval.setTextFill(Color.WHITE);
 		retval.setPadding(new javafx.geometry.Insets(3, 7, 3, 7));
 		retval.setFont(Font.font("Sans", BOLD, 15));
@@ -496,5 +509,76 @@ public final class BattleAnimation {
 			.map(x -> new KeyValue(x.getKey(), x.getValue(), Interpolator.DISCRETE))
 			.toArray(KeyValue[]::new);
 		return new KeyFrame(time, values);
+	}
+	
+	private static Label newModifierLabel(HPos alignment) {
+		final Label retval = new Label();
+		retval.setBorder(new javafx.scene.layout.Border(
+			new javafx.scene.layout.BorderStroke(
+				  Color.BLACK
+				, javafx.scene.layout.BorderStrokeStyle.SOLID
+				, javafx.scene.layout.CornerRadii.EMPTY
+				, new javafx.scene.layout.BorderWidths(
+					3,
+					(alignment == HPos.RIGHT ? 0 : 3),
+					3,
+					(alignment == HPos.LEFT ? 0 : 3)
+				  )
+			)
+		));
+		retval.setBackground(solidBackground(Color.GOLD));
+		retval.setMinWidth(0);
+		retval.setPrefWidth(0);
+		retval.setTextFill(Color.BLACK);
+		retval.setPadding(new javafx.geometry.Insets(3, 7, 3, 7));
+		retval.setFont(Font.font("Sans", BOLD, 15));
+		retval.setAlignment(withVCenter(alignment));
+		return retval;
+	}
+	
+	private static Animation modifierLabelFadeInAnim(Label modifierLabel, String text) {
+		final Timeline timeline = new Timeline();
+		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+			new KeyValue(modifierLabel.textProperty(), text, Interpolator.LINEAR),
+			new KeyValue(modifierLabel.prefWidthProperty(), 0, Interpolator.LINEAR)
+		));
+		timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250),
+			new KeyValue(modifierLabel.textProperty(), text, Interpolator.LINEAR),
+			new KeyValue(modifierLabel.prefWidthProperty(), sideNoteWidth, Interpolator.LINEAR)
+		));
+		return timeline;
+	}
+	
+	private static Animation modifierLabelFadeOutAnim(Label modifierLabel) {
+		final Timeline timeline = new Timeline();
+		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+			new KeyValue(modifierLabel.prefWidthProperty(), sideNoteWidth, Interpolator.LINEAR)
+		));
+		timeline.getKeyFrames().add(new KeyFrame(Duration.millis(150),
+			new KeyValue(modifierLabel.prefWidthProperty(), 0, Interpolator.LINEAR)
+		));
+		return timeline;
+	}
+	
+	private static Animation modifiersLabelsFadeInAnim(Set<AttackModifier> mods, List<Label> labels) {
+		List<AttackModifier> mods2 = mods.stream().filter(x -> x.getDisplayName().isPresent()).collect(Collectors.toList());
+		ParallelTransition retval = new ParallelTransition();
+		for (int i = 0; i < mods2.size(); i++) {
+			Animation anim = modifierLabelFadeInAnim(labels.get(i), mods2.get(i).getDisplayName().orElse(""));
+			anim.setDelay(Duration.millis(150 * i));
+			retval.getChildren().add(anim);
+		}
+		return retval;
+	}
+	
+	private static Animation modifiersLabelsFadeOutAnim(Set<AttackModifier> mods, List<Label> labels) {
+		List<AttackModifier> mods2 = mods.stream().filter(x -> x.getDisplayName().isPresent()).collect(Collectors.toList());
+		ParallelTransition retval = new ParallelTransition();
+		for (int i = 0; i < mods2.size(); i++) {
+			retval.getChildren().add(
+				modifierLabelFadeOutAnim(labels.get(i))
+			);
+		}
+		return retval;
 	}
 }

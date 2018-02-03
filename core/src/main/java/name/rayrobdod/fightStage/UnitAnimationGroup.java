@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package name.rayrobdod.fightStage;
 
 import java.util.Map;
@@ -50,7 +65,7 @@ public interface UnitAnimationGroup {
 			This animation must be invoked exactly once in the returned animation.
 	 * @param target the target point of the spell animation
 	 * @param consecutiveAttackDesc Describes this attack's position in a sequence of consecutive strikes
-	 * @param triggeredSkills modifiers describing the current attack
+	 * @param attackerModifiers modifiers describing the current attack
 	 * @param isFinisher true if this attack reduces the opponent's HP to zero
 	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
@@ -59,18 +74,19 @@ public interface UnitAnimationGroup {
 		, Map<DoubleProperty, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
-		, Set<AttackModifier> triggeredSkills
+		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	);
 	
-	/*
+	/**
 	 * Returns an animation used to represent being hit by an attack
 	 */
-	// public Tuple2<Animation, Point2D> getHitAnimation(
-	//	  Map<DoubleProperty, Double> rolloverKeyValues
-	//	, Set<AttackModifier> triggeredSkills
-	//	, boolean isFinisher
-	//)
+	default Animation getHitAnimation(
+		  Map<DoubleProperty, Double> rolloverKeyValues
+		, Set<AttackModifier> attackerModifiers
+		, Set<AttackModifier> defenderModifiers
+		, boolean isFinisher
+	) { return Animations.nil(); }
 	
 	/**
 	 * Returns an animation used once before any attacks are played
@@ -87,7 +103,7 @@ public interface UnitAnimationGroup {
 	 * values of the rolloverKeyValues map
 	 * 
 	 * @param side The side of the battle that is unit is on.
-	 * @param initialOffst The initial 'foot point' of the unit
+	 * @param initialOffset The initial 'foot point' of the unit
 	 * @return a map of Properties and their values
 	 */
 	public Map<DoubleProperty, Double> getInitializingKeyValues(
