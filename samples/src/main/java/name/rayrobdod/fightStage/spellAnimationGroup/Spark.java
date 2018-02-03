@@ -3,6 +3,8 @@ package name.rayrobdod.fightStage.spellAnimationGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -29,9 +31,8 @@ import javafx.util.Duration;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * First time I've used a ListProperty, if nothing else.
  */
-public final class Lightning implements SpellAnimationGroup {
+public final class Spark implements SpellAnimationGroup {
 	
 	private static final Duration initalDelayDur = Duration.seconds(0.3);
 	private static final Duration explodeDur = Duration.seconds(0.2);
@@ -44,12 +45,11 @@ public final class Lightning implements SpellAnimationGroup {
 	private static final Duration fadeOutStartTime = explodeEndTime;
 	private static final Duration fadeOutEndTime = fadeOutStartTime.add(fadeOutDur);
 	
-	private static final double belowSpellTarget = 50;
-	private static final double aboveSpellTarget = -500;
-	private static final double segmentMaxXDelta = 20;
-	private static final double segmentMinXDelta = -20;
-	private static final double segmentMaxYDelta = 30;
-	private static final double segmentMinYDelta = 5;
+	private static final double segmentMaxParDelta = 30;
+	private static final double segmentMinParDelta = 10;
+	private static final double segmentMaxPerpValue = 30;
+	private static final double segmentMinPerpValue = -10;
+	private static final double sharpLineWidth = 3;
 	
 	private static final Duration totalDuration = fadeOutEndTime;
 	
@@ -59,7 +59,7 @@ public final class Lightning implements SpellAnimationGroup {
 	private final Polyline line2;
 	private final ListProperty<Double> linePoints;
 	
-	public Lightning() {
+	public Spark() {
 		this.line1 = new Polyline();
 		this.line2 = new Polyline();
 		
@@ -98,7 +98,7 @@ public final class Lightning implements SpellAnimationGroup {
 	) {
 		final Random rng = new Random();
 		final ObservableList<Double> points = javafx.collections.FXCollections
-				.observableList(generateLightningPoints(target));
+				.observableList(generateLightningPoints(origin, target));
 		
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
@@ -134,25 +134,34 @@ public final class Lightning implements SpellAnimationGroup {
 	}
 	
 	/** Creates a vertical jagged line */
-	private static List<Double> generateLightningPoints(final Point2D target) {
+	private static List<Double> generateLightningPoints(final Point2D origin, final Point2D target) {
 		final Random rng = new Random();
-		final List<Double> retval = new ArrayList<>();
+		final List<Point2D> retval = new ArrayList<>();
 		
-		final double maxY = target.getY() + aboveSpellTarget;
-		double currentX = target.getX();
-		double currentY = target.getY() + belowSpellTarget;
-		do {
-			retval.add(currentX);
-			retval.add(currentY);
-			
-			final double dx = (currentY >= target.getY() ? 0.25 : 1) * (segmentMinXDelta + (segmentMaxXDelta - segmentMinXDelta) * rng.nextDouble());
-			final double dy = segmentMinYDelta + (segmentMaxYDelta - segmentMinYDelta) * rng.nextDouble();
-			
-			currentX -= dx;
-			currentY -= dy;
-		} while (currentY >= maxY);
+		final double distance = origin.distance(target);
+		final Point2D parUnitVector = target.subtract(origin).normalize();
+		final Point2D perpUnitVector = new Point2D(-parUnitVector.getY(), parUnitVector.getX()).normalize();
 		
-		return retval;
+		retval.add(origin);
+		
+		double currentParallel = parDelta(rng, distance);
+		double perpPolarity = (rng.nextBoolean() ? 1.0 : -1.0);
+		while (currentParallel < 1.0) {
+			final double perp = perpPolarity * (segmentMinPerpValue + (segmentMaxPerpValue - segmentMinPerpValue) * rng.nextDouble());
+			
+			retval.add(origin.add(parUnitVector.multiply(distance * currentParallel)).add(perpUnitVector.multiply(perp)));
+			
+			currentParallel += parDelta(rng, distance);
+			perpPolarity *= -1.0;
+		}
+		
+		retval.add(target);
+		
+		return retval.stream().flatMap(p -> Stream.of(p.getX(), p.getY())).collect(Collectors.toList());
+	}
+	
+	private static double parDelta(Random rng, double distance) {
+		return (segmentMinParDelta + (segmentMaxParDelta - segmentMinParDelta) * rng.nextDouble()) / distance;
 	}
 	
 	private static ChangeListener<ObservableList<Double>> reverseBind(final ObservableList<Double> list) {

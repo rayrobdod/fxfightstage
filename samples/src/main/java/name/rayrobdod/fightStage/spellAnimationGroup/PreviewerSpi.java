@@ -18,6 +18,8 @@ public final class PreviewerSpi implements SpellAnimationGroups {
 			, new NameSupplierPair<>("Dark", () -> new Dark())
 			, new NameSupplierPair<>("Fireball", () -> new Fireball())
 			, new NameSupplierPair<>("Lightning", () -> new Lightning())
+			, new NameSupplierPair<>("Spark", () -> new Spark())
+			, new NameSupplierPair<>("Spark V2", () -> new SparkWithBetterFade())
 			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
 			, new NameSupplierPair<>("LightSword", () -> new LightSword())
 			, new NameSupplierPair<>("HealCoil", () -> new HealCoil())
