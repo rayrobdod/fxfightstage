@@ -37,8 +37,7 @@ public final class BasicElectricitySpellAnimationGroup implements SpellAnimation
 		this.foreground = new Group();
 		this.animGenerator = animGenerator.build(
 			lineGenerator,
-			this.foreground,
-			this.background
+			this.foreground
 		);
 	}
 	

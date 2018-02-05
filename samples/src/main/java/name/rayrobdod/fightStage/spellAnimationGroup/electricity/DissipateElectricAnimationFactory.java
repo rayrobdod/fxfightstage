@@ -66,7 +66,6 @@ public final class DissipateElectricAnimationFactory implements ElectricAnimatio
 	public DissipateElectricAnimationFactory(
 		  final JaggedLineFactory lineGenerator
 		, final Group foreground
-		, final Group background
 	) {
 		this.lineGenerator = lineGenerator;
 		

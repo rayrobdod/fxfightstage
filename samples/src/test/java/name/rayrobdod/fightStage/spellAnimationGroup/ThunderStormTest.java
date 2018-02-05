@@ -15,25 +15,11 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
 
-import javafx.animation.Animation;
-import javafx.geometry.Point2D;
-import javafx.scene.Group;
+import name.rayrobdod.fightStage.SpellAnimationGroup;
+import name.rayrobdod.fightStage.SpellAnimationGroupTest;
 
-/**
- *
- */
-public interface ElectricAnimationFactory {
-	public static interface Factory {
-		public ElectricAnimationFactory build(
-			  final JaggedLineFactory lineGenerator
-			, final Group foreground
-		);
+public class ThunderStormTest implements SpellAnimationGroupTest {
+	public SpellAnimationGroup getInstance() {
+		return new ThunderStorm();
 	}
-	
-	public Animation getAnimation(
-		Point2D origin,
-		Point2D target,
-		Animation panAnimation,
-		Animation hpAndShakeAnimation
-	);
 }

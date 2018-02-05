@@ -62,7 +62,6 @@ public final class FadeElectricAnimationFactory implements ElectricAnimationFact
 	public FadeElectricAnimationFactory(
 		  final JaggedLineFactory lineGenerator
 		, final Group foreground
-		, final Group background
 	) {
 		this.lineGenerator = lineGenerator;
 		
