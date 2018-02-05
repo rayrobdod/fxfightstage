@@ -15,7 +15,6 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
-
 import javafx.animation.Animation;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
