@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup;
+package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
 
 import javafx.animation.Animation;
 import javafx.geometry.Point2D;
@@ -21,21 +21,22 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
-import name.rayrobdod.fightStage.spellAnimationGroup.ElectricityShared.BasicFadeAnimation;
 
 /**
  */
-public final class Spark implements SpellAnimationGroup {
-	
+public final class BasicElectricitySpellAnimationGroup implements SpellAnimationGroup {
 	private final Group background;
 	private final Group foreground;
-	private final BasicFadeAnimation animGenerator;
+	private final ElectricAnimationFactory animGenerator;
 	
-	public Spark() {
+	public BasicElectricitySpellAnimationGroup(
+		  JaggedLineFactory lineGenerator
+		, ElectricAnimationFactory.Factory animGenerator
+	) {
 		this.background = new Group();
 		this.foreground = new Group();
-		this.animGenerator = new BasicFadeAnimation(
-			ElectricityShared::chainPoints,
+		this.animGenerator = animGenerator.build(
+			lineGenerator,
 			this.foreground,
 			this.background
 		);

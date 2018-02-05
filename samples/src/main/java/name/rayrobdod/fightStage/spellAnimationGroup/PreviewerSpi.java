@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
+import name.rayrobdod.fightStage.spellAnimationGroup.electricty.*;
 
 public final class PreviewerSpi implements SpellAnimationGroups {
 	
@@ -32,9 +33,10 @@ public final class PreviewerSpi implements SpellAnimationGroups {
 			, new NameSupplierPair<>("Arrow", () -> new Arrow())
 			, new NameSupplierPair<>("Dark", () -> new Dark())
 			, new NameSupplierPair<>("Fireball", () -> new Fireball())
-			, new NameSupplierPair<>("Lightning", () -> new Lightning())
-			, new NameSupplierPair<>("Spark", () -> new Spark())
-			, new NameSupplierPair<>("Spark V2", () -> new SparkWithBetterFade())
+			, new NameSupplierPair<>("Lightning (Fade)", () -> new BasicElectricitySpellAnimationGroup(new SkyBoltPoints(), FadeElectricAnimationFactory::new))
+			, new NameSupplierPair<>("Lightning (Dissipate)", () -> new BasicElectricitySpellAnimationGroup(new SkyBoltPoints(), DissipateElectricAnimationFactory::new))
+			, new NameSupplierPair<>("Spark (Fade)", () -> new BasicElectricitySpellAnimationGroup(new ChainPoints(), FadeElectricAnimationFactory::new))
+			, new NameSupplierPair<>("Spark (Dissipate)", () -> new BasicElectricitySpellAnimationGroup(new ChainPoints(), DissipateElectricAnimationFactory::new))
 			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
 			, new NameSupplierPair<>("LightSword", () -> new LightSword())
 			, new NameSupplierPair<>("HealCoil", () -> new HealCoil())
