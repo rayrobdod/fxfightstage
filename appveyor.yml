@@ -14,8 +14,12 @@ test_script:
    - 'gradlew --no-daemon check'
 artifacts:
    - path: ./maven
-     name: maven_files
-   - path: ./core/build/libs
+     name: maven
+   - path: ./core/build/libs/*.tar.gz
      name: core_libs
-   - path: ./demo/build/libs
+   - path: ./demo/build/libs/*.tar.gz
      name: demo_libs
+   - path: ./samples/build/libs/*.tar.gz
+     name: samples_libs
+   - path: ./samples/build/distributions/FxFightStageSamples.jar
+     name: samples_runner
