@@ -137,6 +137,8 @@ public final class BattleAnimation {
 		GridPane.setHgrow(healthbarRight.getNode(), Priority.ALWAYS);
 		GridPane.setHalignment(leftWeaponName, HPos.LEFT);
 		GridPane.setHalignment(rightWeaponName, HPos.RIGHT);
+		healthbarLeft.scaleProperty().bind(magnifyBinding);
+		healthbarRight.scaleProperty().bind(magnifyBinding);
 		
 		final AnchorPane retval_1 = new AnchorPane();
 		AnchorPane.setTopAnchor(gamePane, 0.0);

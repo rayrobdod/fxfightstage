@@ -36,9 +36,9 @@ public final class Animations {
 	 * Returns an animation that has no effects and which takes zero time
 	 */
 	public static Animation nil() {
-		// can't return a static constant due to ParellelTransition's
+		// can't return a static constant due to ParallelTransition's
 		// `java.lang.IllegalArgumentException: Attempting to add a duplicate to the list of children`
-		// which is stupid, but I can't change ParellelTransition.
+		// which is stupid, but I can't change ParallelTransition.
 		return new PauseTransition(Duration.ZERO);
 	}
 	
