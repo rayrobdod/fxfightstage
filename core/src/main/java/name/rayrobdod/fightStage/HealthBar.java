@@ -22,18 +22,12 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -100,18 +94,10 @@ final class HealthBar {
 		hpText.textProperty().bind(this.currentHealth.asString());
 		hpText.setTextFill(Color.WHITE);
 		hpText.fontProperty().bind(
-			new ObjectBinding<Font>() {
-				{
-					super.bind(HealthBar.this.scale);
-				}
-				@Override
-				protected Font computeValue() {
-					return Font.font("Sans", BOLD, HealthBar.this.scale.get() * 18);
-				}
-			}
+			Bindings.fontScale(Font.font("Sans", BOLD, 18), HealthBar.this.scale)
 		);
 		hpText.paddingProperty().bind(
-			new InsetScaleBinding(new Insets(6), HealthBar.this.scale)
+			Bindings.insetScale(new Insets(6), HealthBar.this.scale)
 		);
 		hpText.prefWidthProperty().bind(this.scale.multiply(40));
 		hpText.setAlignment(Pos.CENTER);
@@ -126,32 +112,18 @@ final class HealthBar {
 		}
 		BorderPane.setAlignment(hpText, Pos.CENTER);
 		this.node.paddingProperty().bind(
-			new InsetScaleBinding(new Insets(8, 3, 6, 3), HealthBar.this.scale)
+			Bindings.insetScale(new Insets(8, 3, 6, 3), HealthBar.this.scale)
 		);
 		this.node.setBackground(BattleAnimation.solidBackground(teamColor));
 		this.node.borderProperty().bind(
-			new ObjectBinding<Border>() {
-				{
-					super.bind(HealthBar.this.scale);
-				}
-				@Override
-				protected Border computeValue() {
-					final double scaleVal = HealthBar.this.scale.get();
-					return new Border(
-						new BorderStroke(
-							  Color.WHITE
-							, BorderStrokeStyle.SOLID
-							, CornerRadii.EMPTY
-							, new BorderWidths(
-								scaleVal * 3,
-								scaleVal * (labelPosition == HPos.RIGHT ? 0 : 1.5),
-								scaleVal * 0,
-								scaleVal * (labelPosition == HPos.LEFT ? 0 : 1.5)
-							  )
-						)
-					);
-				}
-			}
+			Bindings.solidScalableWidthBorder(
+				Color.WHITE,
+				3,
+				(labelPosition == HPos.RIGHT ? 0 : 1.5),
+				0,
+				(labelPosition == HPos.LEFT ? 0 : 1.5),
+				HealthBar.this.scale
+			)
 		);
 	}
 	
@@ -175,27 +147,5 @@ final class HealthBar {
 			case RIGHT: return Pos.CENTER_RIGHT;
 		}
 		return Pos.CENTER;
-	}
-	
-	private static class InsetScaleBinding extends ObjectBinding<Insets> {
-		private final Insets base;
-		private final ObservableDoubleValue scale;
-		
-		public InsetScaleBinding(Insets base, ObservableDoubleValue scale) {
-			this.base = base;
-			this.scale = scale;
-			super.bind(scale);
-		}
-		
-		@Override
-		protected Insets computeValue() {
-			final double scaleVal = this.scale.get();
-			return new Insets(
-				  scaleVal * base.getTop()
-				, scaleVal * base.getRight()
-				, scaleVal * base.getBottom()
-				, scaleVal * base.getLeft()
-			);
-		}
 	}
 }
