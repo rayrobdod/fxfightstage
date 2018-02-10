@@ -37,6 +37,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -48,6 +49,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -78,20 +80,6 @@ public final class BattleAnimation {
 		///////////// The node construction
 		final int maxModifiersSize = strikes.stream().mapToInt(Strike::maxModifierSize).max().orElse(0);
 		
-		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
-		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);
-		final Label leftUnitName = unitNameLabel(left.unitName, left.teamColor, HPos.LEFT);
-		final Label rightUnitName = unitNameLabel(right.unitName, right.teamColor, HPos.RIGHT);
-		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT);
-		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT);
-		final List<ModifierLabel> leftModifiers = Stream.generate(() -> new ModifierLabel(HPos.LEFT)).limit(maxModifiersSize).collect(Collectors.toList());
-		final List<ModifierLabel> rightModifiers = Stream.generate(() -> new ModifierLabel(HPos.RIGHT)).limit(maxModifiersSize).collect(Collectors.toList());
-		
-		final Dimension2D gamePanelSize = new Dimension2D(
-			containerSize.getWidth(),
-			containerSize.getHeight()
-		);
-		
 		final Rectangle footPointIndicator = new Rectangle(-verticalDistance / 2, -500, verticalDistance, 1000);
 		footPointIndicator.setFill(Color.rgb(255, 0, 255, 0.5));
 		
@@ -101,7 +89,7 @@ public final class BattleAnimation {
 		final Scale magnifyTransform = new Scale();
 		
 		final Node gameNode = new Group(
-			  backgroundNode.apply(gamePanelSize)
+			  backgroundNode.apply(containerSize)
 			, left.spell.getBackground()
 			, right.spell.getBackground()
 			, left.unit.getNode()
@@ -129,6 +117,16 @@ public final class BattleAnimation {
 		magnifyTransform.pivotYProperty().bind(centerTranslate.yProperty());
 		
 		
+		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
+		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);
+		final Label leftUnitName = unitNameLabel(left.unitName, left.teamColor, HPos.LEFT, magnifyBinding);
+		final Label rightUnitName = unitNameLabel(right.unitName, right.teamColor, HPos.RIGHT, magnifyBinding);
+		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT, magnifyBinding);
+		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT, magnifyBinding);
+		final List<ModifierLabel> leftModifiers = Stream.generate(() -> new ModifierLabel(HPos.LEFT)).limit(maxModifiersSize).collect(Collectors.toList());
+		final List<ModifierLabel> rightModifiers = Stream.generate(() -> new ModifierLabel(HPos.RIGHT)).limit(maxModifiersSize).collect(Collectors.toList());
+		
+		
 		final GridPane bottomHud = new GridPane();
 		bottomHud.addRow(0, leftWeaponName, rightWeaponName);
 		bottomHud.addRow(1, healthbarLeft.getNode(), healthbarRight.getNode());
@@ -139,6 +137,20 @@ public final class BattleAnimation {
 		healthbarLeft.scaleProperty().bind(magnifyBinding);
 		healthbarRight.scaleProperty().bind(magnifyBinding);
 		
+		final VBox leftModifierBox = new VBox(15, leftUnitName);
+		leftModifierBox.setAlignment(Pos.TOP_LEFT);
+		for (ModifierLabel x : leftModifiers) {
+			leftModifierBox.getChildren().add(x.getNode());
+			x.scaleProperty().bind(magnifyBinding);
+		}
+		final VBox rightModifierBox = new VBox(15, rightUnitName);
+		rightModifierBox.setAlignment(Pos.TOP_RIGHT);
+		for (ModifierLabel x : rightModifiers) {
+			rightModifierBox.getChildren().add(x.getNode());
+			x.scaleProperty().bind(magnifyBinding);
+		}
+		
+		
 		final AnchorPane retval_1 = new AnchorPane();
 		AnchorPane.setTopAnchor(gamePane, 0.0);
 		AnchorPane.setLeftAnchor(gamePane, 0.0);
@@ -147,23 +159,11 @@ public final class BattleAnimation {
 		AnchorPane.setLeftAnchor(bottomHud, 0.0);
 		AnchorPane.setRightAnchor(bottomHud, 0.0);
 		AnchorPane.setBottomAnchor(bottomHud, 0.0);
-		AnchorPane.setTopAnchor(leftUnitName, 15.0);
-		AnchorPane.setLeftAnchor(leftUnitName, 0.0);
-		AnchorPane.setTopAnchor(rightUnitName, 15.0);
-		AnchorPane.setRightAnchor(rightUnitName, 0.0);
-		for (int i = 0; i < maxModifiersSize; i++) {
-			AnchorPane.setTopAnchor(leftModifiers.get(i).getNode(), 55.0 + 40 * i);
-			AnchorPane.setLeftAnchor(leftModifiers.get(i).getNode(), 0.0);
-			AnchorPane.setTopAnchor(rightModifiers.get(i).getNode(), 55.0 + 40 * i);
-			AnchorPane.setRightAnchor(rightModifiers.get(i).getNode(), 0.0);
-		}
-		retval_1.getChildren().addAll(gamePane, bottomHud, leftUnitName, rightUnitName);
-		for (int i = 0; i < maxModifiersSize; i++) {
-			retval_1.getChildren().add(leftModifiers.get(i).getNode());
-			retval_1.getChildren().add(rightModifiers.get(i).getNode());
-			leftModifiers.get(i).scaleProperty().bind(magnifyBinding);
-			rightModifiers.get(i).scaleProperty().bind(magnifyBinding);
-		}
+		AnchorPane.setTopAnchor(leftModifierBox, 15.0);
+		AnchorPane.setLeftAnchor(leftModifierBox, 0.0);
+		AnchorPane.setTopAnchor(rightModifierBox, 15.0);
+		AnchorPane.setRightAnchor(rightModifierBox, 0.0);
+		retval_1.getChildren().addAll(gamePane, bottomHud, leftModifierBox, rightModifierBox);
 		
 		////////// The animation construction
 		
@@ -203,7 +203,7 @@ public final class BattleAnimation {
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
 		double currentPan = 0;
-		final double logicalScreenWidth = gamePanelSize.getWidth() / MagnificationBinding.compute(gamePanelSize.getWidth(), gamePanelSize.getHeight());
+		final double logicalScreenWidth = containerSize.getWidth() / MagnificationBinding.compute(containerSize.getWidth(), containerSize.getHeight());
 		
 		for (int i = 0; i < strikes.size(); i++) {
 			final double currentLeftOffset = left.unit.getCurrentXOffset(leftRolloverValues);
@@ -453,50 +453,49 @@ public final class BattleAnimation {
 		return ContentDisplay.CENTER;
 	}
 	
-	private static Label unitNameLabel(String text, Color bgColor, HPos alignment) {
+	private static Label unitNameLabel(String text, Color bgColor, HPos alignment, DoubleBinding scale) {
 		final Label retval = new Label(text);
-		retval.setBorder(new javafx.scene.layout.Border(
-			new javafx.scene.layout.BorderStroke(
-				  Color.WHITE
-				, javafx.scene.layout.BorderStrokeStyle.SOLID
-				, javafx.scene.layout.CornerRadii.EMPTY
-				, new javafx.scene.layout.BorderWidths(
-					3,
-					(alignment == HPos.RIGHT ? 0 : 3),
-					3,
-					(alignment == HPos.LEFT ? 0 : 3)
-				  )
+		retval.borderProperty().bind(
+			Bindings.solidScalableWidthBorder(
+				Color.WHITE,
+				3,
+				(alignment == HPos.RIGHT ? 0 : 3),
+				3,
+				(alignment == HPos.LEFT ? 0 : 3),
+				scale
 			)
-		));
+		);
 		retval.setBackground(solidBackground(bgColor));
-		retval.setPrefWidth(sideNoteWidth);
+		retval.prefWidthProperty().bind(scale.multiply(sideNoteWidth));
 		retval.setTextFill(Color.WHITE);
-		retval.setPadding(new javafx.geometry.Insets(3, 7, 3, 7));
-		retval.setFont(Font.font("Sans", BOLD, 15));
+		retval.paddingProperty().bind(Bindings.insetScale(new Insets(3, 7, 3, 7), scale));
+		retval.fontProperty().bind(Bindings.fontScale(Font.font("Sans", BOLD, 15), scale));
 		retval.setAlignment(withVCenter(alignment));
 		return retval;
 	}
 	
-	private static Label weaponLabel(String text, Node icon, Color bgColor, HPos alignment) {
-		final Label retval = new Label(text, icon);
-		retval.setBorder(new javafx.scene.layout.Border(
-			new javafx.scene.layout.BorderStroke(
-				  Color.WHITE
-				, javafx.scene.layout.BorderStrokeStyle.SOLID
-				, javafx.scene.layout.CornerRadii.EMPTY
-				, new javafx.scene.layout.BorderWidths(
-					3,
-					(alignment == HPos.RIGHT ? 0 : 3),
-					0,
-					(alignment == HPos.LEFT ? 0 : 3)
-				  )
+	private static Label weaponLabel(String text, Node icon, Color bgColor, HPos alignment, DoubleBinding scale) {
+		final Group iconG = new Group(icon);
+		iconG.scaleXProperty().bind(scale);
+		iconG.scaleYProperty().bind(scale);
+		final Group iconGG = new Group(iconG);
+		
+		final Label retval = new Label(text, iconGG);
+		retval.borderProperty().bind(
+			Bindings.solidScalableWidthBorder(
+				Color.WHITE,
+				3,
+				(alignment == HPos.RIGHT ? 0 : 3),
+				0,
+				(alignment == HPos.LEFT ? 0 : 3),
+				scale
 			)
-		));
+		);
 		retval.setBackground(solidBackground(Color.GOLDENROD.darker()));
-		retval.setPrefWidth(180);
+		retval.prefWidthProperty().bind(scale.multiply(180));
 		retval.setTextFill(Color.WHITE);
-		retval.setPadding(new javafx.geometry.Insets(3, 3, 3, 3));
-		retval.setFont(Font.font("Sans", BOLD, 15));
+		retval.paddingProperty().bind(Bindings.insetScale(new Insets(3, 3, 3, 3), scale));
+		retval.fontProperty().bind(Bindings.fontScale(Font.font("Sans", BOLD, 15), scale));
 		retval.setAlignment(withVCenter(negate(alignment)));
 		retval.setContentDisplay(toContentDisplay(negate(alignment)));
 		return retval;

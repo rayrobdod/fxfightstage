@@ -59,9 +59,9 @@ final class ModifierLabel {
 			Bindings.solidScalableWidthBorder(
 				Color.BLACK,
 				3,
-				(alignment == HPos.RIGHT ? 0 : 1.5),
+				(alignment == HPos.RIGHT ? 0 : 3),
 				3,
-				(alignment == HPos.LEFT ? 0 : 1.5),
+				(alignment == HPos.LEFT ? 0 : 3),
 				ModifierLabel.this.scale
 			)
 		);
