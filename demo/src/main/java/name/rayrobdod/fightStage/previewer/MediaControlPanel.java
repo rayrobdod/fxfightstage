@@ -45,7 +45,7 @@ import javafx.util.Duration;
 /**
  * A panel which control the playing of an animation
  */
-public final class MediaControlPanel {
+final class MediaControlPanel {
 	
 	private final GridPane node;
 	

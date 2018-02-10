@@ -32,7 +32,9 @@ import javafx.util.Duration;
 import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
-/** A "spell" animation for physical hits */
+/**
+ * A "spell" animation for physical hits
+ */
 public final class PhysicalHit implements SpellAnimationGroup {
 	
 	private static final double defaultCenterX = 200;

@@ -27,12 +27,12 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 public interface UnitAnimationGroups {
 	
 	/**
-	 * A sequence of {@link UnitAnimationGroup}s
+	 * Returns a sequence of {@link UnitAnimationGroup}s known to this service provider
 	 */
 	public List<NameSupplierPair<UnitAnimationGroup>> get();
 	
 	/**
-	 * The concatenation of sequences from every service provider found on the classpath.
+	 * Returns the concatenation of sequences from every service provider found on the classpath.
 	 */
 	public static List<NameSupplierPair<UnitAnimationGroup>> getAll() {
 		ServiceLoader<UnitAnimationGroups> services = ServiceLoader.load(UnitAnimationGroups.class);

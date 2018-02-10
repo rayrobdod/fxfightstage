@@ -35,14 +35,13 @@ import javafx.util.Duration;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * Probably the simplest demonstration of spell origins and spell targets
+ * A very basic animation mostly intended to debug origin and target points
  */
 public final class Lazor implements SpellAnimationGroup {
 	
 	private static final Duration duration = Duration.seconds(0.5);
 	private static final Duration followerDelay = Duration.seconds(1);
 	private static final int crossSectionWidth = 20;
-	
 	
 	private final Path node;
 	private final Node background;
@@ -51,7 +50,6 @@ public final class Lazor implements SpellAnimationGroup {
 	private final LineTo followerRight;
 	private final LineTo leaderLeft;
 	private final LineTo leaderRight;
-	
 	
 	public Lazor(Color color) {
 		this.followerLeft = new MoveTo();

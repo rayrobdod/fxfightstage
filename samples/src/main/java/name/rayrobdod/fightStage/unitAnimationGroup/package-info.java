@@ -1,4 +1,4 @@
 /**
- * Built-in implementations of [[name.rayrobdod.fightStage.UnitAnimationGroup]]
+ * Built-in implementations of {@link name.rayrobdod.fightStage.UnitAnimationGroup}
  */
 package name.rayrobdod.fightStage.unitAnimationGroup;

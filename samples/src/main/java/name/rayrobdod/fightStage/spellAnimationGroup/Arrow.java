@@ -34,10 +34,9 @@ import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * An arrow
- * 
- * This one in particular doesn't support changing the origin and target after
- * creating an animation.
+ * Shows an arrow flying from the origin point to the target point
+ * <p>
+ * The arrow is a static image, and is moved by a {@link PathTransition}
  */
 public final class Arrow implements SpellAnimationGroup {
 	

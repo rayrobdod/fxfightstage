@@ -45,7 +45,7 @@ import name.rayrobdod.fightStage.background.Field;
 /**
  * Upon activation, plays a BattleAnimation based on the parameters in the provided StackPane
  */
-public final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent> {
+final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent> {
 	private final StackPane gamePane;
 	private final ObjectProperty<Animation> currentAnimationProperty;
 	private final Supplier<UnitAnimationGroup> leftUnit;

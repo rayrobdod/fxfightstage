@@ -34,6 +34,9 @@ import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
+/**
+ * A spell animation that demonstrates the use of a spritesheet
+ */
 public final class RadialLightning implements SpellAnimationGroup {
 	
 	private static final String filename = "/name/rayrobdod/fightStage/spellAnimationGroup/radialLightning.png";

@@ -23,7 +23,7 @@ import javafx.beans.value.WritableValue;
  * A pair consisting of a WritableValue and a value that can
  * be written to the WritableValue.
  */
-public final class WritableValuePair<T> {
+final class WritableValuePair<T> {
 	private final WritableValue<T> writable;
 	private final T value;
 	
@@ -40,6 +40,9 @@ public final class WritableValuePair<T> {
 	 */
 	public void apply() { writable.setValue(value); }
 	
+	/**
+	 * Creates a KeyValue with this's writable, this's value and the given interp
+	 */
 	public KeyValue toKeyValue(Interpolator interp) {
 		return new KeyValue(writable, value, interp);
 	}

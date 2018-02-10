@@ -36,6 +36,8 @@ import javafx.util.Duration;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
+ * An animation which places "orbs" in a "cylindrical" pattern around the target
+ * <p>
  * Demonstrates a more subtle use of the background buffer
  */
 public final class HealCoil implements SpellAnimationGroup {

@@ -19,7 +19,8 @@ import java.util.Optional;
 
 import name.rayrobdod.fightStage.AttackModifier;
 
-public final class FakeAttackModifier implements AttackModifier {
+/** A simple implementation of {@link AttackModifier} */
+final class FakeAttackModifier implements AttackModifier {
 	private final String displayName;
 	
 	/**

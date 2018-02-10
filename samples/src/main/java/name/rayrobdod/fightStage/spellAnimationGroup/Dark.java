@@ -32,6 +32,11 @@ import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
+/**
+ * A spell animation whose animation inverts the colors around the target
+ * <p>
+ * Demonstrates a simple use of javafx.scene.effect.BlendMode.EXCLUSION
+ */
 public final class Dark implements SpellAnimationGroup {
 	
 	private static final Duration fadeInTime = Duration.seconds(0.3);

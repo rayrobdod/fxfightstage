@@ -20,9 +20,16 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 
 /**
- *
+ * Generates an animation that displays the results of a JaggedLineFactory
+ * in a Group
  */
 public interface ElectricAnimationFactory {
+	/**
+	 * A function (usually an {@link ElectricAnimationFactory} implementation's
+	 * constructor) that creates a {@link ElectricAnimationFactory} from a
+	 * JaggedLineFactory to show and the Group to show it in
+	 */
+	@FunctionalInterface
 	public static interface Factory {
 		public ElectricAnimationFactory build(
 			  final JaggedLineFactory lineGenerator
@@ -30,6 +37,9 @@ public interface ElectricAnimationFactory {
 		);
 	}
 	
+	/**
+	 * @see name.rayrobdod.fightStage.SpellAnimationGroup#getAnimation
+	 */
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,

@@ -27,12 +27,12 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 public interface SpellAnimationGroups {
 	
 	/**
-	 * A sequence of {@link SpellAnimationGroup}s
+	 * Returns a sequence of {@link SpellAnimationGroup}s known to this service provider
 	 */
 	public List<NameSupplierPair<SpellAnimationGroup>> get();
 	
 	/**
-	 * The concatenation of sequences from every service provider found on the classpath.
+	 * Returns the concatenation of sequences from every service provider found on the classpath.
 	 */
 	public static List<NameSupplierPair<SpellAnimationGroup>> getAll() {
 		ServiceLoader<SpellAnimationGroups> services = ServiceLoader.load(SpellAnimationGroups.class);

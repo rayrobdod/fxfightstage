@@ -144,6 +144,9 @@ project(":demo") {
 		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
 	}
 	
+	//TODO: convert to linksOffline after deciding where these will be online
+	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
+	
 	dependencies {
 		compile project(":core")
 	}
@@ -160,6 +163,10 @@ project(":samples") {
 	if (project.hasProperty("localPublishLocation")) {
 		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
 	}
+	
+	//TODO: convert to linksOffline after deciding where these will be online
+	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
+	javadoc.options.links(project(":demo").javadoc.destinationDir.toURI().toString())
 	
 	dependencies {
 		compile project(":core")

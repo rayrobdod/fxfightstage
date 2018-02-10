@@ -40,7 +40,7 @@ import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 /**
  * A panel that allows a user to set battle animation properties
  */
-public final class SettingsPanel {
+final class SettingsPanel {
 	
 	private final GridPane node;
 	private final ObjectProperty<Animation> currentAnimationProperty;
@@ -50,13 +50,13 @@ public final class SettingsPanel {
 		
 		final Label labelUnit = new Label("Unit Animation");
 		labelUnit.setPadding(new javafx.geometry.Insets(4));
-		final ChoiceBox<NameSupplierPair<UnitAnimationGroup>> leftUnit = createNspChoicebox(unitOptions());
-		final ChoiceBox<NameSupplierPair<UnitAnimationGroup>> rightUnit = createNspChoicebox(unitOptions());
+		final ChoiceBox<NameSupplierPair<UnitAnimationGroup>> leftUnit = createNspChoicebox(UnitAnimationGroups.getAll());
+		final ChoiceBox<NameSupplierPair<UnitAnimationGroup>> rightUnit = createNspChoicebox(UnitAnimationGroups.getAll());
 		
 		final Label labelSpell = new Label("Spell Animation");
 		labelSpell.setPadding(new javafx.geometry.Insets(4));
-		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> leftSpell = createNspChoicebox(spellOptions());
-		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> rightSpell = createNspChoicebox(spellOptions());
+		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> leftSpell = createNspChoicebox(SpellAnimationGroups.getAll());
+		final ChoiceBox<NameSupplierPair<SpellAnimationGroup>> rightSpell = createNspChoicebox(SpellAnimationGroups.getAll());
 		
 		final Label labelDistance = new Label("Distance (px)");
 		labelDistance.setPadding(new javafx.geometry.Insets(4));
@@ -67,22 +67,10 @@ public final class SettingsPanel {
 		
 		final Label labelHp = new Label("HP");
 		labelHp.setPadding(new javafx.geometry.Insets(4));
-		final Spinner<Integer> leftCurrentHp = new Spinner<>(1, 99, 40);
-		leftCurrentHp.setMaxWidth(1d/0d);
-		leftCurrentHp.setEditable(true);
-		leftCurrentHp.getEditor().setPrefColumnCount(4);
-		final Spinner<Integer> leftMaximumHp = new Spinner<>(1, 99, 60);
-		leftMaximumHp.setMaxWidth(1d/0d);
-		leftMaximumHp.setEditable(true);
-		leftMaximumHp.getEditor().setPrefColumnCount(4);
-		final Spinner<Integer> rightCurrentHp = new Spinner<>(1, 99, 35);
-		rightCurrentHp.setMaxWidth(1d/0d);
-		rightCurrentHp.setEditable(true);
-		rightCurrentHp.getEditor().setPrefColumnCount(4);
-		final Spinner<Integer> rightMaximumHp = new Spinner<>(1, 99, 35);
-		rightMaximumHp.setMaxWidth(1d/0d);
-		rightMaximumHp.setEditable(true);
-		rightMaximumHp.getEditor().setPrefColumnCount(4);
+		final Spinner<Integer> leftCurrentHp = createHpSpinner(40);
+		final Spinner<Integer> leftMaximumHp = createHpSpinner(60);
+		final Spinner<Integer> rightCurrentHp = createHpSpinner(35);
+		final Spinner<Integer> rightMaximumHp = createHpSpinner(35);
 		final HBox leftHp = new HBox(3, leftCurrentHp, new Text("/"), leftMaximumHp);
 		final HBox rightHp = new HBox(3, rightCurrentHp, new Text("/"), rightMaximumHp);
 		
@@ -130,7 +118,16 @@ public final class SettingsPanel {
 	public Node getNode() { return this.node; }
 	
 	
+	/** Creates a spinner that allows selection of a HP value */
+	private static Spinner<Integer> createHpSpinner(int initialValue) {
+		Spinner<Integer> retval = new Spinner<>(1, 99, initialValue);
+		retval.setMaxWidth(1d/0d);
+		retval.setEditable(true);
+		retval.getEditor().setPrefColumnCount(4);
+		return retval;
+	}
 	
+	/** Creates a choicebox that allows selection of an &lt;E&gt; value */
 	private static <E> ChoiceBox<NameSupplierPair<E>> createNspChoicebox(List<NameSupplierPair<E>> options) {
 		ChoiceBox<NameSupplierPair<E>> retval = new ChoiceBox<>();
 		retval.getItems().addAll(options);
@@ -138,15 +135,6 @@ public final class SettingsPanel {
 		retval.setConverter(new NameSupplierPairStringConverter<>());
 		retval.setMaxWidth(1d/0d);
 		return retval;
-	}
-	
-	
-	private static List<NameSupplierPair<UnitAnimationGroup>> unitOptions() {
-		return UnitAnimationGroups.getAll();
-	}
-	
-	private static List<NameSupplierPair<SpellAnimationGroup>> spellOptions() {
-		return SpellAnimationGroups.getAll();
 	}
 	
 	private static final class NameSupplierPairStringConverter<E> extends javafx.util.StringConverter<NameSupplierPair<E>> {

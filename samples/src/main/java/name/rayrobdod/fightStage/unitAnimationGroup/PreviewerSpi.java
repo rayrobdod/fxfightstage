@@ -22,6 +22,9 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 
+/**
+ * An enumeration of {@link UnitAnimationGroup}s in this project
+ */
 public final class PreviewerSpi implements UnitAnimationGroups {
 	
 	@Override public List<NameSupplierPair<UnitAnimationGroup>> get() {

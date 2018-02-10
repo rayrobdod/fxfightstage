@@ -44,7 +44,7 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
  * A spell animation that causes an ethereal sword drop on the opponent.
- * 
+ * <p>
  * Doesn't show off anything special.
  */
 public final class LightSword implements SpellAnimationGroup {

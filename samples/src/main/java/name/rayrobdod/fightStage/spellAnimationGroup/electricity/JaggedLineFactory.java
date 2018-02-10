@@ -20,8 +20,9 @@ import java.util.List;
 import javafx.geometry.Point2D;
 
 /**
- *
+ * A function which creates a Polyline based on an "origin" point and a "target" point
  */
+@FunctionalInterface
 public interface JaggedLineFactory {
 	
 	public List<Point2D> build(

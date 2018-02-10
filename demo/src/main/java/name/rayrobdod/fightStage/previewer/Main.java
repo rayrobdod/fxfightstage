@@ -23,6 +23,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+/**
+ * An application that allows a user to set variables related to a
+ * {@link name.rayrobdod.fightStage.BattleAnimation} and preview
+ * that BattleAnimation
+ */
 public final class Main extends Application {
 	
 	private static final Dimension2D gamePaneSize = new Dimension2D(480, 320);

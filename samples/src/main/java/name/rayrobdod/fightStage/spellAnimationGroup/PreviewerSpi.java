@@ -25,6 +25,9 @@ import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
 import name.rayrobdod.fightStage.spellAnimationGroup.electricty.*;
 
+/**
+ * An enumeration of {@link SpellAnimationGroup}s in this project
+ */
 public final class PreviewerSpi implements SpellAnimationGroups {
 	
 	@Override public List<NameSupplierPair<SpellAnimationGroup>> get() {

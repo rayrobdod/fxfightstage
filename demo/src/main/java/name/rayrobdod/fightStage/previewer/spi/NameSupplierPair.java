@@ -19,9 +19,16 @@ import java.util.function.Supplier;
 
 /**
  * A pair of a Supplier of objects and a descriptor of those objects.
+ * <p>
+ * This uses a Supplier, as the `E`s used in {@link SpellAnimationGroups} and
+ * {@link UnitAnimationGroups} involve {@link javafx.scene.Node}s, which are
+ * not allowed to appear in a scene graph multiple times, and might be used
+ * multiple times (i.e. for the left and right sides of a battle simultaneously)
  */
 public final class NameSupplierPair<E> {
+	/** The name used in a UI to represent the objects */
 	public final String displayName;
+	/** A supplier of objects */
 	public final Supplier<E> supplier;
 	
 	public NameSupplierPair(
