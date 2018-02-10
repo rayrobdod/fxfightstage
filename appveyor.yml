@@ -9,9 +9,17 @@ environment:
 init:
    - 'git config --global core.autocrlf true'
 build_script:
-   - 'gradlew --no-daemon assemble'
+   - 'gradlew --no-daemon -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
 test_script:
    - 'gradlew --no-daemon check'
 artifacts:
-   - path: build
-     name: build_directory
+   - path: ./maven
+     name: maven
+   - path: ./core/build/libs/*.tar.gz
+     name: core_libs
+   - path: ./demo/build/libs/*.tar.gz
+     name: demo_libs
+   - path: ./samples/build/libs/*.tar.gz
+     name: samples_libs
+   - path: ./samples/build/distributions/FxFightStageSamples.jar
+     name: samples_runner
