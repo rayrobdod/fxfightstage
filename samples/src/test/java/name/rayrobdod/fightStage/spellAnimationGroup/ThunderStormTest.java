@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup;
+package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
 
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.SpellAnimationGroupTest;
 
-public class LightningTest implements SpellAnimationGroupTest {
+public class ThunderStormTest implements SpellAnimationGroupTest {
 	public SpellAnimationGroup getInstance() {
-		return new Lightning();
+		return new ThunderStorm();
 	}
 }

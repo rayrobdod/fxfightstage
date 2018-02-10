@@ -11,8 +11,25 @@ plugins {
 	id "com.diffplug.gradle.spotless" version "3.6.0"
 }
 
+/**
+ * Create a new FileCollection that is similar to the input, but replaces any
+ * non-directories (assumed to be zip files) with it's contents
+ */
+def expandZips(FileCollection inputs) {
+	FileCollection retval = files()
+	inputs.forEach{f ->
+		if (f.isDirectory()) {
+			retval = retval + files(f)
+		} else {
+			retval = retval + zipTree(f)
+		}
+	}
+	return retval;
+}
+
 subprojects {
 	apply plugin: 'java'
+	apply plugin: 'maven'
 	apply plugin: 'org.junit.platform.gradle.plugin'
 	apply plugin: "com.diffplug.gradle.spotless"
 	
@@ -21,9 +38,11 @@ subprojects {
 	[compileJava, compileTestJava]*.options*.deprecation = true
 	[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
 	
-	// name = 'fightStage'
+	group = "name.rayrobdod"
 	version = 'SNAPSHOT'
 	javadoc.options.overview = new File(sourceSets.main.java.srcDirs[0], 'overview.html')
+	javadoc.options.links("https://docs.oracle.com/javase/8/docs/api/")
+	javadoc.options.links("https://docs.oracle.com/javase/8/javafx/api/")
 	
 	repositories {
 		mavenCentral()
@@ -40,6 +59,7 @@ subprojects {
 			removeUnusedImports()
 			licenseHeaderFile '../spotless-license-java'
 			endWithNewline()
+			replaceRegex 'one blank line after package line', '(package .+;)\n+import', '$1\n\nimport'
 		}
 		format 'fxml', {
 			target '**/*.fxml'
@@ -51,8 +71,54 @@ subprojects {
 	jar.manifest.attributes (
 		  'Implementation-Title': name
 		, 'Implementation-Version': version
-		, 'Implementation-Vendor': 'com.rayrobdod'
+		, 'Implementation-Vendor': group
 	)
+	
+	task javadocJar(dependsOn: javadoc, type: Jar) {
+		from(javadoc.destinationDir)
+		destinationDir(project.libsDir)
+		classifier("javadoc")
+	}
+	assemble.dependsOn(javadocJar)
+	task javadocTar(dependsOn: javadoc, type: Tar) {
+		from(javadoc.destinationDir)
+		destinationDir(project.libsDir)
+		classifier("javadoc")
+		compression(Compression.GZIP)
+		extension("tar.gz")
+	}
+	assemble.dependsOn(javadocTar)
+	task sourceJar(type: Jar) {
+		from(sourceSets.main.allSource)
+		destinationDir(project.libsDir)
+		classifier("sources")
+	}
+	assemble.dependsOn(sourceJar)
+	task sourceTar(type: Tar) {
+		from(sourceSets.main.allSource)
+		destinationDir(project.libsDir)
+		classifier("sources")
+		compression(Compression.GZIP)
+		extension("tar.gz")
+	}
+	assemble.dependsOn(sourceTar)
+	
+	if (project.hasProperty("localPublishLocation")) {
+		uploadArchives {
+			repositories {
+				mavenDeployer {
+					repository(url: localPublishLocation)
+					pom.groupId = project.group
+					pom.version = project.version
+				}
+			}
+		}
+	}
+	
+	artifacts {
+		archives javadocJar
+		archives sourceJar
+	}
 	
 	// Run the thing that will tell me why the java will not compile
 	// before running the thing that doesn't tell my why the java
@@ -65,14 +131,23 @@ subprojects {
 
 project(":core") {
 	project.ext.mainClassName = null
+	project.ext.artifactId = "fxfightstage"
+	if (project.hasProperty("localPublishLocation")) {
+		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
+	}
 	
 	jar.manifest.attributes (
 		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.core'
+		, 'Implementation-Title': project.ext.artifactId
 	)
 }
 
 project(":demo") {
 	project.ext.mainClassName = null
+	project.ext.artifactId = "fxfightstage-demo"
+	if (project.hasProperty("localPublishLocation")) {
+		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
+	}
 	
 	dependencies {
 		compile project(":core")
@@ -80,10 +155,17 @@ project(":demo") {
 	
 	jar.manifest.attributes (
 		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.demo'
+		, 'Implementation-Title': project.ext.artifactId
 	)
 }
 
 project(":fxml") {
+	project.ext.mainClassName = null
+	project.ext.artifactId = "fxfightstage-demo"
+	if (project.hasProperty("localPublishLocation")) {
+		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
+	}
+	
 	dependencies {
 		compile project(":core")
 		testCompile project(":core").sourceSets.test.output
@@ -91,11 +173,16 @@ project(":fxml") {
 	
 	jar.manifest.attributes (
 		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.fxml'
+		, 'Implementation-Title': project.ext.artifactId
 	)
 }
 
 project(":samples") {
 	project.ext.mainClassName = "name.rayrobdod.fightStage.previewer.Main"
+	project.ext.artifactId = "fxfightstage-samples"
+	if (project.hasProperty("localPublishLocation")) {
+		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
+	}
 	
 	dependencies {
 		compile project(":core")
@@ -107,6 +194,7 @@ project(":samples") {
 	jar.manifest.attributes (
 		  'Main-Class': project.mainClassName
 		, 'Automatic-Module-Name': 'name.rayrobdod.fightStage.samples'
+		, 'Implementation-Title': project.ext.artifactId
 	)
 	
 	task run(dependsOn: classes, type: JavaExec) {
@@ -115,4 +203,19 @@ project(":samples") {
 		standardInput = System.in
 		ignoreExitValue = true
 	}
+	
+	task fatjar(dependsOn: classes, type: Jar) {
+		// delay execution of expandZips unitil after the classpath is created
+		from({ -> expandZips(sourceSets.main.runtimeClasspath)})
+		baseName = "FxFightStageSamples"
+		version = null
+		destinationDir(project.distsDir)
+		manifest.attributes (
+			  'Main-Class': project.mainClassName
+			, 'Implementation-Title': (project.ext.artifactId + "-fatjar")
+			, 'Implementation-Version': project.version
+			, 'Implementation-Vendor': project.group
+		)
+	}
+	assemble.dependsOn(fatjar)
 }
