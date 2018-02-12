@@ -15,8 +15,6 @@
  */
 package name.rayrobdod.fightStage;
 
-import java.util.Optional;
-
 /**
  * Represents a skill that changes the properties of an attack.
  * 
@@ -24,10 +22,15 @@ import java.util.Optional;
  * such as how the AttackModifier modifies an attack, but the battle
  * animation doesn't care about those properties.
  */
-public interface AttackModifier {
+public final class AttackModifier {
 	/**
-	 * Returns the name to display when this skill is activated.
-	 * If Optional.empty(), this does not display a name.
+	 * The name to display when this skill is activated.
 	 */
-	public Optional<String> getDisplayName();
+	public final String displayName;
+	
+	public AttackModifier(
+		String displayName
+	) {
+		this.displayName = displayName;
+	}
 }

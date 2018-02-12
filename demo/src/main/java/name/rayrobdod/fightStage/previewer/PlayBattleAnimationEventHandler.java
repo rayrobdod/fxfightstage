@@ -86,11 +86,11 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 	
 	public void handle(ActionEvent e) {
 		Set<AttackModifier> oneMods = new HashSet<>();
-		oneMods.add(new FakeAttackModifier("Modifier"));
+		oneMods.add(new AttackModifier("Modifier"));
 		Set<AttackModifier> threeMods = new HashSet<>();
-		threeMods.add(new FakeAttackModifier("Modifier 1"));
-		threeMods.add(new FakeAttackModifier("Modifier 2"));
-		threeMods.add(new FakeAttackModifier("Modifier 3"));
+		threeMods.add(new AttackModifier("Modifier 1"));
+		threeMods.add(new AttackModifier("Modifier 2"));
+		threeMods.add(new AttackModifier("Modifier 3"));
 		
 		final NodeAnimationPair pair = BattleAnimation.buildAnimation(
 			Field::buildGroup,

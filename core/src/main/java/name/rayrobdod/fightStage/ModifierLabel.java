@@ -19,7 +19,6 @@ import static javafx.scene.text.FontWeight.BOLD;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -109,10 +108,10 @@ final class ModifierLabel {
 	}
 	
 	public static Animation seqFadeInAnim(List<ModifierLabel> labels, Set<AttackModifier> mods) {
-		List<AttackModifier> mods2 = mods.stream().filter(x -> x.getDisplayName().isPresent()).collect(Collectors.toList());
+		List<AttackModifier> mods2 = new java.util.ArrayList<>(mods);
 		ParallelTransition retval = new ParallelTransition();
 		for (int i = 0; i < mods2.size(); i++) {
-			Animation anim = labels.get(i).fadeInAnimation(mods2.get(i).getDisplayName().orElse(""));
+			Animation anim = labels.get(i).fadeInAnimation(mods2.get(i).displayName);
 			anim.setDelay(Duration.millis(150 * i));
 			retval.getChildren().add(anim);
 		}
@@ -120,9 +119,8 @@ final class ModifierLabel {
 	}
 	
 	public static Animation seqFadeOutAnim(List<ModifierLabel> labels, Set<AttackModifier> mods) {
-		List<AttackModifier> mods2 = mods.stream().filter(x -> x.getDisplayName().isPresent()).collect(Collectors.toList());
 		ParallelTransition retval = new ParallelTransition();
-		for (int i = 0; i < mods2.size(); i++) {
+		for (int i = 0; i < mods.size(); i++) {
 			Animation anim = labels.get(i).fadeOutAnimation();
 			retval.getChildren().add(anim);
 		}
