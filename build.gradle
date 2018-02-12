@@ -51,11 +51,12 @@ subprojects {
 	dependencies {
 		testCompile("org.junit.jupiter:junit-jupiter-api:5.0.2")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
+		testCompile "org.testfx:testfx-junit5:4.0.11-alpha"
 	}
 
 	spotless {
 		java {
-			importOrder 'java', 'javax', 'javafx', 'org.junit', '', 'name.rayrobdod'
+			importOrder 'java', 'javax', 'javafx', 'org.junit', 'org.testfx', '', 'name.rayrobdod'
 			removeUnusedImports()
 			licenseHeaderFile '../spotless-license-java'
 			endWithNewline()
@@ -121,6 +122,22 @@ subprojects {
 	tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {mtask ->
 		mtask.mustRunAfter(compileJava)
 		mtask.mustRunAfter(compileTestJava)
+	}
+	
+	junitPlatform {
+		filters {
+			tags {
+				// the `image` tag refers to tests that require internal fx graphics to be initialized to run
+				// the `robot` tag refers to tests that make use of `org.testfx.api.FxRobot`
+				
+				// Tests with either of these tags will not run in a headless environment
+				if (project.hasProperty("enableAllJunitTags")) {
+					// do nothing
+				} else {
+					exclude 'image', 'robot'
+				}
+			}
+		}
 	}
 }
 

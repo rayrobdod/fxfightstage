@@ -67,6 +67,7 @@ final class MediaControlPanel {
 			final Shape playGraphic = new Polygon(0,0, 0,15, 15,7.5);
 			final Shape pauseGraphic = new Polygon(0,0, 0,15, 6,15, 6,0, 9,0, 9,15, 15,15, 15,0);
 			
+			playButton.getStyleClass().add("button-play");
 			playButton.graphicProperty().bind(
 				new AnimationPlayPauseBinding<>(animationProperty,
 					playGraphic, pauseGraphic, playGraphic)
@@ -99,6 +100,7 @@ final class MediaControlPanel {
 		Button stopButton = new Button(); {
 			final Shape stopGraphic = new Rectangle(10, 10);
 			
+			stopButton.getStyleClass().add("button-stop");
 			stopButton.setGraphic(stopGraphic);
 			stopButton.setText("Stop");
 			stopButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -117,6 +119,7 @@ final class MediaControlPanel {
 			final SVGPath snapshotGraphic = new SVGPath();
 			snapshotGraphic.setContent("M 3 0.5 L 2.25 2 L 0 2 L 0 8 L 2.0410156 8 A 3 3 0 0 1 2 7.5 A 3 3 0 0 1 5 4.5 A 3 3 0 0 1 8 7.5 A 3 3 0 0 1 7.953125 8 L 10 8 L 10 2 L 7.75 2 L 7 0.5 L 3 0.5 z M 1 3 L 2 3 L 2 4 L 1 4 L 1 3 z M 5 5.5 A 2 2 0 0 0 3 7.5 A 2 2 0 0 0 5 9.5 A 2 2 0 0 0 7 7.5 A 2 2 0 0 0 5 5.5 z ");
 			
+			snapshotButton.getStyleClass().add("button-shapshot");
 			snapshotButton.setGraphic(snapshotGraphic);
 			snapshotButton.setText("Snapshot");
 			snapshotButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);

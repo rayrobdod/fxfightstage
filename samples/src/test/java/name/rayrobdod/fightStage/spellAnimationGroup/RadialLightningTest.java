@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.unitAnimationGroup;
+package name.rayrobdod.fightStage.spellAnimationGroup;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.UnitAnimationGroupTest;
+import name.rayrobdod.fightStage.SpellAnimationGroup;
+import name.rayrobdod.fightStage.SpellAnimationGroupTest;
 
 @ExtendWith(ApplicationExtension.class)
 @Tag("image")
-public class BowGuyTest implements UnitAnimationGroupTest {
-	public UnitAnimationGroup getInstance() {
-		return new BowGuy();
+public class RadialLightningTest implements SpellAnimationGroupTest {
+	public SpellAnimationGroup getInstance() {
+		return new RadialLightning();
 	}
 }
