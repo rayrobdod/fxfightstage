@@ -15,6 +15,8 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
+import java.util.List;
+
 import javafx.animation.Animation;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -23,7 +25,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ProgressBar;
@@ -32,8 +36,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
@@ -125,6 +129,9 @@ final class MediaControlPanel {
 			snapshotButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			snapshotButton.setOnAction(new SnapshotButtonActionHandler());
 			snapshotButton.setTooltip(new Tooltip("Snapshot"));
+			snapshotButton.disableProperty().bind(
+				new AnimationPlayPauseBinding<>(animationProperty, true, false, false)
+			);
 			snapshotButton.setMaxWidth(1d/0d);
 		}
 		
@@ -248,24 +255,32 @@ final class MediaControlPanel {
 	
 	private final class SnapshotButtonActionHandler implements EventHandler<ActionEvent> {
 		public void handle(ActionEvent event) {
-			final double trimFromTop = ((Region) node.getParent()).getHeight();
+			final Node snapNode = findSnapNode();
 			
-			WritableImage snapshot = node.getScene().snapshot(null);
-			WritableImage trimmedSnapshot = new WritableImage(
-				snapshot.getPixelReader(),
-				0,
-				(int) trimFromTop,
-				(int) snapshot.getWidth(),
-				(int) (snapshot.getHeight() - trimFromTop)
-			);
+			final SnapshotParameters parameters = new SnapshotParameters();
+			parameters.setFill(Color.TRANSPARENT);
+			final WritableImage snapshot = snapNode.snapshot(parameters, null);
 			
 			// TRYTHIS: copy to BufferedImage and save to file with ImageIO instead?
 			
-			Stage snapshotWindow = new Stage(StageStyle.UTILITY);
+			final Stage snapshotWindow = new Stage(StageStyle.UTILITY);
 			snapshotWindow.initOwner(node.getScene().getWindow());
-			snapshotWindow.setScene(new Scene(new StackPane(new ImageView(trimmedSnapshot))));
+			snapshotWindow.setScene(new Scene(new StackPane(new ImageView(snapshot))));
 			snapshotWindow.setTitle("Snapshot");
 			snapshotWindow.show();
+		}
+		
+		private Node findSnapNode() {
+			final Node mediaControlPanel = node;
+			final Parent settingsPanel = mediaControlPanel.getParent();
+			final Parent mainPane = settingsPanel.getParent();
+			final List<Node> mainPaneChilds = mainPane.getChildrenUnmodifiable();
+			final Node gamePane = mainPaneChilds.get(mainPaneChilds.size() - 1);
+			final Parent gamePane2 = ((Parent) gamePane);
+			final List<Node> gamePaneChilds = gamePane2.getChildrenUnmodifiable();
+			final Node animNode = (gamePaneChilds.size() >= 1 ? gamePaneChilds.get(gamePaneChilds.size() - 1) : new Rectangle(200, 50));
+			
+			return animNode;
 		}
 	}
 	
