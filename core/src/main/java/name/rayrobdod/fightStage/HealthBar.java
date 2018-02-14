@@ -66,6 +66,7 @@ final class HealthBar {
 		for (int i2 = 1; i2 <= 80; i2++) {
 			final int i = i2;
 			final Rectangle notch = new Rectangle();
+			notch.getStyleClass().add("healthbar-notch");
 			notch.setStroke(Color.BLACK);
 			notch.fillProperty().bind(
 				new ObjectBinding<Paint>() {
