@@ -15,35 +15,42 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageWriterSpi;
 
 import javafx.animation.Animation;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 /**
@@ -52,6 +59,7 @@ import javafx.util.Duration;
 final class MediaControlPanel {
 	
 	private final GridPane node;
+	private final FileChooser filechooser;
 	
 	/**
 	 * @param animationProperty the animation that this's actions act upon
@@ -150,6 +158,17 @@ final class MediaControlPanel {
 			, percentColumnConstraint(5)
 			, percentColumnConstraint(5)
 		);
+		
+		this.filechooser = new FileChooser();
+		final java.util.Iterator<ImageWriterSpi> spis = IIORegistry.getDefaultInstance().getServiceProviders(ImageWriterSpi.class, true);
+		while (spis.hasNext()) {
+			ImageWriterSpi spi = spis.next();
+			String name = spi.getFormatNames()[0];
+			String[] suffixes = spi.getFileSuffixes();
+			filechooser.getExtensionFilters().add(new ExtensionFilter(name, suffixes));
+		}
+		filechooser.getExtensionFilters().sort(java.util.Comparator.comparing(x -> x.getExtensions().get(0), MediaControlPanel::compareStringWithPngFirst));
+		filechooser.setInitialFileName("snaphot");
 	}
 	
 	public Node getNode() { return this.node; }
@@ -260,14 +279,20 @@ final class MediaControlPanel {
 			final SnapshotParameters parameters = new SnapshotParameters();
 			parameters.setFill(Color.TRANSPARENT);
 			final WritableImage snapshot = snapNode.snapshot(parameters, null);
+			final BufferedImage snapshotSwing = SwingFXUtils.fromFXImage(snapshot, null);
+			final File snapshotFile = filechooser.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
 			
-			// TRYTHIS: copy to BufferedImage and save to file with ImageIO instead?
-			
-			final Stage snapshotWindow = new Stage(StageStyle.UTILITY);
-			snapshotWindow.initOwner(node.getScene().getWindow());
-			snapshotWindow.setScene(new Scene(new StackPane(new ImageView(snapshot))));
-			snapshotWindow.setTitle("Snapshot");
-			snapshotWindow.show();
+			if (snapshotFile != null) {
+				try {
+					ImageIO.write(snapshotSwing, filechooser.getSelectedExtensionFilter().getDescription(), snapshotFile);
+				} catch (IOException ex) {
+					final Alert errorWindow = new Alert(Alert.AlertType.ERROR, ex.getMessage(), javafx.scene.control.ButtonType.OK);
+					errorWindow.initOwner(node.getScene().getWindow());
+					errorWindow.setTitle(((Stage) node.getScene().getWindow()).getTitle());
+					errorWindow.setHeaderText("Could not save snapshot");
+					errorWindow.showAndWait();
+				}
+			}
 		}
 		
 		private Node findSnapNode() {
@@ -282,6 +307,11 @@ final class MediaControlPanel {
 			
 			return animNode;
 		}
+	}
+	
+	/** The default string sort, except that "png" compares less than all other strings */
+	private static int compareStringWithPngFirst(String a, String b) {
+		return (a.equals(b) ? 0 : ("png".equals(a) ? -1 : ("png".equals(b) ? 1 : a.compareTo(b))));
 	}
 	
 	/** Creates a ColumnConstraints representing a percent of an area */

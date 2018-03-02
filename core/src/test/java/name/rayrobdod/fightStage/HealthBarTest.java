@@ -55,7 +55,7 @@ public final class HealthBarTest {
 			20,
 			expected
 		);
-		Assertions.assertEquals(expected, dut.currentHealthProperty().get());
+		Assertions.assertEquals(expected, dut.maximumHealthProperty().get());
 	}
 	
 	@Test
