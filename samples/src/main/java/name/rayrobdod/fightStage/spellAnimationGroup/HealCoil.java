@@ -15,6 +15,8 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
+import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
+
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -104,7 +106,7 @@ public final class HealCoil implements SpellAnimationGroup {
 			final double heightDueToRevolution = coilHeightPerParticle * Math.max(0, ((double) i) - particlesPerRevolution);
 			
 			final double x = target.getX() + coilRadius * Math.cos(2 * Math.PI * segment / particlesPerRevolution);
-			final double y = target.getY() + (coilHeight * 1/3) - heightDueToRevolution + coilRadius * perspectiveMultiplier * Math.sin(2 * Math.PI * segment / particlesPerRevolution);
+			final double y = GROUND_Y - heightDueToRevolution + coilRadius * perspectiveMultiplier * Math.sin(2 * Math.PI * segment / particlesPerRevolution);
 			
 			effectTimeline.getKeyFrames().addAll(particleKeyFrames(p, time, x, y));
 		}

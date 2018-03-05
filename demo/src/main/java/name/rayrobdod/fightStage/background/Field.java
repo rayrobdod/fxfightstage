@@ -31,7 +31,7 @@ public final class Field {
 		double height = 3 * containerSize.getHeight();
 		double x = -1.5 * containerSize.getWidth();
 		double y = -1.5 * containerSize.getHeight();
-		double horizon = 0;
+		double horizon = -50;
 		
 		LinearGradient lg1 = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(0, Color.BLACK), new Stop(1, Color.RED));
 		LinearGradient lg2 = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(0, Color.WHITE), new Stop(1, Color.BLUE));

@@ -51,6 +51,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Scale;
@@ -64,8 +65,8 @@ public final class BattleAnimation {
 	private BattleAnimation() {}
 	
 	private static final Duration pauseDuration = Duration.millis(1000);
+	public static final double GROUND_Y = 0;
 	private static final double distanceExtendPastPoint = 75;
-	private static final double distanceFootBelowHorizon = 50;
 	private static final double sideNoteWidth = 120;
 	
 	
@@ -82,6 +83,7 @@ public final class BattleAnimation {
 		
 		final Rectangle footPointIndicator = new Rectangle(-verticalDistance / 2, -500, verticalDistance, 1000);
 		footPointIndicator.setFill(Color.rgb(255, 0, 255, 0.5));
+		final Circle zeroIndicator = new Circle(0, 0, 5);
 		
 		final Translate screenShakeTranslate = new Translate();
 		final Translate centerTranslate = new Translate();
@@ -96,6 +98,7 @@ public final class BattleAnimation {
 			, right.unit.getNode()
 			, left.spell.getForeground()
 			, right.spell.getForeground()
+			// , zeroIndicator
 			// , footPointIndicator
 		);
 		gameNode.getTransforms().add(magnifyTransform);
@@ -110,7 +113,7 @@ public final class BattleAnimation {
 		gamePaneClip.widthProperty().bind(gamePane.widthProperty());
 		gamePane.setClip(gamePaneClip);
 		centerTranslate.xProperty().bind(gamePane.widthProperty().divide(2));
-		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(1d/2d));
+		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(2d/3d));
 		magnifyTransform.xProperty().bind(magnifyBinding);
 		magnifyTransform.yProperty().bind(magnifyBinding);
 		magnifyTransform.pivotXProperty().bind(centerTranslate.xProperty());
@@ -173,7 +176,7 @@ public final class BattleAnimation {
 		// place the units at their starting location
 		final Point2D initialUnitOffset = new Point2D(
 			verticalDistance / 2,
-			distanceFootBelowHorizon
+			GROUND_Y
 		);
 		final Map<DoubleProperty, Double> leftRolloverValues = left.unit.getInitializingKeyValues(Side.LEFT, mirrorX(initialUnitOffset));
 		final Map<DoubleProperty, Double> rightRolloverValues = right.unit.getInitializingKeyValues(Side.RIGHT, initialUnitOffset);

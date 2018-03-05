@@ -15,6 +15,8 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
 
+import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -33,7 +35,6 @@ import javafx.geometry.Point2D;
  * The generation does involve a {@link java.util.Random}, so this is not a functional function
  */
 public final class SkyBoltPoints implements JaggedLineFactory {
-	private static final double belowSpellTarget = 50;
 	private static final double maxY = -500;
 	private static final double deltaXMax = 20;
 	private static final double deltaXMin = -20;
@@ -45,7 +46,7 @@ public final class SkyBoltPoints implements JaggedLineFactory {
 		final List<Point2D> retval = new ArrayList<>();
 		
 		double currentX = target.getX();
-		double currentY = target.getY() + belowSpellTarget;
+		double currentY = GROUND_Y;
 		do {
 			retval.add(new Point2D(currentX, currentY));
 			

@@ -15,6 +15,8 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
+import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -81,7 +83,6 @@ public final class LightBurst implements SpellAnimationGroup {
 	private static final int backgroundWidth = 500;
 	private static final int backgroundHeight = 500;
 	private static final int explodeSize = 400;
-	private static final double explodeOffsetY = 50;
 	
 	private static final Duration totalDuration = fadeToNormalEndTime;
 	private static final int gradientFrames = (int) (totalDuration.toSeconds() * framesPerSecond);
@@ -145,7 +146,7 @@ public final class LightBurst implements SpellAnimationGroup {
 	) {
 		final double backgroundX = (origin.getX() + target.getX()) / 2 - backgroundWidth / 2;
 		final double backgroundY = (origin.getY() + target.getY()) / 2 - backgroundHeight / 2;
-		final Point2D explosionCenter = new Point2D(target.getX(), target.getY() + explodeOffsetY);
+		final Point2D explosionCenter = new Point2D(target.getX(), GROUND_Y);
 		
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,

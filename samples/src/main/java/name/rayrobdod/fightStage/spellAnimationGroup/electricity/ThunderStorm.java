@@ -184,7 +184,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		final int xRange = 500;
 		
 		final List<Circle> circles = new ArrayList<>();
-		for (int y = -100; y > -600; y -= 25) {
+		for (int y = -150; y > -600; y -= 25) {
 			final double yPercent = (y + 600.0) / 500.0;
 			final Color fill = Color.hsb(0, 0, (1 - yPercent) * 0.5 + 0.3);
 			

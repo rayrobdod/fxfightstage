@@ -15,6 +15,8 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
+import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
+
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -59,6 +61,7 @@ public final class SkyBeam implements SpellAnimationGroup {
 	public SkyBeam() {
 		this.beamShape = new Rectangle();
 		this.beamShape.setFill(beamColor);
+		this.beamShape.setY(GROUND_Y - beamHeight);
 		this.beamShape.setHeight(beamHeight);
 		this.beamShape.setOpacity(0.0);
 		this.beamShape.setBlendMode(javafx.scene.effect.BlendMode.SCREEN);
@@ -82,13 +85,11 @@ public final class SkyBeam implements SpellAnimationGroup {
 	) {
 		final Timeline prepareAnimation = new Timeline();
 		prepareAnimation.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(beamShape.yProperty(), target.getY() - beamHeight + footPointDeltaY, Interpolator.LINEAR),
 			new KeyValue(beamShape.widthProperty(), fadeInMaxWidth, Interpolator.LINEAR),
 			new KeyValue(beamShape.xProperty(), target.getX() - fadeInMaxWidth / 2, Interpolator.LINEAR),
 			new KeyValue(beamShape.opacityProperty(), 0, Interpolator.LINEAR)
 		));
 		prepareAnimation.getKeyFrames().add(new KeyFrame(prepareDur,
-			new KeyValue(beamShape.yProperty(), target.getY() - beamHeight + footPointDeltaY, Interpolator.LINEAR),
 			new KeyValue(beamShape.widthProperty(), fadeInMinWidth, Interpolator.EASE_OUT),
 			new KeyValue(beamShape.xProperty(), target.getX() - fadeInMinWidth / 2, Interpolator.EASE_OUT),
 			new KeyValue(beamShape.opacityProperty(), 1, Interpolator.EASE_OUT)
