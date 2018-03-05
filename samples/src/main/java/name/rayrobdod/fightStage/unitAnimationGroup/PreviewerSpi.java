@@ -32,6 +32,9 @@ public final class PreviewerSpi implements UnitAnimationGroups {
 			  new NameSupplierPair<>("SwordGuy", () -> new SwordGuy())
 			, new NameSupplierPair<>("MageGuy", () -> new MageGuy())
 			, new NameSupplierPair<>("BowGuy", () -> new BowGuy())
+			, new NameSupplierPair<>("Sandbag", () -> new Sandbag(60, 90))
+			, new NameSupplierPair<>("Sandbag (small)", () -> new Sandbag(30, 45))
+			, new NameSupplierPair<>("Sandbag (large)", () -> new Sandbag(90, 150))
 		);
 	}
 
