@@ -116,8 +116,8 @@ final class MediaControlPanel {
 			stopButton.setGraphic(stopGraphic);
 			stopButton.setText("Stop");
 			stopButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-			stopButton.setOnAction(x ->
-				animationProperty.get().getOnFinished().handle(null)
+			stopButton.setOnAction(ev ->
+				java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null))
 			);
 			stopButton.setTooltip(new Tooltip("Stop"));
 			stopButton.disableProperty().bind(

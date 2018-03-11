@@ -115,7 +115,6 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 		);
 		
 		if (currentAnimationProperty.getValue() != null) {
-			currentAnimationProperty.getValue().stop();
 			currentAnimationProperty.getValue().getOnFinished().handle(null);
 		}
 		gamePane.getChildren().add(pair.node);
@@ -128,6 +127,7 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 		return new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent ignored) {
 				gamePane.getChildren().remove(pair.node);
+				currentAnimationProperty.getValue().stop();
 				currentAnimationProperty.setValue(null);
 			}
 		};
