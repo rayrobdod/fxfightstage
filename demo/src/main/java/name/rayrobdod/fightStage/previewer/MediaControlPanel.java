@@ -31,6 +31,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -81,7 +82,7 @@ final class MediaControlPanel {
 			progress.setMaxHeight(1d/0d);
 		}
 		
-		Button playButton = new Button(); {
+		final Button playButton = new Button(); {
 			final Shape playGraphic = new Polygon(0,0, 0,15, 15,7.5);
 			final Shape pauseGraphic = new Polygon(0,0, 0,15, 6,15, 6,0, 9,0, 9,15, 15,15, 15,0);
 			
@@ -115,7 +116,7 @@ final class MediaControlPanel {
 			playButton.setDefaultButton(true);
 		}
 		
-		Button stopButton = new Button(); {
+		final Button stopButton = new Button(); {
 			final Shape stopGraphic = new Rectangle(10, 10);
 			
 			stopButton.getStyleClass().add("button-stop");
@@ -133,7 +134,7 @@ final class MediaControlPanel {
 			
 		}
 		
-		Button snapshotButton = new Button(); {
+		final Button snapshotButton = new Button(); {
 			final SVGPath snapshotGraphic = new SVGPath();
 			snapshotGraphic.setContent("M 3 0.5 L 2.25 2 L 0 2 L 0 8 L 2.0410156 8 A 3 3 0 0 1 2 7.5 A 3 3 0 0 1 5 4.5 A 3 3 0 0 1 8 7.5 A 3 3 0 0 1 7.953125 8 L 10 8 L 10 2 L 7.75 2 L 7 0.5 L 3 0.5 z M 1 3 L 2 3 L 2 4 L 1 4 L 1 3 z M 5 5.5 A 2 2 0 0 0 3 7.5 A 2 2 0 0 0 5 9.5 A 2 2 0 0 0 7 7.5 A 2 2 0 0 0 5 5.5 z ");
 			
@@ -149,7 +150,7 @@ final class MediaControlPanel {
 			snapshotButton.setMaxWidth(1d/0d);
 		}
 		
-		Button recordButton = new Button(); {
+		final Button recordButton = new Button(); {
 			final Shape recordGraphic = new Circle(7.5);
 			
 			recordButton.getStyleClass().add("button-record");
@@ -242,26 +243,26 @@ final class MediaControlPanel {
 	 * A binding whose value depends on the statusProperty of an animation which
 	 * is itself inside a Property.
 	 * 
-	 * This will return one of three values: the `startValue` if the animation is null,
-	 * `pauseValue` if the animation is nonnull and currently running, and `resumeValue` otherwise.
+	 * This will return one of three values: the `idleValue` if the animation is null,
+	 * `playingValue` if the animation is nonnull and currently running, and `pausedValue` otherwise.
 	 */
 	private static final class AnimationPlayPauseBinding<A> extends ObjectBinding<A> {
 		private final ObjectProperty<Animation> animationProperty;
 		private ObservableValue<Animation.Status> currentStatus;
 		
-		private final A startValue;
-		private final A pauseValue;
-		private final A resumeValue;
+		private final A idleValue;
+		private final A playingValue;
+		private final A pausedValue;
 		
 		public AnimationPlayPauseBinding(
 			ObjectProperty<Animation> animationProperty,
-			A startValue,
-			A pauseValue,
-			A resumeValue
+			A idleValue,
+			A playingValue,
+			A pausedValue
 		) {
-			this.startValue = startValue;
-			this.pauseValue = pauseValue;
-			this.resumeValue = resumeValue;
+			this.idleValue = idleValue;
+			this.playingValue = playingValue;
+			this.pausedValue = pausedValue;
 			
 			this.animationProperty = animationProperty;
 			updateCurrentTimeProps();
@@ -271,12 +272,12 @@ final class MediaControlPanel {
 		@Override
 		protected A computeValue() {
 			if (currentStatus == null) {
-				return startValue;
+				return idleValue;
 			} else {
 				if (currentStatus.getValue() == Animation.Status.RUNNING) {
-					return pauseValue;
+					return playingValue;
 				} else {
-					return resumeValue;
+					return pausedValue;
 				}
 			}
 		}
@@ -341,6 +342,8 @@ final class MediaControlPanel {
 					errorWindow.showAndWait();
 				} else {
 					playButtonEvent.handle(null);
+					// playButtonEvent.handle has side effects that result in snapNode
+					// existing and animationProperty becoming non-null
 					animationProperty.get().setRate(0.0);
 					final Node snapNode = findSnapNode();
 					
@@ -348,7 +351,7 @@ final class MediaControlPanel {
 					final Duration frameRate = Duration.seconds(1d / 30d);
 					final int frames = (int) (animDur.toMillis() / frameRate.toMillis());
 					
-					final javafx.concurrent.Task<Void> runnable = new javafx.concurrent.Task<Void>() {
+					final Task<Void> runnable = new Task<Void>() {
 						@Override protected Void call() throws Exception {
 							try {
 								final Exception[] imageioWriteException = new Exception[1];
