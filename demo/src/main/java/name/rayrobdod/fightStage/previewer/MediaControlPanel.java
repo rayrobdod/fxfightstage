@@ -19,12 +19,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageWriterSpi;
 
 import javafx.animation.Animation;
+import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
@@ -44,10 +46,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -60,6 +65,7 @@ final class MediaControlPanel {
 	
 	private final GridPane node;
 	private final FileChooser filechooser;
+	private final DirectoryChooser directorychooser;
 	
 	/**
 	 * @param animationProperty the animation that this's actions act upon
@@ -143,11 +149,25 @@ final class MediaControlPanel {
 			snapshotButton.setMaxWidth(1d/0d);
 		}
 		
+		Button recordButton = new Button(); {
+			final Shape recordGraphic = new Circle(7.5);
+			
+			recordButton.getStyleClass().add("button-record");
+			recordButton.setGraphic(recordGraphic);
+			recordButton.setText("Record");
+			recordButton.setOnAction(new RecordButtonActionHandler(animationProperty, playButtonEvent));
+			recordButton.setTooltip(new Tooltip("Record"));
+			recordButton.disableProperty().bind(
+				new AnimationPlayPauseBinding<>(animationProperty, false, true, true)
+			);
+			recordButton.setMaxWidth(1d/0d);
+		}
 		
 		GridPane.setFillWidth(progress, true);
 		
 		this.node = new GridPane();
-		this.node.add(playButton, 0, 0, GridPane.REMAINING, 1);
+		this.node.add(playButton, 0, 0);
+		this.node.add(recordButton, 1, 0, GridPane.REMAINING, 1);
 		this.node.add(progress, 0, 1, 2, 1);
 		this.node.add(stopButton, 2, 1);
 		this.node.add(snapshotButton, 3, 1);
@@ -169,6 +189,8 @@ final class MediaControlPanel {
 		}
 		filechooser.getExtensionFilters().sort(java.util.Comparator.comparing(x -> x.getExtensions().get(0), MediaControlPanel::compareStringWithPngFirst));
 		filechooser.setInitialFileName("snaphot");
+		
+		this.directorychooser = new DirectoryChooser();
 	}
 	
 	public Node getNode() { return this.node; }
@@ -294,19 +316,106 @@ final class MediaControlPanel {
 				}
 			}
 		}
+	}
+	
+	private final class RecordButtonActionHandler implements EventHandler<ActionEvent> {
+		private final ObjectProperty<Animation> animationProperty;
+		private final EventHandler<ActionEvent> playButtonEvent;
 		
-		private Node findSnapNode() {
-			final Node mediaControlPanel = node;
-			final Parent settingsPanel = mediaControlPanel.getParent();
-			final Parent mainPane = settingsPanel.getParent();
-			final List<Node> mainPaneChilds = mainPane.getChildrenUnmodifiable();
-			final Node gamePane = mainPaneChilds.get(mainPaneChilds.size() - 1);
-			final Parent gamePane2 = ((Parent) gamePane);
-			final List<Node> gamePaneChilds = gamePane2.getChildrenUnmodifiable();
-			final Node animNode = (gamePaneChilds.size() >= 1 ? gamePaneChilds.get(gamePaneChilds.size() - 1) : new Rectangle(200, 50));
-			
-			return animNode;
+		public RecordButtonActionHandler(
+			  final ObjectProperty<Animation> animationProperty
+			, final EventHandler<ActionEvent> playButtonEvent
+		) {
+			this.animationProperty = animationProperty;
+			this.playButtonEvent = playButtonEvent;
 		}
+		
+		public void handle(ActionEvent event) {
+			final File recordDir = directorychooser.showDialog(((Node) event.getSource()).getScene().getWindow());
+			if (recordDir != null) {
+				if (recordDir.isDirectory() && recordDir.list().length != 0) {
+					final Alert errorWindow = new Alert(Alert.AlertType.ERROR, "The selected directory is not empty. Halting recording.", javafx.scene.control.ButtonType.OK);
+					errorWindow.initOwner(node.getScene().getWindow());
+					errorWindow.setTitle(((Stage) node.getScene().getWindow()).getTitle());
+					errorWindow.setHeaderText("Could not record");
+					errorWindow.showAndWait();
+				} else {
+					playButtonEvent.handle(null);
+					animationProperty.get().setRate(0.0);
+					final Node snapNode = findSnapNode();
+					
+					final Duration animDur = animationProperty.get().getTotalDuration();
+					final Duration frameRate = Duration.seconds(1d / 30d);
+					final int frames = (int) (animDur.toMillis() / frameRate.toMillis());
+					
+					final javafx.concurrent.Task<Void> runnable = new javafx.concurrent.Task<Void>() {
+						@Override protected Void call() throws Exception {
+							try {
+								final Exception[] imageioWriteException = new Exception[1];
+								
+								for (int i = 0; i < frames; i++) {
+									final int i2 = i;
+									updateProgress(i, frames);
+									if (isCancelled()) {
+										break;
+									}
+									if (imageioWriteException[0] != null) {
+										throw imageioWriteException[0];
+									}
+									
+									final CountDownLatch latch1 = new CountDownLatch(1);
+									Platform.runLater(() -> {
+										final Duration jumpToDur = frameRate.multiply(i2);
+										animationProperty.get().jumpTo(jumpToDur);
+										Platform.runLater(() -> latch1.countDown());
+									});
+									latch1.await();
+									
+									final CountDownLatch latch2 = new CountDownLatch(1);
+									Platform.runLater(() -> {
+										try {
+											final SnapshotParameters parameters = new SnapshotParameters();
+											parameters.setFill(Color.TRANSPARENT);
+											final WritableImage snapshot = snapNode.snapshot(parameters, null);
+											final BufferedImage snapshotSwing = SwingFXUtils.fromFXImage(snapshot, null);
+											final File snapshotFile = new File(recordDir, String.format("%04d", i2) + ".png");
+											
+											ImageIO.write(snapshotSwing, "png", snapshotFile);
+										} catch (IOException ex) {
+											imageioWriteException[0] = ex;
+										} finally {
+											latch2.countDown();
+										}
+									});
+									latch2.await();
+								}
+								return null;
+							} finally {
+								animationProperty.get().setRate(1);
+								java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null));
+							}
+						}
+					};
+					
+					final Thread t = new Thread(runnable, "FightStageRecorder");
+					t.setDaemon(false);
+					t.start();
+				}
+			}
+		}
+	}
+	
+	private Node findSnapNode() {
+		final Node mediaControlPanel = node;
+		final Parent settingsPanel = mediaControlPanel.getParent();
+		final Parent mainPane = settingsPanel.getParent();
+		final List<Node> mainPaneChilds = mainPane.getChildrenUnmodifiable();
+		final Node gamePane = mainPaneChilds.get(mainPaneChilds.size() - 1);
+		final Parent gamePane2 = ((Parent) gamePane);
+		final List<Node> gamePaneChilds = gamePane2.getChildrenUnmodifiable();
+		final Node animNode = (gamePaneChilds.size() >= 1 ? gamePaneChilds.get(gamePaneChilds.size() - 1) : new Text("placeholder"));
+		
+		return animNode;
 	}
 	
 	/** The default string sort, except that "png" compares less than all other strings */
