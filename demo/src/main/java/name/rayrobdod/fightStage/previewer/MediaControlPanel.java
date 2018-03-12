@@ -29,9 +29,11 @@ import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -76,6 +78,9 @@ final class MediaControlPanel {
 		  final ObjectProperty<Animation> animationProperty
 		, final EventHandler<ActionEvent> playButtonEvent
 	) {
+		final ObjectProperty<Runnable> recordingTaskProperty = new SimpleObjectProperty<>(null);
+		final BooleanProperty recordingTaskCanceledProperty = new SimpleBooleanProperty(false);
+		
 		final ProgressBar progress = new ProgressBar(0.0); {
 			progress.progressProperty().bind(new AnimationProgressBinding(animationProperty));
 			progress.setMaxWidth(1d/0d);
@@ -88,28 +93,32 @@ final class MediaControlPanel {
 			
 			playButton.getStyleClass().add("button-play");
 			playButton.graphicProperty().bind(
-				new AnimationPlayPauseBinding<>(animationProperty,
-					playGraphic, pauseGraphic, playGraphic)
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					playGraphic, pauseGraphic, playGraphic, playGraphic)
 			);
 			playButton.textProperty().bind(
-				new AnimationPlayPauseBinding<>(
-					  animationProperty, "Play", "Pause", "Resume")
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					  "Play", "Pause", "Resume", "Play")
 			);
 			playButton.onActionProperty().bind(
-				new AnimationPlayPauseBinding<>(
-					  animationProperty
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty
 					, playButtonEvent
 					, (event) -> animationProperty.getValue().pause()
 					, (event) -> animationProperty.getValue().play()
+					, (event) -> {}
 				)
+			);
+			playButton.disableProperty().bind(
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					false, false, false, true)
 			);
 			playButton.setContentDisplay(ContentDisplay.LEFT);
 			playButton.tooltipProperty().bind(
-				new AnimationPlayPauseBinding<>(
-					  animationProperty
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty
 					, new Tooltip("Play")
 					, new Tooltip("Pause")
 					, new Tooltip("Resume")
+					, new Tooltip("Play")
 				)
 			);
 			playButton.setMaxWidth(1d/0d);
@@ -123,12 +132,18 @@ final class MediaControlPanel {
 			stopButton.setGraphic(stopGraphic);
 			stopButton.setText("Stop");
 			stopButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-			stopButton.setOnAction(ev ->
-				java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null))
+			stopButton.onActionProperty().bind(
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty
+					, (event) -> {}
+					, (event) -> java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null))
+					, (event) -> java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null))
+					, (event) -> recordingTaskCanceledProperty.set(true)
+				)
 			);
 			stopButton.setTooltip(new Tooltip("Stop"));
 			stopButton.disableProperty().bind(
-				new AnimationPlayPauseBinding<>(animationProperty, true, false, false)
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					true, false, false, false)
 			);
 			stopButton.setMaxWidth(1d/0d);
 			
@@ -145,7 +160,8 @@ final class MediaControlPanel {
 			snapshotButton.setOnAction(new SnapshotButtonActionHandler());
 			snapshotButton.setTooltip(new Tooltip("Snapshot"));
 			snapshotButton.disableProperty().bind(
-				new AnimationPlayPauseBinding<>(animationProperty, true, false, false)
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					true, false, false, true)
 			);
 			snapshotButton.setMaxWidth(1d/0d);
 		}
@@ -156,10 +172,11 @@ final class MediaControlPanel {
 			recordButton.getStyleClass().add("button-record");
 			recordButton.setGraphic(recordGraphic);
 			recordButton.setText("Record");
-			recordButton.setOnAction(new RecordButtonActionHandler(animationProperty, playButtonEvent));
+			recordButton.setOnAction(new RecordButtonActionHandler(animationProperty, playButtonEvent, recordingTaskProperty, recordingTaskCanceledProperty));
 			recordButton.setTooltip(new Tooltip("Record"));
 			recordButton.disableProperty().bind(
-				new AnimationPlayPauseBinding<>(animationProperty, false, true, true)
+				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty,
+					false, true, true, true)
 			);
 			recordButton.setMaxWidth(1d/0d);
 		}
@@ -249,24 +266,32 @@ final class MediaControlPanel {
 	private static final class AnimationPlayPauseBinding<A> extends ObjectBinding<A> {
 		private final ObjectProperty<Animation> animationProperty;
 		private ObservableValue<Animation.Status> currentStatus;
+		private final ObjectProperty<Runnable> recordingTaskProperty;
 		
 		private final A idleValue;
 		private final A playingValue;
 		private final A pausedValue;
+		private final A recordingValue;
 		
 		public AnimationPlayPauseBinding(
 			ObjectProperty<Animation> animationProperty,
+			ObjectProperty<Runnable> recordingTaskProperty,
 			A idleValue,
 			A playingValue,
-			A pausedValue
+			A pausedValue,
+			A recordingValue
 		) {
 			this.idleValue = idleValue;
 			this.playingValue = playingValue;
 			this.pausedValue = pausedValue;
+			this.recordingValue = recordingValue;
 			
 			this.animationProperty = animationProperty;
-			updateCurrentTimeProps();
-			animationProperty.addListener((binding, from, to) -> updateCurrentTimeProps());
+			updateCurrentStatus();
+			animationProperty.addListener((binding, from, to) -> updateCurrentStatus());
+			
+			this.bind(recordingTaskProperty);
+			this.recordingTaskProperty = recordingTaskProperty;
 		}
 		
 		@Override
@@ -275,14 +300,18 @@ final class MediaControlPanel {
 				return idleValue;
 			} else {
 				if (currentStatus.getValue() == Animation.Status.RUNNING) {
-					return playingValue;
+					if (recordingTaskProperty.getValue() == null) {
+						return playingValue;
+					} else {
+						return recordingValue;
+					}
 				} else {
 					return pausedValue;
 				}
 			}
 		}
 		
-		private void updateCurrentTimeProps() {
+		private void updateCurrentStatus() {
 			if (this.currentStatus != null) {
 				this.unbind(this.currentStatus);
 			}
@@ -322,16 +351,23 @@ final class MediaControlPanel {
 	private final class RecordButtonActionHandler implements EventHandler<ActionEvent> {
 		private final ObjectProperty<Animation> animationProperty;
 		private final EventHandler<ActionEvent> playButtonEvent;
+		private final ObjectProperty<Runnable> recordingTaskProperty;
+		private final BooleanProperty recordingTaskCanceledProperty;
 		
 		public RecordButtonActionHandler(
 			  final ObjectProperty<Animation> animationProperty
 			, final EventHandler<ActionEvent> playButtonEvent
+			, final ObjectProperty<Runnable> recordingTaskProperty
+			, final BooleanProperty recordingTaskCanceledProperty
 		) {
 			this.animationProperty = animationProperty;
 			this.playButtonEvent = playButtonEvent;
+			this.recordingTaskProperty = recordingTaskProperty;
+			this.recordingTaskCanceledProperty = recordingTaskCanceledProperty;
 		}
 		
 		public void handle(ActionEvent event) {
+			recordingTaskCanceledProperty.set(false);
 			final File recordDir = directorychooser.showDialog(((Node) event.getSource()).getScene().getWindow());
 			if (recordDir != null) {
 				if (recordDir.isDirectory() && recordDir.list().length != 0) {
@@ -351,19 +387,20 @@ final class MediaControlPanel {
 					final Duration frameRate = Duration.seconds(1d / 30d);
 					final int frames = (int) (animDur.toMillis() / frameRate.toMillis());
 					
-					final Task<Void> runnable = new Task<Void>() {
-						@Override protected Void call() throws Exception {
+					final Exception[] imageioWriteException = new Exception[1];
+					
+					// javafx.concurrent.Task is interesting, but Task#cancel does nothing
+					// and I don't use any other feature
+					recordingTaskProperty.setValue(new Runnable() {
+						@Override public void run() {
 							try {
-								final Exception[] imageioWriteException = new Exception[1];
-								
 								for (int i = 0; i < frames; i++) {
 									final int i2 = i;
-									updateProgress(i, frames);
-									if (isCancelled()) {
+									if (recordingTaskCanceledProperty.get()) {
 										break;
 									}
 									if (imageioWriteException[0] != null) {
-										throw imageioWriteException[0];
+										break;
 									}
 									
 									final CountDownLatch latch1 = new CountDownLatch(1);
@@ -372,7 +409,12 @@ final class MediaControlPanel {
 										animationProperty.get().jumpTo(jumpToDur);
 										Platform.runLater(() -> latch1.countDown());
 									});
-									latch1.await();
+									try {
+										latch1.await();
+									} catch (InterruptedException ex) {
+										imageioWriteException[0] = ex;
+										break;
+									}
 									
 									final CountDownLatch latch2 = new CountDownLatch(1);
 									Platform.runLater(() -> {
@@ -390,19 +432,34 @@ final class MediaControlPanel {
 											latch2.countDown();
 										}
 									});
-									latch2.await();
+									try {
+										latch2.await();
+									} catch (InterruptedException ex) {
+										imageioWriteException[0] = ex;
+										break;
+									}
 								}
-								return null;
 							} finally {
-								animationProperty.get().setRate(1);
-								java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null));
+								Platform.runLater(() -> {
+									animationProperty.get().setRate(1);
+									java.util.Optional.ofNullable(animationProperty.get().getOnFinished()).ifPresent(x -> x.handle(null));
+									recordingTaskProperty.setValue(null);
+								});
 							}
 						}
-					};
+					});
 					
-					final Thread t = new Thread(runnable, "FightStageRecorder");
+					final Thread t = new Thread(recordingTaskProperty.get(), "FightStageRecorder");
 					t.setDaemon(false);
 					t.start();
+					
+					if (imageioWriteException[0] != null) {
+						final Alert errorWindow = new Alert(Alert.AlertType.ERROR, imageioWriteException[0].getMessage(), javafx.scene.control.ButtonType.OK);
+						errorWindow.initOwner(node.getScene().getWindow());
+						errorWindow.setTitle(((Stage) node.getScene().getWindow()).getTitle());
+						errorWindow.setHeaderText("Could not record");
+						errorWindow.showAndWait();
+					}
 				}
 			}
 		}
