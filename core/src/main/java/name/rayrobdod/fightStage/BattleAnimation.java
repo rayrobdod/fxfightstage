@@ -67,6 +67,7 @@ public final class BattleAnimation {
 	private static final Duration pauseDuration = Duration.millis(1000);
 	public static final double GROUND_Y = 0;
 	private static final double distanceExtendPastPoint = 75;
+	private static final double distanceWithNoPan = 40;
 	private static final double sideNoteWidth = 120;
 	
 	
@@ -231,8 +232,10 @@ public final class BattleAnimation {
 			AggregateSideParams defender = (strike.attacker == Side.LEFT ? right : left);
 			final Map<DoubleProperty, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
 			final Map<DoubleProperty, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
-			final double attackerPan = (strike.attacker == Side.LEFT ? leftPan : rightPan);
-			final double defenderPan = (strike.attacker == Side.LEFT ? rightPan : leftPan);
+			final double attackerPan2 = (strike.attacker == Side.LEFT ? leftPan : rightPan);
+			final double attackerPan = (Math.abs(attackerPan2 - currentPan) < distanceWithNoPan ? currentPan : attackerPan2);
+			final double defenderPan2 = (strike.attacker == Side.LEFT ? rightPan : leftPan);
+			final double defenderPan = (Math.abs(defenderPan2 - attackerPan) < distanceWithNoPan ? attackerPan : defenderPan2);
 			
 			final Animation attackModifierInAnims = ModifierLabel.seqFadeInAnim(
 				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers),
