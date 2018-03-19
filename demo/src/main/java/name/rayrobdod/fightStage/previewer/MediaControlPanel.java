@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
@@ -75,9 +76,10 @@ final class MediaControlPanel {
 	 * @param playButtonEvent the action that is to occur upon
 	 */
 	public MediaControlPanel(
-		  final ObjectProperty<Animation> animationProperty
-		, final EventHandler<ActionEvent> playButtonEvent
+		final Function<ObjectProperty<Animation>, EventHandler<ActionEvent>> playButtonEventFunction
 	) {
+		final ObjectProperty<Animation> animationProperty = new SimpleObjectProperty<Animation>(null);
+		final EventHandler<ActionEvent> playButtonEvent = playButtonEventFunction.apply(animationProperty);
 		final ObjectProperty<Runnable> recordingTaskProperty = new SimpleObjectProperty<>(null);
 		final BooleanProperty recordingTaskCanceledProperty = new SimpleBooleanProperty(false);
 		

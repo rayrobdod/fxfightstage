@@ -42,6 +42,8 @@ public final class PreviewerSpi implements SpellAnimationGroups {
 			, new NameSupplierPair<>("Spark (Dissipate)", () -> new BasicElectricitySpellAnimationGroup(new ChainPoints(), DissipateElectricAnimationFactory::new))
 			, new NameSupplierPair<>("Radial Lightning", () -> new RadialLightning())
 			, new NameSupplierPair<>("Thunderstorm", () -> new ThunderStorm())
+			, new NameSupplierPair<>("Crescent Wind", () -> new CrescentWind())
+			, new NameSupplierPair<>("Tornado", () -> new Tornado())
 			, new NameSupplierPair<>("SkyBeam", () -> new SkyBeam())
 			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
 			, new NameSupplierPair<>("LightSword", () -> new LightSword())
