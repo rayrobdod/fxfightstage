@@ -38,6 +38,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.SnapshotParameters;
@@ -49,6 +50,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -133,7 +135,7 @@ final class MediaControlPanel {
 			stopButton.getStyleClass().add("button-stop");
 			stopButton.setGraphic(stopGraphic);
 			stopButton.setText("Stop");
-			stopButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			stopButton.setContentDisplay(ContentDisplay.LEFT);
 			stopButton.onActionProperty().bind(
 				new AnimationPlayPauseBinding<>(animationProperty, recordingTaskProperty
 					, (event) -> {}
@@ -158,7 +160,7 @@ final class MediaControlPanel {
 			snapshotButton.getStyleClass().add("button-shapshot");
 			snapshotButton.setGraphic(snapshotGraphic);
 			snapshotButton.setText("Snapshot");
-			snapshotButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			snapshotButton.setContentDisplay(ContentDisplay.LEFT);
 			snapshotButton.setOnAction(new SnapshotButtonActionHandler());
 			snapshotButton.setTooltip(new Tooltip("Snapshot"));
 			snapshotButton.disableProperty().bind(
@@ -174,6 +176,7 @@ final class MediaControlPanel {
 			recordButton.getStyleClass().add("button-record");
 			recordButton.setGraphic(recordGraphic);
 			recordButton.setText("Record");
+			recordButton.setContentDisplay(ContentDisplay.LEFT);
 			recordButton.setOnAction(new RecordButtonActionHandler(animationProperty, playButtonEvent, recordingTaskProperty, recordingTaskCanceledProperty));
 			recordButton.setTooltip(new Tooltip("Record"));
 			recordButton.disableProperty().bind(
@@ -186,17 +189,17 @@ final class MediaControlPanel {
 		GridPane.setFillWidth(progress, true);
 		
 		this.node = new GridPane();
-		this.node.add(playButton, 0, 0);
-		this.node.add(recordButton, 1, 0, GridPane.REMAINING, 1);
-		this.node.add(progress, 0, 1, 2, 1);
+		this.node.add(progress, 0, 0, GridPane.REMAINING, 1);
+		this.node.add(playButton, 0, 1);
+		this.node.add(recordButton, 1, 1);
 		this.node.add(stopButton, 2, 1);
 		this.node.add(snapshotButton, 3, 1);
 		
 		this.node.getColumnConstraints().addAll(
-			  percentColumnConstraint(50)
-			, percentColumnConstraint(40)
-			, percentColumnConstraint(5)
-			, percentColumnConstraint(5)
+			  new ColumnConstraints(0.0, 480 / 3, 1d/0d, Priority.ALWAYS, HPos.CENTER, true)
+			, new ColumnConstraints(0.0, 480 / 3, 1d/0d, Priority.ALWAYS, HPos.CENTER, true)
+			, new ColumnConstraints(0.0, 480 / 6, 1d/0d, Priority.ALWAYS, HPos.CENTER, true)
+			, new ColumnConstraints(0.0, 480 / 6, 1d/0d, Priority.ALWAYS, HPos.CENTER, true)
 		);
 		
 		this.filechooser = new FileChooser();
