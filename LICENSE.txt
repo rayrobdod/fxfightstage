@@ -199,3 +199,19 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+-----------------------------------------------------------
+
+/samples/src/main/resources/name/rayrobdod/fightStage/sounds/swing.wav
+
+"swing3.wav" contained in "RPG Sound Pack" <https://opengameart.org/content/rpg-sound-pack>
+by artisticdude at opengameart <https://opengameart.org/users/artisticdude>.
+Licensed under CC-0 1.0 <https://creativecommons.org/publicdomain/zero/1.0/>
+
+-----------------------------------------------------------
+
+/samples/src/main/resources/name/rayrobdod/fightStage/spellAnimationGroup/radialLightning.png
+
+"Radial lightning effect" <https://opengameart.org/content/radial-lightning-effect>
+by 13rice at opengameart <https://opengameart.org/users/13rice>.
+Licensed under CC-0 1.0 <https://creativecommons.org/publicdomain/zero/1.0/>
