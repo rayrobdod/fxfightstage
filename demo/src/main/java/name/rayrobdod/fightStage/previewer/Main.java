@@ -17,8 +17,11 @@ package name.rayrobdod.fightStage.previewer;
 
 import javafx.application.Application;
 import javafx.geometry.Dimension2D;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -46,14 +49,22 @@ public final class Main extends Application {
 			settings.animationSettings.apply(gamePane)
 		);
 		
-		final BorderPane mainPane = new BorderPane();
-		mainPane.setTop(
-			new VBox(
-				settings.getNode(),
-				mediaControl.getNode()
-			)
+		final ScrollPane settingScroll = new ScrollPane(settings.getNode());
+		settingScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		settingScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+		settingScroll.setFitToWidth(true);
+		
+		final VBox controlPanel = new VBox(
+			settingScroll,
+			mediaControl.getNode()
 		);
-		mainPane.setCenter(gamePane);
+		controlPanel.setMaxHeight(Region.USE_PREF_SIZE);
+		
+		final SplitPane mainPane = new SplitPane(
+			controlPanel,
+			gamePane
+		);
+		mainPane.setOrientation(Orientation.VERTICAL);
 		
 		final Scene mainScene = new Scene(mainPane);
 		
