@@ -83,7 +83,8 @@ public final class MediaControlPanelTest {
 					});
 					MediaControlPanelTest.this.anim.playFromStart();
 				}
-			}
+			},
+			new javafx.scene.layout.Pane()
 		);
 		// My normal method of `.getScene().setRoot(…)` results in some concurrent modification exceptions
 		stage.setScene(new Scene(new StackPane(dut.getNode())));

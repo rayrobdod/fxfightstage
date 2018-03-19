@@ -47,6 +47,7 @@ public final class Main extends Application {
 		final SettingsPanel settings = new SettingsPanel();
 		final MediaControlPanel mediaControl = new MediaControlPanel(
 			settings.animationSettings.apply(gamePane)
+			, gamePane
 		);
 		
 		final ScrollPane settingScroll = new ScrollPane(settings.getNode());
