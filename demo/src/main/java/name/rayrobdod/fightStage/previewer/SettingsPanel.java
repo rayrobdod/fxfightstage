@@ -16,10 +16,12 @@
 package name.rayrobdod.fightStage.previewer;
 
 import java.util.List;
+import java.util.function.Function;
 
 import javafx.animation.Animation;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -43,11 +45,9 @@ import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
 final class SettingsPanel {
 	
 	private final GridPane node;
-	private final ObjectProperty<Animation> currentAnimationProperty;
+	public final Function<StackPane, Function<ObjectProperty<Animation>, EventHandler<ActionEvent>>> animationSettings;
 	
-	public SettingsPanel(StackPane gamePane) {
-		this.currentAnimationProperty = new SimpleObjectProperty<>();
-		
+	public SettingsPanel() {
 		final Label labelUnit = new Label("Unit Animation");
 		labelUnit.setPadding(new javafx.geometry.Insets(4));
 		final ChoiceBox<NameSupplierPair<UnitAnimationGroup>> leftUnit = createNspChoicebox(UnitAnimationGroups.getAll());
@@ -74,11 +74,10 @@ final class SettingsPanel {
 		final HBox leftHp = new HBox(3, leftCurrentHp, new Text("/"), leftMaximumHp);
 		final HBox rightHp = new HBox(3, rightCurrentHp, new Text("/"), rightMaximumHp);
 		
-		MediaControlPanel mediaControlPanel = new MediaControlPanel(
-			  this.currentAnimationProperty
-			, new PlayBattleAnimationEventHandler(
+		animationSettings = (gamePane) -> (currentAnimationProperty) -> {
+			return new PlayBattleAnimationEventHandler(
 				  gamePane
-				, this.currentAnimationProperty
+				, currentAnimationProperty
 				, () -> leftUnit.getValue().supplier.get()
 				, () -> rightUnit.getValue().supplier.get()
 				, () -> leftSpell.getValue().supplier.get()
@@ -88,8 +87,8 @@ final class SettingsPanel {
 				, () -> leftMaximumHp.getValue()
 				, () -> rightMaximumHp.getValue()
 				, () -> distance.getValue()
-			  )
-		);
+			);
+		};
 		
 		GridPane.setFillWidth(leftUnit, true);
 		GridPane.setFillWidth(rightUnit, true);
@@ -112,7 +111,6 @@ final class SettingsPanel {
 		this.node.add(rightHp, 2, 3);
 		this.node.add(labelDistance, 0, 15);
 		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
-		this.node.add(mediaControlPanel.getNode(), 0, 16, GridPane.REMAINING, 1);
 	}
 	
 	public Node getNode() { return this.node; }

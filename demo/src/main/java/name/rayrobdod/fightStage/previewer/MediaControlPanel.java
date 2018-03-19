@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
@@ -28,6 +29,7 @@ import javafx.animation.Animation;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -66,9 +68,11 @@ final class MediaControlPanel {
 	 * @param playButtonEvent the action that is to occur upon
 	 */
 	public MediaControlPanel(
-		  final ObjectProperty<Animation> animationProperty
-		, final EventHandler<ActionEvent> playButtonEvent
+		final Function<ObjectProperty<Animation>, EventHandler<ActionEvent>> playButtonEventFunction
 	) {
+		final ObjectProperty<Animation> animationProperty = new SimpleObjectProperty<Animation>(null);
+		final EventHandler<ActionEvent> playButtonEvent = playButtonEventFunction.apply(animationProperty);
+		
 		final ProgressBar progress = new ProgressBar(0.0); {
 			progress.progressProperty().bind(new AnimationProgressBinding(animationProperty));
 			progress.setMaxWidth(1d/0d);

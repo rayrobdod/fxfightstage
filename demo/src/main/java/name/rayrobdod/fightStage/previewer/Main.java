@@ -20,6 +20,7 @@ import javafx.geometry.Dimension2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -40,11 +41,18 @@ public final class Main extends Application {
 		gamePane.setPrefWidth(gamePaneSize.getWidth());
 		gamePane.setPrefHeight(gamePaneSize.getHeight());
 		
-		final SettingsPanel settings = new SettingsPanel(gamePane);
-		
+		final SettingsPanel settings = new SettingsPanel();
+		final MediaControlPanel mediaControl = new MediaControlPanel(
+			settings.animationSettings.apply(gamePane)
+		);
 		
 		final BorderPane mainPane = new BorderPane();
-		mainPane.setTop(settings.getNode());
+		mainPane.setTop(
+			new VBox(
+				settings.getNode(),
+				mediaControl.getNode()
+			)
+		);
 		mainPane.setCenter(gamePane);
 		
 		final Scene mainScene = new Scene(mainPane);
