@@ -72,6 +72,7 @@ final class MediaControlPanel {
 	private final GridPane node;
 	private final FileChooser filechooser;
 	private final DirectoryChooser directorychooser;
+	private final Parent snapContainer;
 	
 	/**
 	 * @param animationProperty the animation that this's actions act upon
@@ -79,7 +80,10 @@ final class MediaControlPanel {
 	 */
 	public MediaControlPanel(
 		final Function<ObjectProperty<Animation>, EventHandler<ActionEvent>> playButtonEventFunction
+		, final Parent snapContainer
 	) {
+		this.snapContainer = snapContainer;
+		
 		final ObjectProperty<Animation> animationProperty = new SimpleObjectProperty<Animation>(null);
 		final EventHandler<ActionEvent> playButtonEvent = playButtonEventFunction.apply(animationProperty);
 		final ObjectProperty<Runnable> recordingTaskProperty = new SimpleObjectProperty<>(null);
@@ -471,13 +475,7 @@ final class MediaControlPanel {
 	}
 	
 	private Node findSnapNode() {
-		final Node mediaControlPanel = node;
-		final Parent settingsPanel = mediaControlPanel.getParent();
-		final Parent mainPane = settingsPanel.getParent();
-		final List<Node> mainPaneChilds = mainPane.getChildrenUnmodifiable();
-		final Node gamePane = mainPaneChilds.get(mainPaneChilds.size() - 1);
-		final Parent gamePane2 = ((Parent) gamePane);
-		final List<Node> gamePaneChilds = gamePane2.getChildrenUnmodifiable();
+		final List<Node> gamePaneChilds = snapContainer.getChildrenUnmodifiable();
 		final Node animNode = (gamePaneChilds.size() >= 1 ? gamePaneChilds.get(gamePaneChilds.size() - 1) : new Text("placeholder"));
 		
 		return animNode;
