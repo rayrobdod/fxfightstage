@@ -17,10 +17,12 @@ package name.rayrobdod.fightStage;
 
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.shape.CubicCurveTo;
+import javafx.scene.shape.HLineTo;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.QuadCurveTo;
+import javafx.scene.shape.VLineTo;
 
 /**
  * A collection of static functions that create {@link PathElement}s
@@ -44,6 +46,24 @@ public final class PathElements {
 	) {
 		LineTo retval = new LineTo();
 		retval.xProperty().bind(x);
+		retval.yProperty().bind(y);
+		return retval;
+	}
+	
+	/** Returns a HLineTo whose properties are already bound to the given observables */
+	public static HLineTo newBoundHLineTo(
+		ObservableDoubleValue x
+	) {
+		HLineTo retval = new HLineTo();
+		retval.xProperty().bind(x);
+		return retval;
+	}
+	
+	/** Returns a VLineTo whose properties are already bound to the given observables */
+	public static VLineTo newBoundVLineTo(
+		ObservableDoubleValue y
+	) {
+		VLineTo retval = new VLineTo();
 		retval.yProperty().bind(y);
 		return retval;
 	}

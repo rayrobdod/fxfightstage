@@ -108,11 +108,9 @@ public final class BattleAnimation {
 		gameNode.getTransforms().add(panTranslate);
 		
 		final Pane gamePane = new Pane(gameNode);
-		final Rectangle gamePaneClip = new Rectangle();
+		final SwipeAnimClip gamePaneClip = new SwipeAnimClip(gamePane.widthProperty(), gamePane.heightProperty());
 		final DoubleBinding magnifyBinding = new MagnificationBinding(gamePane.widthProperty(), gamePane.heightProperty());
-		gamePaneClip.heightProperty().bind(gamePane.heightProperty());
-		gamePaneClip.widthProperty().bind(gamePane.widthProperty());
-		gamePane.setClip(gamePaneClip);
+		gamePane.setClip(gamePaneClip.getNode());
 		centerTranslate.xProperty().bind(gamePane.widthProperty().divide(2));
 		centerTranslate.yProperty().bind(gamePane.heightProperty().multiply(2d/3d));
 		magnifyTransform.xProperty().bind(magnifyBinding);
@@ -191,7 +189,8 @@ public final class BattleAnimation {
 			animationParts.add(initializeAnim);
 		}
 		
-		animationParts.add(new PauseTransition(pauseDuration));
+		// transition in
+		animationParts.add(gamePaneClip.swipeInAnimation());
 		
 		// show both initiation animations at the same time
 		animationParts.add(
@@ -331,6 +330,9 @@ public final class BattleAnimation {
 		
 		// pause a bit before fading back to the overworld
 		animationParts.add(new PauseTransition(pauseDuration));
+		
+		// fade out
+		animationParts.add(gamePaneClip.swipeOutAnimation());
 		
 		final SequentialTransition retval_2 = new SequentialTransition();
 		retval_2.getChildren().addAll(animationParts);
