@@ -37,9 +37,9 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 /**
- * A component that displays a unit's current and maximum health
+ * Intended to be flush with the side of the window.
  */
-final class ModifierLabel {
+final class HudFlag {
 	
 	private static final double extendedWidth = 120;
 	
@@ -47,8 +47,10 @@ final class ModifierLabel {
 	private final DoubleProperty scale;
 	private final DoubleProperty width;
 	
-	public ModifierLabel(
+	public HudFlag(
 		  HPos alignment
+		, Color foreground
+		, Color background
 	) {
 		this.node = new Label();
 		this.scale = new SimpleDoubleProperty(1.0);
@@ -56,18 +58,18 @@ final class ModifierLabel {
 		
 		this.node.borderProperty().bind(
 			Bindings.solidScalableWidthBorder(
-				Color.BLACK,
+				foreground,
 				3,
 				(alignment == HPos.RIGHT ? 0 : 3),
 				3,
 				(alignment == HPos.LEFT ? 0 : 3),
-				ModifierLabel.this.scale
+				HudFlag.this.scale
 			)
 		);
-		node.setBackground(BattleAnimation.solidBackground(Color.GOLD));
+		node.setBackground(BattleAnimation.solidBackground(background));
 		node.setMinWidth(0);
 		node.prefWidthProperty().bind(this.scale.multiply(this.width));
-		node.setTextFill(Color.BLACK);
+		node.setTextFill(foreground);
 		node.paddingProperty().bind(Bindings.insetScale(new Insets(3, 7, 3, 7), this.scale));
 		node.fontProperty().bind(Bindings.fontScale(Font.font("Sans", BOLD, 15), this.scale));
 		node.setAlignment(BattleAnimation.withVCenter(alignment));
@@ -84,12 +86,16 @@ final class ModifierLabel {
 	
 	
 	public Animation fadeInAnimation(String newText) {
+		return this.fadeInAnimation(newText, Duration.millis(250));
+	}
+	
+	public Animation fadeInAnimation(String newText, Duration duration) {
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
 			new KeyValue(node.textProperty(), newText, Interpolator.LINEAR),
 			new KeyValue(this.width, 0, Interpolator.LINEAR)
 		));
-		timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250),
+		timeline.getKeyFrames().add(new KeyFrame(duration,
 			new KeyValue(node.textProperty(), newText, Interpolator.LINEAR),
 			new KeyValue(this.width, extendedWidth, Interpolator.LINEAR)
 		));
@@ -107,7 +113,7 @@ final class ModifierLabel {
 		return timeline;
 	}
 	
-	public static Animation seqFadeInAnim(List<ModifierLabel> labels, Set<AttackModifier> mods) {
+	public static Animation seqFadeInAnim(List<HudFlag> labels, Set<AttackModifier> mods) {
 		List<AttackModifier> mods2 = new java.util.ArrayList<>(mods);
 		ParallelTransition retval = new ParallelTransition();
 		for (int i = 0; i < mods2.size(); i++) {
@@ -118,7 +124,7 @@ final class ModifierLabel {
 		return retval;
 	}
 	
-	public static Animation seqFadeOutAnim(List<ModifierLabel> labels, Set<AttackModifier> mods) {
+	public static Animation seqFadeOutAnim(List<HudFlag> labels, Set<AttackModifier> mods) {
 		ParallelTransition retval = new ParallelTransition();
 		for (int i = 0; i < mods.size(); i++) {
 			Animation anim = labels.get(i).fadeOutAnimation();

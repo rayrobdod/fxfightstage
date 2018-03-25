@@ -121,12 +121,12 @@ public final class BattleAnimation {
 		
 		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
 		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);
-		final Label leftUnitName = unitNameLabel(left.unitName, left.teamColor, HPos.LEFT, magnifyBinding);
-		final Label rightUnitName = unitNameLabel(right.unitName, right.teamColor, HPos.RIGHT, magnifyBinding);
+		final HudFlag leftUnitName = new HudFlag(HPos.LEFT, Color.WHITE, left.teamColor);
+		final HudFlag rightUnitName = new HudFlag(HPos.RIGHT, Color.WHITE, right.teamColor);
 		final Label leftWeaponName = weaponLabel(left.weaponName, left.weaponIcon, left.teamColor, HPos.LEFT, magnifyBinding);
 		final Label rightWeaponName = weaponLabel(right.weaponName, right.weaponIcon, right.teamColor, HPos.RIGHT, magnifyBinding);
-		final List<ModifierLabel> leftModifiers = Stream.generate(() -> new ModifierLabel(HPos.LEFT)).limit(maxModifiersSize).collect(Collectors.toList());
-		final List<ModifierLabel> rightModifiers = Stream.generate(() -> new ModifierLabel(HPos.RIGHT)).limit(maxModifiersSize).collect(Collectors.toList());
+		final List<HudFlag> leftModifiers = Stream.generate(() -> new HudFlag(HPos.LEFT, Color.BLACK, Color.GOLD)).limit(maxModifiersSize).collect(Collectors.toList());
+		final List<HudFlag> rightModifiers = Stream.generate(() -> new HudFlag(HPos.RIGHT, Color.BLACK, Color.GOLD)).limit(maxModifiersSize).collect(Collectors.toList());
 		
 		
 		final GridPane bottomHud = new GridPane();
@@ -138,16 +138,18 @@ public final class BattleAnimation {
 		GridPane.setHalignment(rightWeaponName, HPos.RIGHT);
 		healthbarLeft.scaleProperty().bind(magnifyBinding);
 		healthbarRight.scaleProperty().bind(magnifyBinding);
+		leftUnitName.scaleProperty().bind(magnifyBinding);
+		rightUnitName.scaleProperty().bind(magnifyBinding);
 		
-		final VBox leftModifierBox = new VBox(15, leftUnitName);
+		final VBox leftModifierBox = new VBox(15, leftUnitName.getNode());
 		leftModifierBox.setAlignment(Pos.TOP_LEFT);
-		for (ModifierLabel x : leftModifiers) {
+		for (HudFlag x : leftModifiers) {
 			leftModifierBox.getChildren().add(x.getNode());
 			x.scaleProperty().bind(magnifyBinding);
 		}
-		final VBox rightModifierBox = new VBox(15, rightUnitName);
+		final VBox rightModifierBox = new VBox(15, rightUnitName.getNode());
 		rightModifierBox.setAlignment(Pos.TOP_RIGHT);
-		for (ModifierLabel x : rightModifiers) {
+		for (HudFlag x : rightModifiers) {
 			rightModifierBox.getChildren().add(x.getNode());
 			x.scaleProperty().bind(magnifyBinding);
 		}
@@ -190,7 +192,14 @@ public final class BattleAnimation {
 		}
 		
 		// transition in
-		animationParts.add(gamePaneClip.swipeInAnimation());
+		{
+			final Animation baseAnim = gamePaneClip.swipeInAnimation();
+			animationParts.add(new ParallelTransition(
+				leftUnitName.fadeInAnimation(left.unitName, baseAnim.getCycleDuration().multiply(2d/3d)),
+				rightUnitName.fadeInAnimation(right.unitName, baseAnim.getCycleDuration().multiply(2d/3d)),
+				baseAnim
+			));
+		}
 		
 		// show both initiation animations at the same time
 		animationParts.add(
@@ -236,19 +245,19 @@ public final class BattleAnimation {
 			final double defenderPan2 = (strike.attacker == Side.LEFT ? rightPan : leftPan);
 			final double defenderPan = (Math.abs(defenderPan2 - attackerPan) < distanceWithNoPan ? attackerPan : defenderPan2);
 			
-			final Animation attackModifierInAnims = ModifierLabel.seqFadeInAnim(
+			final Animation attackModifierInAnims = HudFlag.seqFadeInAnim(
 				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers),
 				strike.attackerModifiers
 			);
-			final Animation defenderModifierInAnims = ModifierLabel.seqFadeInAnim(
+			final Animation defenderModifierInAnims = HudFlag.seqFadeInAnim(
 				(strike.attacker == Side.LEFT ? rightModifiers : leftModifiers),
 				strike.defenderModifiers
 			);
-			final Animation attackModifierOutAnims = ModifierLabel.seqFadeOutAnim(
+			final Animation attackModifierOutAnims = HudFlag.seqFadeOutAnim(
 				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers),
 				strike.attackerModifiers
 			);
-			final Animation defenderModifierOutAnims = ModifierLabel.seqFadeOutAnim(
+			final Animation defenderModifierOutAnims = HudFlag.seqFadeOutAnim(
 				(strike.attacker == Side.LEFT ? rightModifiers : leftModifiers),
 				strike.defenderModifiers
 			);
@@ -332,7 +341,11 @@ public final class BattleAnimation {
 		animationParts.add(new PauseTransition(pauseDuration));
 		
 		// fade out
-		animationParts.add(gamePaneClip.swipeOutAnimation());
+		animationParts.add(new ParallelTransition(
+			leftUnitName.fadeOutAnimation(),
+			rightUnitName.fadeOutAnimation(),
+			gamePaneClip.swipeOutAnimation()
+		));
 		
 		final SequentialTransition retval_2 = new SequentialTransition();
 		retval_2.getChildren().addAll(animationParts);
@@ -459,27 +472,6 @@ public final class BattleAnimation {
 			case RIGHT: return ContentDisplay.RIGHT;
 		}
 		return ContentDisplay.CENTER;
-	}
-	
-	private static Label unitNameLabel(String text, Color bgColor, HPos alignment, DoubleBinding scale) {
-		final Label retval = new Label(text);
-		retval.borderProperty().bind(
-			Bindings.solidScalableWidthBorder(
-				Color.WHITE,
-				3,
-				(alignment == HPos.RIGHT ? 0 : 3),
-				3,
-				(alignment == HPos.LEFT ? 0 : 3),
-				scale
-			)
-		);
-		retval.setBackground(solidBackground(bgColor));
-		retval.prefWidthProperty().bind(scale.multiply(sideNoteWidth));
-		retval.setTextFill(Color.WHITE);
-		retval.paddingProperty().bind(Bindings.insetScale(new Insets(3, 7, 3, 7), scale));
-		retval.fontProperty().bind(Bindings.fontScale(Font.font("Sans", BOLD, 15), scale));
-		retval.setAlignment(withVCenter(alignment));
-		return retval;
 	}
 	
 	private static Label weaponLabel(String text, Node icon, Color bgColor, HPos alignment, DoubleBinding scale) {
