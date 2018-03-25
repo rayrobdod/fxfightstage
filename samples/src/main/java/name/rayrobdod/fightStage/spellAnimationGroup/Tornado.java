@@ -16,6 +16,8 @@
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
 import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
+import static name.rayrobdod.fightStage.PathElements.newBoundCubicCurveTo;
+import static name.rayrobdod.fightStage.PathElements.newBoundMoveTo;
 
 import java.util.List;
 import java.util.Random;
@@ -32,13 +34,10 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.CubicCurveTo;
-import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
@@ -227,32 +226,6 @@ public final class Tornado implements SpellAnimationGroup {
 			));
 		}
 		
-		return retval;
-	}
-	
-	/** Returns a MoveTo whose properties are already bound to the given observables */
-	private static MoveTo newBoundMoveTo(
-		ObservableDoubleValue x, ObservableDoubleValue y
-	) {
-		MoveTo retval = new MoveTo();
-		retval.xProperty().bind(x);
-		retval.yProperty().bind(y);
-		return retval;
-	}
-	
-	/** Returns a CubicCurveTo whose properties are already bound to the given observables */
-	private static CubicCurveTo newBoundCubicCurveTo(
-		ObservableDoubleValue c1x, ObservableDoubleValue c1y,
-		ObservableDoubleValue c2x, ObservableDoubleValue c2y,
-		ObservableDoubleValue x, ObservableDoubleValue y
-	) {
-		CubicCurveTo retval = new CubicCurveTo();
-		retval.controlX1Property().bind(c1x);
-		retval.controlY1Property().bind(c1y);
-		retval.controlX2Property().bind(c2x);
-		retval.controlY2Property().bind(c2y);
-		retval.xProperty().bind(x);
-		retval.yProperty().bind(y);
 		return retval;
 	}
 }

@@ -15,6 +15,10 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
+import static name.rayrobdod.fightStage.PathElements.newBoundCubicCurveTo;
+import static name.rayrobdod.fightStage.PathElements.newBoundLineTo;
+import static name.rayrobdod.fightStage.PathElements.newBoundMoveTo;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,14 +33,10 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.CubicCurveTo;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.util.Duration;
@@ -86,9 +86,9 @@ public final class Sandbag implements UnitAnimationGroup {
 		
 		final Path fill = new Path(
 			newBoundMoveTo(frontX, bottomY),
-			newBoundCurveTo(frontX, bottomControlY, backX, bottomControlY, backX, bottomY),
-			newBoundCurveTo(backControlX, midY, backControlX, midY, backX, topY),
-			newBoundCurveTo(backX, topControl2Y, frontX, topControl2Y, frontX, topFrontY),
+			newBoundCubicCurveTo(frontX, bottomControlY, backX, bottomControlY, backX, bottomY),
+			newBoundCubicCurveTo(backControlX, midY, backControlX, midY, backX, topY),
+			newBoundCubicCurveTo(backX, topControl2Y, frontX, topControl2Y, frontX, topFrontY),
 			newBoundLineTo(frontControlX, midY),
 			newBoundLineTo(frontX, bottomY)
 		);
@@ -99,9 +99,9 @@ public final class Sandbag implements UnitAnimationGroup {
 			newBoundMoveTo(foldX, fold1Y),
 			newBoundLineTo(frontControlX, midY),
 			newBoundLineTo(frontX, bottomY),
-			newBoundCurveTo(frontX, bottomControlY, backX, bottomControlY, backX, bottomY),
-			newBoundCurveTo(backControlX, midY, backControlX, midY, backX, topY),
-			newBoundCurveTo(backX, topControl2Y, frontX, topControl2Y, frontX, topFrontY),
+			newBoundCubicCurveTo(frontX, bottomControlY, backX, bottomControlY, backX, bottomY),
+			newBoundCubicCurveTo(backControlX, midY, backControlX, midY, backX, topY),
+			newBoundCubicCurveTo(backX, topControl2Y, frontX, topControl2Y, frontX, topFrontY),
 			newBoundLineTo(frontControlX, midY),
 			newBoundLineTo(foldX, fold2Y)
 		);
@@ -111,7 +111,7 @@ public final class Sandbag implements UnitAnimationGroup {
 		
 		final Path outline2 = new Path(
 			newBoundMoveTo(backX, topY),
-			newBoundCurveTo(backX, topControl1Y, frontX, topControl1Y, frontX, topFrontY)
+			newBoundCubicCurveTo(backX, topControl1Y, frontX, topControl1Y, frontX, topFrontY)
 		);
 		outline2.setStroke(Color.gray(0.05));
 		outline2.setStrokeWidth(5);
@@ -208,43 +208,5 @@ public final class Sandbag implements UnitAnimationGroup {
 				new KeyValue(indentProp, endIndent, Interpolator.EASE_BOTH)
 			)
 		);
-	}
-	
-	
-	
-	/** Returns a MoveTo whose properties are already bound to the given observables */
-	private MoveTo newBoundMoveTo(
-		ObservableDoubleValue x, ObservableDoubleValue y
-	) {
-		MoveTo retval = new MoveTo();
-		retval.xProperty().bind(x);
-		retval.yProperty().bind(y);
-		return retval;
-	}
-	
-	/** Returns a LineTo whose properties are already bound to the given observables */
-	private LineTo newBoundLineTo(
-		ObservableDoubleValue x, ObservableDoubleValue y
-	) {
-		LineTo retval = new LineTo();
-		retval.xProperty().bind(x);
-		retval.yProperty().bind(y);
-		return retval;
-	}
-	
-	/** Returns a CubicCurveTo whose properties are already bound to the given observables */
-	private CubicCurveTo newBoundCurveTo(
-		ObservableDoubleValue c1x, ObservableDoubleValue c1y,
-		ObservableDoubleValue c2x, ObservableDoubleValue c2y,
-		ObservableDoubleValue x, ObservableDoubleValue y
-	) {
-		CubicCurveTo retval = new CubicCurveTo();
-		retval.controlX1Property().bind(c1x);
-		retval.controlY1Property().bind(c1y);
-		retval.controlX2Property().bind(c2x);
-		retval.controlY2Property().bind(c2y);
-		retval.xProperty().bind(x);
-		retval.yProperty().bind(y);
-		return retval;
 	}
 }
