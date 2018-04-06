@@ -1,14 +1,5 @@
-buildscript {
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
-	}
-}
-
 plugins {
-	id "com.diffplug.gradle.spotless" version "3.6.0"
+	id "com.diffplug.gradle.spotless" version "3.10.0"
 }
 
 /**
@@ -30,7 +21,6 @@ def expandZips(FileCollection inputs) {
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'maven'
-	apply plugin: 'org.junit.platform.gradle.plugin'
 	apply plugin: "com.diffplug.gradle.spotless"
 	
 	sourceCompatibility = 1.8
@@ -49,9 +39,9 @@ subprojects {
 	}
 	
 	dependencies {
-		testCompile("org.junit.jupiter:junit-jupiter-api:5.0.2")
-		testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
-		testCompile "org.testfx:testfx-junit5:4.0.11-alpha"
+		testCompile("org.junit.jupiter:junit-jupiter-api:5.1.0")
+		testRuntime("org.junit.jupiter:junit-jupiter-engine:5.1.0")
+		testCompile "org.testfx:testfx-junit5:4.0.13-alpha"
 	}
 
 	spotless {
@@ -124,21 +114,19 @@ subprojects {
 		mtask.mustRunAfter(compileTestJava)
 	}
 	
-	junitPlatformTest {
+	test {
+		getInputs().property("enableAllJunitTags", project.hasProperty("enableAllJunitTags"))
+		
 		enableAssertions = true
-	}
-	junitPlatform {
-		filters {
-			tags {
-				// the `image` tag refers to tests that require internal fx graphics to be initialized to run
-				// the `robot` tag refers to tests that make use of `org.testfx.api.FxRobot`
-				
-				// Tests with either of these tags will not run in a headless environment
-				if (project.hasProperty("enableAllJunitTags")) {
-					// do nothing
-				} else {
-					exclude 'image', 'robot'
-				}
+		useJUnitPlatform {
+			// the `image` tag refers to tests that require internal fx graphics to be initialized to run
+			// the `robot` tag refers to tests that make use of `org.testfx.api.FxRobot`
+			
+			// Tests with either of these tags will not run in a headless environment
+			if (project.hasProperty("enableAllJunitTags")) {
+				// do nothing
+			} else {
+				excludeTags 'image', 'robot'
 			}
 		}
 	}
