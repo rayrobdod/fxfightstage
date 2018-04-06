@@ -360,7 +360,7 @@ public final class LightBurst implements SpellAnimationGroup {
 				double r = Math.hypot(currentX - centerX, currentY - centerY) * Math.sqrt(2);
 				double theta = Math.atan2(currentX - centerX, currentY - centerY) / Math.PI / 2 + 0.5;
 				
-				assert r <= 1.0 && r >= 0.0 && theta <= 1.0 && theta >= 1.0;
+				assert r <= 1.0 && r >= 0.0 && theta <= 1.0 && theta >= 0.0 : "r = " + r + "; ϴ = " + theta;
 				
 				double offsetX = r - currentX;
 				double offsetY = theta - currentY;

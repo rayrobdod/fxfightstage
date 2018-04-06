@@ -124,6 +124,9 @@ subprojects {
 		mtask.mustRunAfter(compileTestJava)
 	}
 	
+	junitPlatformTest {
+		enableAssertions = true
+	}
 	junitPlatform {
 		filters {
 			tags {
