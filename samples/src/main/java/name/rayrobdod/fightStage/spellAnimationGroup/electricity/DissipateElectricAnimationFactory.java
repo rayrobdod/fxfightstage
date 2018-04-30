@@ -42,6 +42,8 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.spellAnimationGroup.WritableObservableListWrapper;
+
 /**
  * An animation which consists of the provided line appearing suddenly,
  * flickering between that and a different line, then flickering while getting smaller

@@ -45,6 +45,7 @@ public final class PreviewerSpi implements SpellAnimationGroups {
 			, new NameSupplierPair<>("Crescent Wind", () -> new CrescentWind())
 			, new NameSupplierPair<>("Tornado", () -> new Tornado())
 			, new NameSupplierPair<>("MultiSparkle", () -> new MultiSparkle())
+			, new NameSupplierPair<>("Quarantine", () -> new Quarantine())
 			, new NameSupplierPair<>("SkyBeam", () -> new SkyBeam())
 			, new NameSupplierPair<>("Not-Naga", () -> new LightBurst())
 			, new NameSupplierPair<>("LightSword", () -> new LightSword())

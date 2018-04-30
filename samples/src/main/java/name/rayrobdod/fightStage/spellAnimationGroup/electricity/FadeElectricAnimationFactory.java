@@ -37,6 +37,8 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.spellAnimationGroup.WritableObservableListWrapper;
+
 /**
  * An animation which consists of the provided line appearing suddenly,
  * then fading to transparent gradually

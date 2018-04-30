@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
+package name.rayrobdod.fightStage.spellAnimationGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import javafx.collections.ObservableList;
  * `ListProperty` failed, especially with multiple ListProperties in the same
  * animation, or was unduly cumbersome.
  */
-final class WritableObservableListWrapper<T> implements WritableValue<List<T>> {
+public final class WritableObservableListWrapper<T> implements WritableValue<List<T>> {
 	private final ObservableList<T> backing;
 	
 	public WritableObservableListWrapper(
