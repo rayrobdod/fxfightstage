@@ -65,7 +65,7 @@ final class SwipeAnimClip {
 		this.leftXs = Stream.generate(() -> new SimpleDoubleProperty(0))
 				.limit(segments)
 				.collect(Collectors.toList());
-		this.rightXs = Stream.generate(() -> new SimpleDoubleProperty(1))
+		this.rightXs = Stream.generate(() -> new SimpleDoubleProperty(0))
 				.limit(segments)
 				.collect(Collectors.toList());
 		
