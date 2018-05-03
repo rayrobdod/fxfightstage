@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.api.FxAssert;
 import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.matcher.control.TextMatchers;
+import org.testfx.matcher.control.LabeledMatchers;
 
 @ExtendWith(ApplicationExtension.class)
 @Tag("image")
@@ -64,8 +64,8 @@ public final class HealthBarTest {
 		HealthBar dut = new HealthBar(HPos.LEFT, Color.ORANGE, 40, 60);
 		dut.currentHealthProperty().set(expected);
 		FxAssert.verifyThat(
-			(javafx.scene.text.Text) dut.getNode().lookup(".label"),
-			TextMatchers.hasText("" + expected)
+			(javafx.scene.control.Label) dut.getNode().lookup(".label"),
+			LabeledMatchers.hasText("" + expected)
 		);
 	}
 	
