@@ -19,6 +19,7 @@ import javafx.application.Application;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
@@ -43,6 +44,28 @@ public final class Main extends Application {
 		gamePane.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(Color.BLACK, null, null)));
 		gamePane.setPrefWidth(gamePaneSize.getWidth());
 		gamePane.setPrefHeight(gamePaneSize.getHeight());
+		gamePane.setOnContextMenuRequested((ctxMenuEvent) -> {
+			MenuItem[] resizeItems = java.util.stream.Stream.of(
+					  gamePaneSize
+					, new javafx.geometry.Dimension2D(481, 320)
+				).map(dim -> {
+					final String label = dim.getWidth() + " x " + dim.getHeight();
+					final MenuItem retval = new MenuItem(label);
+					retval.setOnAction((actionEvent) -> {
+						final double deltaWidth = dim.getWidth() - gamePane.getWidth();
+						final double deltaHeight = dim.getHeight() - gamePane.getHeight();
+						
+						stage.setWidth(stage.getWidth() + deltaWidth);
+						stage.setHeight(stage.getHeight() + deltaHeight);
+					});
+					return retval;
+				}).toArray(MenuItem[]::new);
+			
+			
+			new javafx.scene.control.ContextMenu(
+				new javafx.scene.control.Menu("Resize", null, resizeItems)
+			).show(gamePane, ctxMenuEvent.getScreenX(), ctxMenuEvent.getScreenY());
+		});
 		
 		final SettingsPanel settings = new SettingsPanel();
 		final MediaControlPanel mediaControl = new MediaControlPanel(
