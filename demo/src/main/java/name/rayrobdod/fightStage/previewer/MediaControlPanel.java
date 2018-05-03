@@ -403,6 +403,25 @@ final class MediaControlPanel {
 					recordingTaskProperty.setValue(new Runnable() {
 						@Override public void run() {
 							try {
+								// Obtain snapNode's size
+									// by letting the node render at an arbitrary time
+									// use that size in the SnapshotParameters to ensure that every frame has the same dimensions
+									// the 1-pixel trim in the viewport is to exclude a one-pixel transparent border that seems to be included otherwise
+								final CountDownLatch latch3 = new CountDownLatch(1);
+								Platform.runLater(() -> {
+									animationProperty.get().jumpTo(Duration.ZERO);
+									Platform.runLater(() -> latch3.countDown());
+								});
+								try {
+									latch3.await();
+								} catch (InterruptedException ex) {
+									imageioWriteException[0] = ex;
+								}
+								final javafx.geometry.Bounds bounds1 = snapNode.getBoundsInParent();
+								final javafx.geometry.Rectangle2D bounds2 = new javafx.geometry.Rectangle2D(bounds1.getMinX() + 1, bounds1.getMinY() + 1, bounds1.getWidth() - 2, bounds1.getHeight() - 2);
+								
+								
+								// Render each frame and write it to disk
 								for (int i = 0; i < frames; i++) {
 									final int i2 = i;
 									if (recordingTaskCanceledProperty.get()) {
@@ -430,6 +449,7 @@ final class MediaControlPanel {
 										try {
 											final SnapshotParameters parameters = new SnapshotParameters();
 											parameters.setFill(Color.TRANSPARENT);
+											parameters.setViewport(bounds2);
 											final WritableImage snapshot = snapNode.snapshot(parameters, null);
 											final BufferedImage snapshotSwing = SwingFXUtils.fromFXImage(snapshot, null);
 											final File snapshotFile = new File(recordDir, String.format("%04d", i2) + ".png");
