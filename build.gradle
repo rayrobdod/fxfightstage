@@ -18,6 +18,20 @@ def expandZips(FileCollection inputs) {
 	return retval;
 }
 
+/**
+ * Split a string by whitespace, taking quoting and escaping into account
+ * @see https://stackoverflow.com/questions/20410854/how-to-pass-parameters-or-arguments-into-a-gradle-task/48370451#48370451
+ */
+def List<String> splitIntoTokens(String commandLine) {
+	String regex = "(([\"']).*?\\2|(?:[^\\\\ ]+\\\\\\s+)+[^\\\\ ]+|\\S+)";
+	java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(regex).matcher(commandLine);
+	ArrayList<String> result = new ArrayList<>();
+	while (matcher.find()) {
+		result.add(matcher.group());
+	}
+	return result
+}
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'maven'
@@ -191,6 +205,16 @@ project(":samples") {
 	task run(dependsOn: classes, type: JavaExec) {
 		main = project.mainClassName
 		classpath = sourceSets.main.runtimeClasspath
+		args = splitIntoTokens(project.hasProperty("args") ? project.args : "")
+		standardInput = System.in
+		ignoreExitValue = true
+	}
+	
+	//example: `gradlew runRasterize "-Pargs=--spell=Tornado --d=out.png --fps=60 --bitDepth=8"`
+	task runRasterize(dependsOn: classes, type: JavaExec) {
+		main = "name.rayrobdod.fightStage.rasterizer.Main"
+		classpath = sourceSets.main.runtimeClasspath
+		args = splitIntoTokens(project.hasProperty("args") ? project.args : "")
 		standardInput = System.in
 		ignoreExitValue = true
 	}
