@@ -32,6 +32,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -82,7 +83,8 @@ public final class RadialLightning implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Timeline beforeShakeAnim = new Timeline();
 		final Timeline afterShakeAnim = new Timeline();
@@ -109,7 +111,10 @@ public final class RadialLightning implements SpellAnimationGroup {
 			panAnimation,
 			beforeShakeAnim,
 			new ParallelTransition(
-				hpAndShakeAnimation,
+				new ParallelTransition(
+					shakeAnimation.apply(),
+					hitAnimation
+				),
 				afterShakeAnim
 			)
 		);
