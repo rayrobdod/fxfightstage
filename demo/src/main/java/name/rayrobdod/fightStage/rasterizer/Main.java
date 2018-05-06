@@ -19,11 +19,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -157,7 +157,7 @@ public final class Main extends Application {
 								);
 							}
 							
-							// Quantize image to fit in 256 colors
+							// Quantize image to fit in the specified bit depth
 							if (bitDepth > 0) {
 								final Set<Color> quantizePallette = QuantizePallette.apply(sheet, bitDepth);
 								sheet = new WritableImage(
@@ -170,18 +170,18 @@ public final class Main extends Application {
 							
 							// find hitFrame
 							List<FindMockShakeAnimationStartTimesResult> shakeTimes = findMockShakeAnimationStartTimes(anim).collect(Collectors.toList());
-							String hitFramesStr = shakeTimes.stream().map(x -> (int) (x.startTime.toMillis() / frameRate.toMillis())).map(x -> "" + x).collect(Collectors.joining(", ", "[", "]"));
-							String shakeFramesStr = shakeTimes.stream().map(x -> (int) (x.duration.toMillis() / frameRate.toMillis()) * 2 / 3).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
-							String shakeIntensityStr = shakeTimes.stream().map(x -> (int) (x.intensity / 2)).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
+							final String hitFramesStr = shakeTimes.stream().map(x -> (int) (x.startTime.toMillis() / frameRate.toMillis())).map(x -> "" + x).collect(Collectors.joining(", ", "[", "]"));
+							final String shakeFramesStr = shakeTimes.stream().map(x -> (int) (x.duration.toMillis() / frameRate.toMillis()) * 2 / 3).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
+							final String shakeIntensityStr = shakeTimes.stream().map(x -> (int) (x.intensity / 2)).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
 							
-							// Ouptut file to disk
+							// Output file to disk
 							final BufferedImage sheetSwing = SwingFXUtils.fromFXImage(sheet, null);
 							final File outputFile = new File(outputFileStr);
 							
 							ImageIO.write(sheetSwing, "png", outputFile);
 							System.out.println("{");
-							System.out.println("\t\"name\": TODO");
-							System.out.println("\t\"path\": TODO");
+							System.out.println("\t\"name\": \"" + outputFile.getName() + "\",");
+							System.out.println("\t\"path\": \"res/battle_anim/" + outputFile.getName() + "\",");
 							System.out.println("\t\"frames\": " + frameCount + ",");
 							System.out.println("\t\"width\": " + trimmedBounds.width + ",");
 							System.out.println("\t\"height\": " + trimmedBounds.height + ",");
