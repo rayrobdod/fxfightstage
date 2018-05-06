@@ -40,6 +40,7 @@ import javafx.scene.shape.QuadCurveTo;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -147,7 +148,8 @@ public final class LightSword implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(swordKeyFrame(inStartTime, target, 0, initOffsetY, 0));
@@ -176,7 +178,8 @@ public final class LightSword implements SpellAnimationGroup {
 			timeline,
 			new ParallelTransition(
 				overtimeline,
-				hpAndShakeAnimation
+				shakeAnimation.apply(),
+				hitAnimation
 			)
 		);
 	}

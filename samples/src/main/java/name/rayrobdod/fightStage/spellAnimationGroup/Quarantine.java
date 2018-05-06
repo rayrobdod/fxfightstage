@@ -47,6 +47,7 @@ import javafx.scene.shape.Polygon;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -148,7 +149,8 @@ public final class Quarantine implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Animation setTargetAnim = setAnimation(this.target, target);
 		final Animation setPolygonAnim = setAnimation(this.fillPoints, polygonPoints(target));
@@ -197,11 +199,10 @@ public final class Quarantine implements SpellAnimationGroup {
 					fillFadeInAnim,
 					fillFadeOutAnim
 				),
-				hpAndShakeAnimation
+				shakeAnimation.apply(4, fillFadeInAnim.getTotalDuration().add(fillFadeOutAnim.getTotalDuration())),
+				hitAnimation
 			),
-			new ParallelTransition(
-				cutFadeOutAnim
-			)
+			cutFadeOutAnim
 		);
 	}
 	

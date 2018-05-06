@@ -34,6 +34,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -79,7 +80,8 @@ public final class Fireball implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Point2D approachVector = target.subtract(origin);
 		final Point2D approachPerTickVector = approachVector.normalize().multiply(speed);
@@ -112,7 +114,10 @@ public final class Fireball implements SpellAnimationGroup {
 			),
 			new SequentialTransition(
 				new PauseTransition(shakeTime),
-				hpAndShakeAnimation
+				new ParallelTransition(
+					shakeAnimation.apply(),
+					hitAnimation
+				)
 			)
 		);
 	}

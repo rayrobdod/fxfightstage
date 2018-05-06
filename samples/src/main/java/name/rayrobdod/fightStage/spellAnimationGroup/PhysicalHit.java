@@ -30,6 +30,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -75,7 +76,8 @@ public final class PhysicalHit implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		return new ParallelTransition(
 			  Animations.doubleSimpleAnimation(animDuration, emanations[0].centerXProperty(), target.getX(), target.getX() + emanationDistance)
@@ -94,7 +96,8 @@ public final class PhysicalHit implements SpellAnimationGroup {
 			, Animations.doubleSimpleAnimation(animDuration, flare.centerXProperty(), target.getX(), target.getX())
 			, Animations.doubleSimpleAnimation(animDuration, flare.centerYProperty(), target.getY(), target.getY())
 			, panAnimation
-			, hpAndShakeAnimation
+			, shakeAnimation.apply()
+			, hitAnimation
 		);
 	}
 	

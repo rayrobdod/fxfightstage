@@ -24,6 +24,8 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
@@ -35,6 +37,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -95,7 +98,8 @@ public final class HealCoil implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Timeline effectTimeline = new Timeline();
 		
@@ -113,8 +117,13 @@ public final class HealCoil implements SpellAnimationGroup {
 		
 		return new SequentialTransition(
 			panAnimation,
-			effectTimeline,
-			hpAndShakeAnimation
+			new ParallelTransition(
+				effectTimeline,
+				new SequentialTransition(
+					new PauseTransition(timePerTick.multiply(particlesPerRevolution * 2)),
+					hitAnimation
+				)
+			)
 		);
 	}
 	

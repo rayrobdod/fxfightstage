@@ -37,6 +37,7 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.spellAnimationGroup.WritableObservableListWrapper;
 
 /**
@@ -93,7 +94,8 @@ public final class FadeElectricAnimationFactory implements ElectricAnimationFact
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final List<Double> coords = points2coordinates(lineGenerator.build(origin, target));
 		
@@ -124,7 +126,10 @@ public final class FadeElectricAnimationFactory implements ElectricAnimationFact
 			timeline,
 			new SequentialTransition(
 				new PauseTransition(explodeStartTime),
-				hpAndShakeAnimation
+				new ParallelTransition(
+					shakeAnimation.apply(),
+					hitAnimation
+				)
 			)
 		);
 	}

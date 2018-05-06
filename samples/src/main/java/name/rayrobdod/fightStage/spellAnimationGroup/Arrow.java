@@ -31,6 +31,7 @@ import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -100,7 +101,8 @@ public final class Arrow implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final double originX = origin.getX();
 		final double originY = origin.getY();
@@ -137,7 +139,8 @@ public final class Arrow implements SpellAnimationGroup {
 				origin,
 				target,
 				Animations.nil(),
-				hpAndShakeAnimation
+				shakeAnimation,
+				hitAnimation
 			)
 		);
 	}

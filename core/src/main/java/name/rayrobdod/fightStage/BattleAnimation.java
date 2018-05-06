@@ -35,6 +35,7 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -172,7 +173,6 @@ public final class BattleAnimation {
 		////////// The animation construction
 		
 		final ArrayList<Animation> animationParts = new ArrayList<>(strikes.size());
-		final Animation shakeAnimation = shakeAnimation(4, screenShakeTranslate);
 		
 		// place the units at their starting location
 		final Point2D initialUnitOffset = new Point2D(
@@ -289,9 +289,9 @@ public final class BattleAnimation {
 							attackerPan,
 							defenderPan
 						),
+						new ShakeAnimationFactory(screenShakeTranslate),
 						new ParallelTransition(
-							  shakeAnimation
-							, hitAnimation
+							  hitAnimation
 							, defenderModifierInAnims
 							, leftHealthbarAnimation
 							, rightHealthbarAnimation
@@ -361,28 +361,64 @@ public final class BattleAnimation {
 		return Animations.integerSimpleAnimation(time, hb.currentHealthProperty(), from, to);
 	}
 	
-	private static Animation shakeAnimation(int strength, Translate translate) {
-		final Duration time = Duration.millis(40);
+	private static final class ShakeAnimationFactory implements ShakeAnimationBiFunction {
+		private static final Duration shakeFrequency = Duration.millis(160);
+		private static final double shakeFullIntensityFraction = 0.5;
 		
-		final Timeline timeline = new Timeline();
-		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(translate.xProperty(), 0, Interpolator.LINEAR),
-			new KeyValue(translate.yProperty(), 0, Interpolator.LINEAR)
-		));
-		timeline.getKeyFrames().add(new KeyFrame(time,
-			new KeyValue(translate.xProperty(), strength, Interpolator.LINEAR),
-			new KeyValue(translate.yProperty(), -strength, Interpolator.LINEAR)
-		));
-		timeline.getKeyFrames().add(new KeyFrame(time.multiply(3),
-			new KeyValue(translate.xProperty(), -strength, Interpolator.LINEAR),
-			new KeyValue(translate.yProperty(), strength, Interpolator.LINEAR)
-		));
-		timeline.getKeyFrames().add(new KeyFrame(time.multiply(4),
-			new KeyValue(translate.xProperty(), 0, Interpolator.LINEAR),
-			new KeyValue(translate.yProperty(), 0, Interpolator.LINEAR)
-		));
+		private final WritableDoubleValue xProperty;
+		private final WritableDoubleValue yProperty;
 		
-		return timeline;
+		private static final double DEFAULT_INTENSITY = 6;
+		private static final Duration DEFAULT_DURATION = shakeFrequency;
+		
+		public ShakeAnimationFactory(
+			  javafx.scene.transform.Translate translate
+		) {
+			this.xProperty = translate.xProperty();
+			this.yProperty = translate.yProperty();
+		}
+		
+		public Animation apply() {
+			return this.apply(DEFAULT_INTENSITY, DEFAULT_DURATION);
+		}
+		
+		public Animation apply(double intensity) {
+			return this.apply(intensity, DEFAULT_DURATION);
+		}
+		
+		public Animation apply(Duration duration) {
+			return this.apply(DEFAULT_INTENSITY, duration);
+		}
+		
+		public Animation apply(double intensity, Duration duration) {
+			final Timeline retval = new Timeline();
+			retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
+				new KeyValue(xProperty, 0, Interpolator.LINEAR),
+				new KeyValue(yProperty, 0, Interpolator.LINEAR)
+			));
+			
+			for (Duration i = shakeFrequency.divide(4); i.lessThan(duration); i = i.add(shakeFrequency)) {
+				final double leftFraction = i.toMillis() / duration.toMillis();
+				final double rightFraction = i.add(shakeFrequency.divide(2)).toMillis() / duration.toMillis();
+				final double leftIntensity = intensity * Math.min(1.0, (1.0 - leftFraction) / shakeFullIntensityFraction);
+				final double rightIntensity = intensity * Math.min(1.0, (1.0 - rightFraction) / shakeFullIntensityFraction);
+				
+				retval.getKeyFrames().add(new KeyFrame(i,
+					new KeyValue(xProperty, leftIntensity, Interpolator.LINEAR),
+					new KeyValue(yProperty, -leftIntensity, Interpolator.LINEAR)
+				));
+				retval.getKeyFrames().add(new KeyFrame(i.add(shakeFrequency.divide(2)),
+					new KeyValue(xProperty, -rightIntensity, Interpolator.LINEAR),
+					new KeyValue(yProperty, rightIntensity, Interpolator.LINEAR)
+				));
+			}
+			retval.getKeyFrames().add(new KeyFrame(duration,
+				new KeyValue(xProperty, 0, Interpolator.LINEAR),
+				new KeyValue(yProperty, 0, Interpolator.LINEAR)
+			));
+			
+			return retval;
+		}
 	}
 	
 	private static final class MagnificationBinding extends DoubleBinding {

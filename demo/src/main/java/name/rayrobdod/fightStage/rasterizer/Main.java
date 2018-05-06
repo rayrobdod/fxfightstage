@@ -19,10 +19,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -47,6 +49,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
@@ -97,8 +100,7 @@ public final class Main extends Application {
 				spell.getForeground().getTransforms().addAll(canvasOffset, scale);
 				spell.getBackground().getTransforms().addAll(canvasOffset, scale);
 				final Node canvas = new Group(forceThingsToStayInPlace, spell.getBackground(), spell.getForeground());
-				final Animation shakeAnim = new javafx.animation.FillTransition(Duration.ZERO, new Rectangle(), Color.RED, Color.GREEN);
-				final Animation anim = spell.getAnimation(origin, target, Animations.nil(), shakeAnim);
+				final Animation anim = spell.getAnimation(origin, target, Animations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
 				
 				anim.setRate(0.001);
 				anim.play();
@@ -167,9 +169,10 @@ public final class Main extends Application {
 							}
 							
 							// find hitFrame
-							Optional<Duration> shakeTime = findInnerStartTime(anim, shakeAnim);
-							String shakeTimeStr = shakeTime.map(x -> (int) (x.toMillis() / frameRate.toMillis())).map(x -> "[" + x.toString() + "]").orElse("TODO");
-							
+							List<FindMockShakeAnimationStartTimesResult> shakeTimes = findMockShakeAnimationStartTimes(anim).collect(Collectors.toList());
+							String hitFramesStr = shakeTimes.stream().map(x -> (int) (x.startTime.toMillis() / frameRate.toMillis())).map(x -> "" + x).collect(Collectors.joining(", ", "[", "]"));
+							String shakeFramesStr = shakeTimes.stream().map(x -> (int) (x.duration.toMillis() / frameRate.toMillis()) * 2 / 3).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
+							String shakeIntensityStr = shakeTimes.stream().map(x -> (int) (x.intensity / 2)).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
 							
 							// Ouptut file to disk
 							final BufferedImage sheetSwing = SwingFXUtils.fromFXImage(sheet, null);
@@ -187,9 +190,9 @@ public final class Main extends Application {
 							System.out.println("\t\"offsetY\": " + (120 - trimmedBounds.y) + ",");
 							System.out.println("\t\"speed\": " + frameRate.toSeconds() + ",");
 							System.out.println("\t\"freeze\": -1" + ",");
-							System.out.println("\t\"hitframes\": " + shakeTimeStr + ",");
-							System.out.println("\t\"shakeFrames\": TODO");
-							System.out.println("\t\"shakeIntensity\": TODO");
+							System.out.println("\t\"hitframes\": " + hitFramesStr + ",");
+							System.out.println("\t\"shakeFrames\": " + shakeFramesStr + ",");
+							System.out.println("\t\"shakeIntensity\": " + shakeIntensityStr + ",");
 							System.out.println("\t\"soundMap\": TODO");
 							System.out.println("}");
 							
@@ -253,29 +256,144 @@ public final class Main extends Application {
 		latch.await();
 	}
 	
-	/** @pre assumes at most one needle per haystack */
-	private static Optional<Duration> findInnerStartTime(Animation haystack, Animation needle) {
-		if (haystack == needle) {
-			return Optional.of(Duration.ZERO);
+	/* * * * * * * * Shake Animation Mocking * * * * * * * * */
+	/**
+	 * Finds the start time and values of any `MockShakeAnimation`s nested inside the haystack
+	 */
+	private static Stream<FindMockShakeAnimationStartTimesResult> findMockShakeAnimationStartTimes(Animation haystack) {
+		if (haystack instanceof MockShakeAnimation) {
+			return Stream.of(new FindMockShakeAnimationStartTimesResult((MockShakeAnimation) haystack));
 		} else if (haystack instanceof SequentialTransition) {
+			final List<FindMockShakeAnimationStartTimesResult> retval = new java.util.ArrayList<>();
 			final List<Animation> childs = ((SequentialTransition) haystack).getChildren();
 			Duration timeSoFar = Duration.ZERO;
 			for (Animation child : childs) {
-				Optional<Duration> innerTime = findInnerStartTime(child, needle);
-				if (innerTime.isPresent()) {
-					final Duration timeSoFar2 = timeSoFar;
-					return innerTime.map(x -> x.add(timeSoFar2));
-				} else {
-					timeSoFar = timeSoFar.add(child.getTotalDuration());
+				List<FindMockShakeAnimationStartTimesResult> innerTimes = findMockShakeAnimationStartTimes(child).collect(Collectors.toList());
+				for (FindMockShakeAnimationStartTimesResult innerTime : innerTimes) {
+					retval.add(innerTime.plusStartTime(timeSoFar));
 				}
+				timeSoFar = timeSoFar.add(child.getTotalDuration());
 			}
-			return Optional.empty();
+			return retval.stream();
 		} else if (haystack instanceof ParallelTransition) {
 			List<Animation> childs = ((ParallelTransition) haystack).getChildren();
-			return childs.stream().flatMap(x -> findInnerStartTime(x, needle).stream()).findFirst();
+			return childs.stream().flatMap(x -> findMockShakeAnimationStartTimes(x));
 		} else {
-			return Optional.empty();
+			return Stream.empty();
 		}
 		
+	}
+	
+	private static class FindMockShakeAnimationStartTimesResult {
+		public final double intensity;
+		public final Duration duration;
+		public final Duration startTime;
+		
+		private FindMockShakeAnimationStartTimesResult(double intensity, Duration duration, Duration startTime) {
+			this.intensity = intensity;
+			this.duration = duration;
+			this.startTime = startTime;
+		}
+		
+		public FindMockShakeAnimationStartTimesResult(MockShakeAnimation anim) {
+			this.intensity = anim.intensity;
+			this.duration = anim.duration;
+			this.startTime = Duration.ZERO;
+		}
+		
+		public FindMockShakeAnimationStartTimesResult plusStartTime(Duration delta) {
+			return new FindMockShakeAnimationStartTimesResult(this.intensity, this.duration, this.startTime.add(delta));
+		}
+	}
+	
+	private static class MockShakeAnimation extends javafx.animation.Transition {
+		public double intensity;
+		public Duration duration;
+		protected void interpolate(double frac) {}
+	}
+	private static class MockShakeAnimationBiFunction implements ShakeAnimationBiFunction {
+		// copied from the equally-private BattleAnimation.ShakeAnimationFactory
+		private static final double DEFAULT_INTENSITY = 6;
+		private static final Duration DEFAULT_DURATION = Duration.millis(160);
+		
+		public Animation apply() { return this.apply(DEFAULT_INTENSITY, DEFAULT_DURATION); }
+		public Animation apply(double intensity) { return this.apply(intensity, DEFAULT_DURATION); }
+		public Animation apply(Duration duration) { return this.apply(DEFAULT_INTENSITY, duration); }
+		
+		public Animation apply(double intensity, Duration duration) {
+			MockShakeAnimation retval = new MockShakeAnimation();
+			retval.intensity = intensity;
+			retval.duration = duration;
+			return retval;
+		}
+	}
+	
+	/* * * * * * * * Value if All Equal * * * * * * * * */
+	private static class ValueIfAllEqualMid<E> {
+		public static enum State { New, AllSame, Difference }
+		
+		public State state;
+		public E value;
+		
+		public ValueIfAllEqualMid() {
+			this.state = State.New;
+			this.value = null;
+		}
+		
+		public void add(E e) {
+			switch (this.state) {
+				case New : {
+					this.state = State.AllSame;
+					this.value = e;
+					break;
+				}
+				case AllSame : {
+					if (java.util.Objects.equals(this.value, e)) {
+						// do nothing
+					} else {
+						this.state = State.Difference;
+					}
+					break;
+				}
+				case Difference : {
+					break;
+				}
+			}
+		}
+		public ValueIfAllEqualMid<E> addAll(ValueIfAllEqualMid<E> rhs) {
+			if (this.state == State.Difference) {
+				return this;
+			} else if (rhs.state == State.Difference) {
+				return rhs;
+			} else if (this.state == State.New) {
+				return rhs;
+			} else if (rhs.state == State.New) {
+				return this;
+			} else {// both are `AllSame`
+				if (java.util.Objects.equals(this.value, rhs.value)) {
+					return this;
+				} else {
+					ValueIfAllEqualMid<E> retval = new ValueIfAllEqualMid<>();
+					retval.state = State.Difference;
+					return retval;
+				}
+			}
+		}
+		public Optional<E> result() {
+			return (this.state == State.AllSame ? Optional.of(value) : Optional.empty());
+		}
+	}
+	
+	/**
+	 * A collector that, if all elements in a stream are equal, returns that value.
+	 */
+	private static final <E> Collector<E, ?, Optional<E>> valueIfAllEqual() {
+		return Collector.<E, ValueIfAllEqualMid<E>, Optional<E>>of(
+			ValueIfAllEqualMid::new,
+			ValueIfAllEqualMid::add,
+			ValueIfAllEqualMid::addAll,
+			ValueIfAllEqualMid::result,
+			Collector.Characteristics.UNORDERED
+		);
 	}
 }

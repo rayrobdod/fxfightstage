@@ -40,6 +40,7 @@ import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -94,7 +95,8 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Random rng = new Random();
 		final Point2D midpoint = origin.midpoint(target);
@@ -125,7 +127,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 				.map(eaf -> eaf.getAnimation(
 					createCloudSparkPoint(rng, origin, midpoint),
 					createCloudSparkPoint(rng, target, midpoint),
-					Animations.nil(), Animations.nil()
+					Animations.nil(), ShakeAnimationBiFunction.nil(), Animations.nil()
 				))
 				.map(anim -> new SequentialTransition(
 					new PauseTransition(Duration.seconds(rng.nextDouble() * 2)),
@@ -137,13 +139,13 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		// `hpAndShakeAnimation` has a "called once and only once" requirement,
 		// and this allows me to put said animation in one place
 		Animation firstEnemySparkAnim = enemySparks.get(0).getAnimation(
-				origin, target, Animations.nil(), hpAndShakeAnimation);
+				origin, target, Animations.nil(), shakeAnimation, hitAnimation);
 		Animation enemySparkAnim = new ParallelTransition(
 			enemySparks.stream()
 				.skip(1)
 				.map(eaf -> eaf.getAnimation(
 					origin, target,
-					Animations.nil(), Animations.nil()
+					Animations.nil(), ShakeAnimationBiFunction.nil(), Animations.nil()
 				))
 				.toArray(Animation[]::new)
 		);
