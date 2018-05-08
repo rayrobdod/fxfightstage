@@ -71,6 +71,7 @@ public final class Main extends Application {
 		final Duration frameRate = Duration.seconds(1 / framesPerSecond);
 		final int bitDepth = Integer.parseInt(this.getParameters().getNamed().getOrDefault("bitDepth", "-1"));
 		final String spellAnim = getParameterValue(this.getParameters(), "spell");
+		final boolean disableSmoothing = this.getParameters().getUnnamed().contains("--no-smooth");
 		
 		if (outputFileStr == null) {
 			System.out.println("No output file: needs `--d=filename.png`");
@@ -99,6 +100,10 @@ public final class Main extends Application {
 				forceThingsToStayInPlace.setStrokeWidth(2);
 				spell.getForeground().getTransforms().addAll(canvasOffset, scale);
 				spell.getBackground().getTransforms().addAll(canvasOffset, scale);
+				if (disableSmoothing) {
+					setSmoothRecursive(spell.getForeground(), false);
+					setSmoothRecursive(spell.getBackground(), false);
+				}
 				final Node canvas = new Group(forceThingsToStayInPlace, spell.getBackground(), spell.getForeground());
 				final Animation anim = spell.getAnimation(origin, target, Animations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
 				
@@ -254,6 +259,22 @@ public final class Main extends Application {
 			Platform.runLater(() -> latch.countDown());
 		});
 		latch.await();
+	}
+	
+	private static void setSmoothRecursive(Node n, boolean newValue) {
+		if (n instanceof javafx.scene.Parent) {
+			((javafx.scene.Parent) n).getChildrenUnmodifiable().forEach(child ->
+				setSmoothRecursive(child, newValue)
+			);
+		} else if (n instanceof javafx.scene.SubScene) {
+			setSmoothRecursive(((javafx.scene.SubScene) n).getRoot(), newValue);
+		} else if (n instanceof javafx.scene.shape.Shape) {
+			// There doesn't seem to be any way to turn off stroke anti-aliasing
+			// The following only affects fills.
+			((javafx.scene.shape.Shape) n).setSmooth(newValue);
+		} else if (n instanceof javafx.scene.image.ImageView) {
+			((javafx.scene.image.ImageView) n).setSmooth(newValue);
+		}
 	}
 	
 	/* * * * * * * * Shake Animation Mocking * * * * * * * * */
