@@ -48,6 +48,7 @@ import org.testfx.matcher.control.ButtonMatchers;
 import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
@@ -216,7 +217,8 @@ public final class MediaControlPanelTest {
 			  Point2D origin
 			, Point2D target
 			, Animation panAnimation
-			, Animation hpAndShakeAnimation
+			, ShakeAnimationBiFunction shakeAnimation
+			, Animation hitAnimation
 		) { return Animations.nil(); }
 	}
 }

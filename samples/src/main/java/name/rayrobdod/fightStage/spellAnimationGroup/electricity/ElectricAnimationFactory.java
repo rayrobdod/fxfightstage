@@ -19,6 +19,8 @@ import javafx.animation.Animation;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
+
 /**
  * Generates an animation that displays the results of a JaggedLineFactory
  * in a Group
@@ -44,6 +46,7 @@ public interface ElectricAnimationFactory {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	);
 }

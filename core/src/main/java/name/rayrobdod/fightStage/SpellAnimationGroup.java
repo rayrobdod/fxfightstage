@@ -51,19 +51,23 @@ public interface SpellAnimationGroup {
 	/**
 	 * Returns an animation to be used for an attack animation
 	 * 
-	 * The returned Animation must include panAnimation exactly once,
-	 * and must include hpAndShakeAnimation exactly once.
+	 * The returned Animation must include `panAnimation` exactly once,
+	 * and must include `hitAnimation` exactly once. It is recommended
+	 * that one `shakeAnimationFactory` application is included in parallel
+	 * with the hitAnimation. If more than one `shakeAnimationFactory`
+	 * application is used, they must not overlap time-wise.
 	 * 
 	 * @param origin the origin point of the spell animation
 	 * @param target the target point of the spell animation
 	 * @param panAnimation the effects that move the camera from the attacker to the target.
-	 * @param hpAndShakeAnimation the effects that happen to indicate a hit.
+	 * @param shakeAnimationFactory A factory of animations that will cause the camera to shake
+	 * @param hitAnimation the effects that happen to indicate a hit.
 	 */
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimationFactory,
+		Animation hitAnimation
 	);
-	
 }

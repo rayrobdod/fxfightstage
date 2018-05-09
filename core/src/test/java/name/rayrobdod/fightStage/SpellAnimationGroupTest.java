@@ -75,6 +75,7 @@ public interface SpellAnimationGroupTest {
 			new Point2D(5, 5),
 			new Point2D(-5, -5),
 			panAnim,
+			ShakeAnimationBiFunction.nil(),
 			new PauseTransition(Duration.millis(50))
 		);
 		Assertions.assertEquals(1, SpellAnimationGroupTest.subAnimCount(dut, panAnim));
@@ -88,6 +89,7 @@ public interface SpellAnimationGroupTest {
 			new Point2D(5, 5),
 			new Point2D(-5, -5),
 			new PauseTransition(Duration.millis(50)),
+			ShakeAnimationBiFunction.nil(),
 			hpShakeAnim
 		);
 		Assertions.assertEquals(1, SpellAnimationGroupTest.subAnimCount(dut, hpShakeAnim));

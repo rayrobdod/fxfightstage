@@ -30,6 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -66,7 +67,8 @@ public final class Dark implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
@@ -94,7 +96,8 @@ public final class Dark implements SpellAnimationGroup {
 			panAnimation,
 			timeline,
 			new ParallelTransition(
-				hpAndShakeAnimation,
+				shakeAnimation.apply(),
+				hitAnimation,
 				new PauseTransition(endDelayTime)
 			)
 		);

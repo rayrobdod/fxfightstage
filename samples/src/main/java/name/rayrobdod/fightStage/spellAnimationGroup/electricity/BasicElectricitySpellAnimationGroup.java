@@ -20,6 +20,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -48,13 +49,15 @@ public final class BasicElectricitySpellAnimationGroup implements SpellAnimation
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		return animGenerator.getAnimation(
 			origin,
 			target,
 			panAnimation,
-			hpAndShakeAnimation
+			shakeAnimation,
+			hitAnimation
 		);
 	}
 }

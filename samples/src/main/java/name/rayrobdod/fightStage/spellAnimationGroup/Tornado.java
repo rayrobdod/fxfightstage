@@ -41,6 +41,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -139,7 +140,8 @@ public final class Tornado implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final PerlinNoise noise = new PerlinNoise(new Random());
 		final Timeline effectTimeline = new Timeline();
@@ -162,8 +164,11 @@ public final class Tornado implements SpellAnimationGroup {
 			panAnimation,
 			effectTimeline,
 			new SequentialTransition(
-				new PauseTransition(particleGenerationTime.divide(2)),
-				hpAndShakeAnimation
+				new PauseTransition(particleGenerationTime.divide(4)),
+				new ParallelTransition(
+					shakeAnimation.apply(4, particleGenerationTime),
+					hitAnimation
+				)
 			)
 		);
 	}

@@ -46,6 +46,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -116,7 +117,8 @@ public final class MultiSparkle implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		List<Stream<KeyFrame>> frames = new ArrayList<>();
 		
@@ -150,8 +152,19 @@ public final class MultiSparkle implements SpellAnimationGroup {
 					frames.stream().flatMap(x -> x).toArray(KeyFrame[]::new)
 				),
 				new SequentialTransition(
-					new PauseTransition(sequenceDelay.multiply(shapeColors.size() - 1).add(sparkleDuration.divide(2))),
-					hpAndShakeAnimation
+					new PauseTransition(sparkleDuration.divide(2).add(sequenceDelay.multiply(0))),
+					shakeAnimation.apply()
+				),
+				new SequentialTransition(
+					new PauseTransition(sparkleDuration.divide(2).add(sequenceDelay.multiply(1))),
+					new ParallelTransition(
+						hitAnimation,
+						shakeAnimation.apply()
+					)
+				),
+				new SequentialTransition(
+					new PauseTransition(sparkleDuration.divide(2).add(sequenceDelay.multiply(2))),
+					shakeAnimation.apply()
 				)
 			)
 		);

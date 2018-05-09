@@ -32,6 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -81,7 +82,8 @@ public final class SkyBeam implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Timeline prepareAnimation = new Timeline();
 		prepareAnimation.getKeyFrames().add(new KeyFrame(Duration.ZERO,
@@ -126,7 +128,8 @@ public final class SkyBeam implements SpellAnimationGroup {
 				)
 			),
 			new ParallelTransition(
-				hpAndShakeAnimation,
+				shakeAnimation.apply(4, attackAnimation.getTotalDuration()),
+				hitAnimation,
 				attackAnimation
 			)
 		);

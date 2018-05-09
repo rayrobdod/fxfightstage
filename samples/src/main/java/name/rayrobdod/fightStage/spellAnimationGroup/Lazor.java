@@ -32,6 +32,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
@@ -69,7 +70,8 @@ public final class Lazor implements SpellAnimationGroup {
 		Point2D origin,
 		Point2D target,
 		Animation panAnimation,
-		Animation hpAndShakeAnimation
+		ShakeAnimationBiFunction shakeAnimation,
+		Animation hitAnimation
 	) {
 		final Point2D deltaDirection = origin.subtract(target).normalize();
 		final Point2D crossSectionVector = new Point2D(-deltaDirection.getY(), deltaDirection.getX()).multiply(crossSectionWidth / 2);
@@ -110,7 +112,10 @@ public final class Lazor implements SpellAnimationGroup {
 			spellAnimation,
 			new SequentialTransition(
 				new PauseTransition(duration),
-				hpAndShakeAnimation
+				new ParallelTransition(
+					shakeAnimation.apply(4, followerDelay),
+					hitAnimation
+				)
 			)
 		);
 	}
