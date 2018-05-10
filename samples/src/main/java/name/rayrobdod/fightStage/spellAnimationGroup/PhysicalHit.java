@@ -93,8 +93,8 @@ public final class PhysicalHit implements SpellAnimationGroup {
 			, new FillTransition(animDuration, emanations[2], emanationColor, Color.TRANSPARENT)
 			, new FillTransition(animDuration, emanations[3], emanationColor, Color.TRANSPARENT)
 			, new FlarePaintTransition(animDuration.divide(3), target)
-			, Animations.simpleAnimation(animDuration, flare.centerXProperty(), target.getX(), target.getX())
-			, Animations.simpleAnimation(animDuration, flare.centerYProperty(), target.getY(), target.getY())
+			, Animations.setAnimation(flare.centerXProperty(), target.getX())
+			, Animations.setAnimation(flare.centerYProperty(), target.getY())
 			, panAnimation
 			, shakeAnimation.apply()
 			, hitAnimation
