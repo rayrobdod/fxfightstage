@@ -270,7 +270,7 @@ public final class BattleAnimation {
 				, isFinisher
 			);
 			animationParts.add(
-				Animations.doubleSimpleAnimation(
+				Animations.simpleAnimation(
 					Duration.millis(Math.abs(currentPan - attackerPan)),
 					panTranslate.xProperty(),
 					currentPan,
@@ -283,7 +283,7 @@ public final class BattleAnimation {
 					(origin) -> attacker.spell.getAnimation(
 						origin,
 						target,
-						Animations.doubleSimpleAnimation(
+						Animations.simpleAnimation(
 							Duration.millis(Math.abs(defenderPan - attackerPan)),
 							panTranslate.xProperty(),
 							attackerPan,
@@ -358,7 +358,7 @@ public final class BattleAnimation {
 		final Duration timePerTick = Duration.millis(50);
 		final Duration time = timePerTick.multiply(Math.abs(to - from));
 		
-		return Animations.integerSimpleAnimation(time, hb.currentHealthProperty(), from, to);
+		return Animations.simpleAnimation(time, hb.currentHealthProperty(), from, to);
 	}
 	
 	private static final class ShakeAnimationFactory implements ShakeAnimationBiFunction {
@@ -472,8 +472,8 @@ public final class BattleAnimation {
 		n.setEffect(toWhiteEffect);
 		
 		return new SequentialTransition(
-			  Animations.doubleSimpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
-			, Animations.doubleSimpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
+			  Animations.simpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
+			, Animations.simpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
 		);
 	}
 	

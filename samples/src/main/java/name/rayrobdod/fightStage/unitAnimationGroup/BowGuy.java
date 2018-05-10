@@ -167,7 +167,7 @@ public final class BowGuy implements UnitAnimationGroup {
 		, boolean isFinisher
 	) {
 		if (isFinisher) {
-			return Animations.doubleSimpleAnimation(
+			return Animations.simpleAnimation(
 				Duration.millis(250),
 				deathRotateProp,
 				0,

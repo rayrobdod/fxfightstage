@@ -129,12 +129,12 @@ public final class Arrow implements SpellAnimationGroup {
 		
 		
 		return new SequentialTransition(
-			Animations.booleanSetAnimation(this.arrow.visibleProperty(), true),
+			Animations.setAnimation(this.arrow.visibleProperty(), true),
 			new ParallelTransition(
 				arrowAnimation,
 				panAnimation
 			),
-			Animations.booleanSetAnimation(this.arrow.visibleProperty(), false),
+			Animations.setAnimation(this.arrow.visibleProperty(), false),
 			physicalHit.getAnimation(
 				origin,
 				target,

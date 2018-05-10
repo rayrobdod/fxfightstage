@@ -21,9 +21,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.value.WritableValue;
 import javafx.util.Duration;
 
 /**
@@ -43,65 +41,39 @@ public final class Animations {
 	}
 	
 	/**
-	 * A transition that changes the value of the specified property to the
+	 * An animation that changes the value of the specified property to the
 	 * specified value in the shortest amount of time.
 	 */
-	public static Animation booleanSetAnimation(BooleanProperty property, boolean to) {
-		final Timeline retval = new Timeline();
-		retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(property, !to, Interpolator.DISCRETE)
-		));
-		retval.getKeyFrames().add(new KeyFrame(Duration.ONE,
-			new KeyValue(property, to, Interpolator.DISCRETE)
-		));
+	public static <T> Animation setAnimation(WritableValue<T> property, T to) {
+		final Timeline retval = new Timeline(
+			new KeyFrame(Duration.ONE,
+				new KeyValue(property, to, Interpolator.DISCRETE)
+			)
+		);
 		return retval;
 	}
 	
 	/**
 	 * An animation that changes the value of the specified property between the specified values.
 	 */
-	public static Animation doubleSimpleAnimation(
+	public static <T> Animation simpleAnimation(
 		Duration duration,
-		DoubleProperty property,
-		double fromValue,
-		double toValue
+		WritableValue<T> property,
+		T fromValue,
+		T toValue
 	) {
-		if (fromValue != toValue) {
-			final Timeline retval = new Timeline();
-			retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-				new KeyValue(property, fromValue, Interpolator.DISCRETE)
-			));
-			retval.getKeyFrames().add(new KeyFrame(duration,
-				new KeyValue(property, toValue, Interpolator.LINEAR)
-			));
+		if (! fromValue.equals(toValue)) {
+			final Timeline retval = new Timeline(
+				new KeyFrame(Duration.ZERO,
+					new KeyValue(property, fromValue, Interpolator.DISCRETE)
+				),
+				new KeyFrame(duration,
+					new KeyValue(property, toValue, Interpolator.LINEAR)
+				)
+			);
 			return retval;
 		} else {
-			// Timeline does not like when a value doesn't change over the Timeline's duration
-			// Using a timeline in that case will break things; this isn't due to an optimization attempt
-			return new PauseTransition(duration);
-		}
-	}
-	
-	/**
-	 * An animation that changes the value of the specified property between the specified values.
-	 */
-	public static Animation integerSimpleAnimation(
-		Duration duration,
-		IntegerProperty property,
-		int fromValue,
-		int toValue
-	) {
-		if (fromValue != toValue) {
-			final Timeline retval = new Timeline();
-			retval.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-				new KeyValue(property, fromValue, Interpolator.DISCRETE)
-			));
-			retval.getKeyFrames().add(new KeyFrame(duration,
-				new KeyValue(property, toValue, Interpolator.LINEAR)
-			));
-			return retval;
-		} else {
-			// Timeline does not like when a value doesn't change over the Timeline's duration
+			// Timeline does not like when no values change over the Timeline's duration
 			// Using a timeline in that case will break things; this isn't due to an optimization attempt
 			return new PauseTransition(duration);
 		}
