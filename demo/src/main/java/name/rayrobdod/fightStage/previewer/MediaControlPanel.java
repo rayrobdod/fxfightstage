@@ -407,13 +407,10 @@ final class MediaControlPanel {
 									// by letting the node render at an arbitrary time
 									// use that size in the SnapshotParameters to ensure that every frame has the same dimensions
 									// the 1-pixel trim in the viewport is to exclude a one-pixel transparent border that seems to be included otherwise
-								final CountDownLatch latch3 = new CountDownLatch(1);
-								Platform.runLater(() -> {
-									animationProperty.get().jumpTo(Duration.ZERO);
-									Platform.runLater(() -> latch3.countDown());
-								});
 								try {
-									latch3.await();
+									runLaterAndAwait(() -> {
+										animationProperty.get().jumpTo(Duration.ZERO);
+									});
 								} catch (InterruptedException ex) {
 									imageioWriteException[0] = ex;
 								}
@@ -431,38 +428,31 @@ final class MediaControlPanel {
 										break;
 									}
 									
-									final CountDownLatch latch1 = new CountDownLatch(1);
-									Platform.runLater(() -> {
-										final Duration jumpToDur = frameRate.multiply(i2);
-										animationProperty.get().jumpTo(jumpToDur);
-										Platform.runLater(() -> latch1.countDown());
-									});
 									try {
-										latch1.await();
+										runLaterAndAwait(() -> {
+											final Duration jumpToDur = frameRate.multiply(i2);
+											animationProperty.get().jumpTo(jumpToDur);
+										});
 									} catch (InterruptedException ex) {
 										imageioWriteException[0] = ex;
 										break;
 									}
 									
-									final CountDownLatch latch2 = new CountDownLatch(1);
-									Platform.runLater(() -> {
-										try {
-											final SnapshotParameters parameters = new SnapshotParameters();
-											parameters.setFill(Color.TRANSPARENT);
-											parameters.setViewport(bounds2);
-											final WritableImage snapshot = snapNode.snapshot(parameters, null);
-											final BufferedImage snapshotSwing = SwingFXUtils.fromFXImage(snapshot, null);
-											final File snapshotFile = new File(recordDir, String.format("%04d", i2) + ".png");
-											
-											ImageIO.write(snapshotSwing, "png", snapshotFile);
-										} catch (IOException ex) {
-											imageioWriteException[0] = ex;
-										} finally {
-											latch2.countDown();
-										}
-									});
 									try {
-										latch2.await();
+										runLaterAndAwait(() -> {
+											try {
+												final SnapshotParameters parameters = new SnapshotParameters();
+												parameters.setFill(Color.TRANSPARENT);
+												parameters.setViewport(bounds2);
+												final WritableImage snapshot = snapNode.snapshot(parameters, null);
+												final BufferedImage snapshotSwing = SwingFXUtils.fromFXImage(snapshot, null);
+												final File snapshotFile = new File(recordDir, String.format("%04d", i2) + ".png");
+												
+												ImageIO.write(snapshotSwing, "png", snapshotFile);
+											} catch (IOException ex) {
+												imageioWriteException[0] = ex;
+											}
+										});
 									} catch (InterruptedException ex) {
 										imageioWriteException[0] = ex;
 										break;
@@ -499,6 +489,21 @@ final class MediaControlPanel {
 		final Node animNode = (gamePaneChilds.size() >= 1 ? gamePaneChilds.get(gamePaneChilds.size() - 1) : new Text("placeholder"));
 		
 		return animNode;
+	}
+	
+	/**
+	 * Runs the given action on the JavaFX thread, and waits for it to be called
+	 * and any subsequent rendering events to occur before returning control to the caller.
+	 *
+	 * MUST NOT be called on the JavaFX application thread
+	 */
+	private static void runLaterAndAwait(Runnable action) throws InterruptedException {
+		final CountDownLatch latch = new CountDownLatch(1);
+		Platform.runLater(() -> {
+			action.run();
+			Platform.runLater(() -> latch.countDown());
+		});
+		latch.await();
 	}
 	
 	/** The default string sort, except that "png" compares less than all other strings */
