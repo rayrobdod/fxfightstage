@@ -1,5 +1,8 @@
 version: 'alpha-{build}'
 os: Windows Server 2012
+install:
+  - cmd: choco install ffmpeg
+  - cmd: refreshenv
 cache:
    - '%USERPROFILE%\.gradle\caches\'
    - '%USERPROFILE%\.gradle\wrapper\'

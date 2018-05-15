@@ -240,7 +240,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		}
 		
 		beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-			soundEffectEventHandler("name/rayrobdod/fightStage/sounds/swing.wav")
+			soundEffectEventHandler("name/rayrobdod/fightStage/sounds/swing.m4a")
 		));
 		thisTime = thisTime.add(Duration.millis(100));
 		beforeSpellAnimation.getKeyFrames().add(

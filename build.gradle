@@ -18,6 +18,38 @@ def expandZips(FileCollection inputs) {
 	return retval;
 }
 
+/**
+ * A task that converts media files of one file format to a different file format
+ */
+class CompressSounds extends DefaultTask {
+	@Input def String extension = "m4a"
+	@Input def File runner = new File("C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe");
+	@InputDirectory def File inputDir = new File(project.projectDir, "src/main/sounds");
+	@OutputDirectory def File outputDir = new File(new File(project.buildDir, "tmp"), "compressSounds")
+	
+	def File target(File source) {
+		def changeRelative = inputDir.toPath().relativize(source.toPath()).toString()
+		def targetRelative = "${changeRelative.split("\\.")[0]}.${extension}"
+		return new File(outputDir, targetRelative)
+	}
+	
+	@TaskAction
+	def apply(IncrementalTaskInputs changes) {
+		if (!changes.incremental) {
+			project.delete(outputDir.listFiles())
+		}
+		changes.outOfDate {change ->
+			def targetFile = target(change.file)
+			targetFile.parentFile.mkdirs()
+			new java.lang.ProcessBuilder(runner.toString(), "-i", change.file.toString(), targetFile.toString()).start().waitFor()
+		}
+		changes.removed {change ->
+			def targetFile = target(change.file)
+			targetFile.delete()
+		}
+	}
+}
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'maven'
@@ -180,6 +212,13 @@ project(":samples") {
 		compile project(":core")
 		compile project(":demo")
 		testCompile project(":core").sourceSets.test.output
+	}
+	
+	task compressSounds(type: CompressSounds)
+	sourceSets.main.resources {
+		// srcDir compressSounds.outputDir, builtBy: compressSounds
+		srcDir compressSounds.outputDir
+		project.tasks.processResources.dependsOn project.tasks.compressSounds
 	}
 	
 	jar.manifest.attributes (
