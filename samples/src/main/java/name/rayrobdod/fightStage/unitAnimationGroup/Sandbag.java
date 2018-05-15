@@ -46,6 +46,10 @@ import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 
+/**
+ * A UnitAnimationGroup that has a trivial attack animation but a hit animation
+ * that includes knockback and a special animation for running out of health
+ */
 public final class Sandbag implements UnitAnimationGroup {
 	
 	private final Group node;
@@ -141,7 +145,7 @@ public final class Sandbag implements UnitAnimationGroup {
 	@Override
 	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
 		return new Point2D(
-			rolloverKeyValues.get(moveXProp) - rolloverKeyValues.get(scaleXProp) * this.width / 2,
+			rolloverKeyValues.get(moveXProp),
 			rolloverKeyValues.get(moveYProp) - this.height / 2
 		);
 	}
@@ -153,7 +157,7 @@ public final class Sandbag implements UnitAnimationGroup {
 	
 	private Point2D getSpellOrigin(Map<DoubleProperty, Double> rolloverKeyValues) {
 		return new Point2D(
-			rolloverKeyValues.get(moveXProp) - rolloverKeyValues.get(scaleXProp) * this.width / 2,
+			rolloverKeyValues.get(moveXProp),
 			rolloverKeyValues.get(moveYProp) - this.height * 1.5
 		);
 	}
