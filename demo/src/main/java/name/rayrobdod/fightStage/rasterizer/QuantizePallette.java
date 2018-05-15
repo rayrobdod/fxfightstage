@@ -43,7 +43,7 @@ final class QuantizePallette {
 	}
 	
 	// median-cut
-	private static Stream<Color> apply(List<Color> colors, int bisectionsRemaining) {
+	static Stream<Color> apply(List<Color> colors, int bisectionsRemaining) {
 		if (0 == bisectionsRemaining) {
 			Color averageColor = colors.stream().collect(Collector.of(
 				() -> new AveragingColor(),
@@ -149,6 +149,12 @@ final class QuantizePallette {
 			retval.a = this.a + rhs.a;
 			return retval;
 		}
-		public Color result() {return Color.color(r / count, g / count, b / count, a / count);}
+		public Color result() {
+			if (count == 0) {
+				return Color.TRANSPARENT;
+			} else {
+				return Color.color(r / count, g / count, b / count, a / count);
+			}
+		}
 	}
 }

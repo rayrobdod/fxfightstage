@@ -69,7 +69,7 @@ final class QuantizingPixelReader implements PixelReader {
 		}
 	}
 	
-	public static Comparator<Integer> argbDistanceComparator(int distanceTo) {
+	private static Comparator<Integer> argbDistanceComparator(int distanceTo) {
 		return Comparator.comparingDouble(subject -> distanceSquaredArgb(subject, distanceTo));
 	}
 	
