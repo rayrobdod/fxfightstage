@@ -30,8 +30,8 @@ final class QuantizePallette {
 	
 	public static Set<Color> apply(Image image, int bisectionsRemaining) {
 		List<Color> imageColors =
-			Stream.iterate(0, x -> x < (int) image.getWidth(), x -> x + 1).flatMap(i ->
-				Stream.iterate(0, x -> x < (int) image.getHeight(), x -> x + 1).map(j ->
+			Stream.iterate(0, x -> x + 1).limit((int) image.getWidth()).flatMap(i ->
+				Stream.iterate(0, x -> x + 1).limit((int) image.getHeight()).map(j ->
 					image.getPixelReader().getColor(i, j)
 				)
 			)
