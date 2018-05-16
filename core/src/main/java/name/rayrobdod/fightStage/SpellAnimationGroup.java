@@ -66,7 +66,7 @@ public interface SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimations,
 		ShakeAnimationBiFunction shakeAnimationFactory,
 		Animation hitAnimation
 	);

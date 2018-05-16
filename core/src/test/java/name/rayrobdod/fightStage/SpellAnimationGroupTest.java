@@ -21,13 +21,13 @@ import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 
 public interface SpellAnimationGroupTest {
 	
@@ -67,19 +67,9 @@ public interface SpellAnimationGroupTest {
 		Assertions.assertNotSame(n1, n2);
 	}
 	
-	@Test
-	default void getAnimation_containsPanOnce() {
-		SpellAnimationGroup v = this.getInstance();
-		Animation panAnim = new PauseTransition(Duration.millis(100));
-		Animation dut = v.getAnimation(
-			new Point2D(5, 5),
-			new Point2D(-5, -5),
-			panAnim,
-			ShakeAnimationBiFunction.nil(),
-			new PauseTransition(Duration.millis(50))
-		);
-		Assertions.assertEquals(1, SpellAnimationGroupTest.subAnimCount(dut, panAnim));
-	}
+	// @Test
+	// default void getAnimation_panAnimation????() {
+	// }
 	
 	@Test
 	default void getAnimation_containsHpShakeOnce() {
@@ -88,7 +78,7 @@ public interface SpellAnimationGroupTest {
 		Animation dut = v.getAnimation(
 			new Point2D(5, 5),
 			new Point2D(-5, -5),
-			new PauseTransition(Duration.millis(50)),
+			new BattlePanAnimations(new WritableDoubleValueSink(), new WritableDoubleValueSink(), 0, 0),
 			ShakeAnimationBiFunction.nil(),
 			hpShakeAnim
 		);
@@ -108,6 +98,14 @@ public interface SpellAnimationGroupTest {
 		} else {
 			return 0;
 		}
+	}
+	
+	public static final class WritableDoubleValueSink implements WritableDoubleValue {
+		private double backing;
+		@Override public double get() {return backing;}
+		@Override public void set(double v) {this.backing = v;}
+		@Override public void setValue(Number v) {this.set(v.doubleValue());}
+		@Override public Number getValue() {return this.get();}
 	}
 
 }

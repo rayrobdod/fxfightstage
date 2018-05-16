@@ -34,6 +34,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.QuadCurveTo;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
@@ -109,7 +110,7 @@ public final class CrescentWind implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
@@ -158,7 +159,7 @@ public final class CrescentWind implements SpellAnimationGroup {
 			spellAnimation,
 			new SequentialTransition(
 				new PauseTransition(windupDuration.add(panDuration)),
-				panAnimation
+				panAnimation.panToDefender()
 			),
 			new SequentialTransition(
 				new PauseTransition(windupDuration.add(hitDuration)),

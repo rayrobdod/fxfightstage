@@ -39,6 +39,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 
 import name.rayrobdod.fightStage.Animations;
 import name.rayrobdod.fightStage.AttackModifier;
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.Side;
@@ -127,7 +128,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 		public Animation getAnimation(
 			  Point2D origin
 			, Point2D target
-			, Animation panAnimation
+			, BattlePanAnimations panAnimation
 			, ShakeAnimationBiFunction shakeAnimation
 			, Animation hitAnimation
 		) { return Animations.nil(); }

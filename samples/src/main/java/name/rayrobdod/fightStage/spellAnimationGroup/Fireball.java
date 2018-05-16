@@ -34,11 +34,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * Doesn't really demonstrate anything, but: particle effects yay?
+ * A slow projectile
+ * Demonstrates: Particle effects and a custom pan-to-defender time 
  */
 public final class Fireball implements SpellAnimationGroup {
 	
@@ -79,7 +81,7 @@ public final class Fireball implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
@@ -108,10 +110,7 @@ public final class Fireball implements SpellAnimationGroup {
 		
 		return new ParallelTransition(
 			effectTimeline,
-			new SequentialTransition(
-				new PauseTransition(shakeTime.divide(2)),
-				panAnimation
-			),
+			panAnimation.panToDefender(shakeTime),
 			new SequentialTransition(
 				new PauseTransition(shakeTime),
 				new ParallelTransition(

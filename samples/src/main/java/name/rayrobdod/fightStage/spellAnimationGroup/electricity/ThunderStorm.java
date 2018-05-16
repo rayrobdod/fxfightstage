@@ -40,6 +40,7 @@ import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
@@ -47,8 +48,9 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
  * Combines a set of ElectricAnimations with a few other things to create a cohesive SpellAnimation
  */
 public final class ThunderStorm implements SpellAnimationGroup {
-	private static final int cloudSparkCount = 6;
+	private static final int cloudSparkCount = 12;
 	private static final int enemySparkCount = 4;
+	private static final double skyPanDistance = 200;
 	
 	private final Group background;
 	private final Group foreground;
@@ -94,7 +96,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
@@ -127,10 +129,12 @@ public final class ThunderStorm implements SpellAnimationGroup {
 				.map(eaf -> eaf.getAnimation(
 					createCloudSparkPoint(rng, origin, midpoint),
 					createCloudSparkPoint(rng, target, midpoint),
-					Animations.nil(), ShakeAnimationBiFunction.nil(), Animations.nil()
+					BattlePanAnimations.nil(),
+					ShakeAnimationBiFunction.nil(),
+					Animations.nil()
 				))
 				.map(anim -> new SequentialTransition(
-					new PauseTransition(Duration.seconds(rng.nextDouble() * 2)),
+					new PauseTransition(Duration.seconds(rng.nextDouble() * 2.5)),
 					anim
 				))
 				.toArray(Animation[]::new)
@@ -139,13 +143,15 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		// `hpAndShakeAnimation` has a "called once and only once" requirement,
 		// and this allows me to put said animation in one place
 		Animation firstEnemySparkAnim = enemySparks.get(0).getAnimation(
-				origin, target, Animations.nil(), shakeAnimation, hitAnimation);
+				origin, target, BattlePanAnimations.nil(), shakeAnimation, hitAnimation);
 		Animation enemySparkAnim = new ParallelTransition(
 			enemySparks.stream()
 				.skip(1)
 				.map(eaf -> eaf.getAnimation(
 					origin, target,
-					Animations.nil(), ShakeAnimationBiFunction.nil(), Animations.nil()
+					BattlePanAnimations.nil(),
+					ShakeAnimationBiFunction.nil(),
+					Animations.nil()
 				))
 				.toArray(Animation[]::new)
 		);
@@ -158,12 +164,13 @@ public final class ThunderStorm implements SpellAnimationGroup {
 					cloudSparkAnim
 				),
 				new SequentialTransition(
-					new PauseTransition(cloudInAnimation.getCycleDuration().divide(2).add(cloudSparkAnim.getCycleDuration().divide(2))),
-					panAnimation
+					panAnimation.panToAttackerRelative(0, skyPanDistance, cloudInAnimation.getCycleDuration()),
+					panAnimation.panToDefenderRelative(0, skyPanDistance, cloudSparkAnim.getCycleDuration())
 				)
 			),
-			new PauseTransition(Duration.millis(150)),
+			new PauseTransition(Duration.millis(50)),
 			new ParallelTransition(
+				panAnimation.panToDefender(),
 				firstEnemySparkAnim,
 				enemySparkAnim
 			),
@@ -177,13 +184,13 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		
 		return new Point2D(
 			midpoint.getX() + dx * (rng.nextDouble() - 0.5),
-			midpoint.getY() - 150 + 50 * rng.nextDouble()
+			midpoint.getY() - 100 - 250 * rng.nextDouble()
 		);
 	}
 	
 	private static Group createClouds(Translate translateLeft, Translate translateRight) {
 		final Random rng = new Random();
-		final int xRange = 500;
+		final int xRange = 800;
 		
 		final List<Circle> circles = new ArrayList<>();
 		for (int y = -150; y > -600; y -= 25) {
