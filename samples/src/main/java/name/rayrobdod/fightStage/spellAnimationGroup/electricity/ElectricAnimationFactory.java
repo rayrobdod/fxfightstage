@@ -19,6 +19,7 @@ import javafx.animation.Animation;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 
 /**
@@ -45,7 +46,7 @@ public interface ElectricAnimationFactory {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	);

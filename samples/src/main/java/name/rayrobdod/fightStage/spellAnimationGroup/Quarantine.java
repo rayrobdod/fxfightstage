@@ -47,6 +47,7 @@ import javafx.scene.shape.Polygon;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
@@ -148,18 +149,18 @@ public final class Quarantine implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
 		final Animation setTargetAnim = setAnimation(this.target, target);
 		final Animation setPolygonAnim = setAnimation(this.fillPoints, polygonPoints(target));
-		final Animation drillFadeInAnim = Animations.doubleSimpleAnimation(this.drillFadeInDur, drillOpacity, 0.0, 1.0);
+		final Animation drillFadeInAnim = Animations.simpleAnimation(this.drillFadeInDur, drillOpacity, 0.0, 1.0);
 		final Animation cutFadeInAnim = setDoubleAnimation(this.cutOpacity, 1.0);
-		final Animation fillFadeInAnim = Animations.doubleSimpleAnimation(this.fillFadeInDur, fillOpacity, 0.0, 1.0);
-		final Animation drillFadeOutAnim = Animations.doubleSimpleAnimation(this.drillFadeOutDur, drillOpacity, 1.0, 0.0);
-		final Animation cutFadeOutAnim = Animations.doubleSimpleAnimation(this.fillFadeOutDur, cutOpacity, 1.0, 0.0);
-		final Animation fillFadeOutAnim = Animations.doubleSimpleAnimation(this.fillFadeOutDur, fillOpacity, 1.0, 0.0);
+		final Animation fillFadeInAnim = Animations.simpleAnimation(this.fillFadeInDur, fillOpacity, 0.0, 1.0);
+		final Animation drillFadeOutAnim = Animations.simpleAnimation(this.drillFadeOutDur, drillOpacity, 1.0, 0.0);
+		final Animation cutFadeOutAnim = Animations.simpleAnimation(this.fillFadeOutDur, cutOpacity, 1.0, 0.0);
+		final Animation fillFadeOutAnim = Animations.simpleAnimation(this.fillFadeOutDur, fillOpacity, 1.0, 0.0);
 		
 		final Timeline cutAnim = new Timeline();
 		for (int i = 0; i < pointCount; i++) {
@@ -180,7 +181,7 @@ public final class Quarantine implements SpellAnimationGroup {
 		}
 		
 		return new SequentialTransition(
-			panAnimation,
+			panAnimation.panToDefender(),
 			setTargetAnim,
 			new ParallelTransition(
 				new SequentialTransition(

@@ -45,6 +45,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
@@ -142,7 +143,7 @@ public final class LightBurst implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
@@ -289,7 +290,7 @@ public final class LightBurst implements SpellAnimationGroup {
 		
 		
 		return new ParallelTransition(
-			panAnimation,
+			panAnimation.panToDefender(),
 			timeline,
 			new SequentialTransition(
 				new PauseTransition(pauseWhiteStartTime.add(pauseWhiteDur.divide(3))),

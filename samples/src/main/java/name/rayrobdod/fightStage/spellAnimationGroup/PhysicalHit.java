@@ -30,6 +30,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
@@ -75,27 +76,27 @@ public final class PhysicalHit implements SpellAnimationGroup {
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
 		return new ParallelTransition(
-			  Animations.doubleSimpleAnimation(animDuration, emanations[0].centerXProperty(), target.getX(), target.getX() + emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[1].centerXProperty(), target.getX(), target.getX() + emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[2].centerXProperty(), target.getX(), target.getX() - emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[3].centerXProperty(), target.getX(), target.getX() - emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[0].centerYProperty(), target.getY(), target.getY() - emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[1].centerYProperty(), target.getY(), target.getY() + emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[2].centerYProperty(), target.getY(), target.getY() + emanationDistance)
-			, Animations.doubleSimpleAnimation(animDuration, emanations[3].centerYProperty(), target.getY(), target.getY() - emanationDistance)
+			  Animations.simpleAnimation(animDuration, emanations[0].centerXProperty(), target.getX(), target.getX() + emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[1].centerXProperty(), target.getX(), target.getX() + emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[2].centerXProperty(), target.getX(), target.getX() - emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[3].centerXProperty(), target.getX(), target.getX() - emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[0].centerYProperty(), target.getY(), target.getY() - emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[1].centerYProperty(), target.getY(), target.getY() + emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[2].centerYProperty(), target.getY(), target.getY() + emanationDistance)
+			, Animations.simpleAnimation(animDuration, emanations[3].centerYProperty(), target.getY(), target.getY() - emanationDistance)
 			, new FillTransition(animDuration, emanations[0], emanationColor, Color.TRANSPARENT)
 			, new FillTransition(animDuration, emanations[1], emanationColor, Color.TRANSPARENT)
 			, new FillTransition(animDuration, emanations[2], emanationColor, Color.TRANSPARENT)
 			, new FillTransition(animDuration, emanations[3], emanationColor, Color.TRANSPARENT)
 			, new FlarePaintTransition(animDuration.divide(3), target)
-			, Animations.doubleSimpleAnimation(animDuration, flare.centerXProperty(), target.getX(), target.getX())
-			, Animations.doubleSimpleAnimation(animDuration, flare.centerYProperty(), target.getY(), target.getY())
-			, panAnimation
+			, Animations.setAnimation(flare.centerXProperty(), target.getX())
+			, Animations.setAnimation(flare.centerYProperty(), target.getY())
+			, panAnimation.panToDefender()
 			, shakeAnimation.apply()
 			, hitAnimation
 		);

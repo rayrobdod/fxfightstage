@@ -65,6 +65,7 @@ subprojects {
 			licenseHeaderFile '../spotless-license-java'
 			endWithNewline()
 			replaceRegex 'one blank line after package line', '(package .+;)\n+import', '$1\n\nimport'
+			replaceRegex 'one blank line after import lists', '(import .+;\n\n)\n+', '$1'
 		}
 	}
 	

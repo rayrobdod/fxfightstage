@@ -68,7 +68,6 @@ public final class BattleAnimation {
 	private static final Duration pauseDuration = Duration.millis(1000);
 	public static final double GROUND_Y = 0;
 	private static final double distanceExtendPastPoint = 150;
-	private static final double distanceWithNoPan = 40;
 	private static final double sideNoteWidth = 120;
 	
 	
@@ -214,8 +213,14 @@ public final class BattleAnimation {
 		// show each attack in sequence
 		int leftCurrentHitpoints = left.initialCurrentHitpoints;
 		int rightCurrentHitpoints = right.initialCurrentHitpoints;
-		double currentPan = 0;
+		BattlePanAnimations currentPan = new BattlePanAnimations(
+			panTranslate.xProperty(),
+			panTranslate.yProperty(),
+			0,
+			0
+		);
 		final double logicalScreenWidth = containerSize.getWidth() / MagnificationBinding.compute(containerSize.getWidth(), containerSize.getHeight());
+		
 		
 		for (int i = 0; i < strikes.size(); i++) {
 			final double currentLeftOffset = left.unit.getCurrentXOffset(leftRolloverValues);
@@ -240,10 +245,10 @@ public final class BattleAnimation {
 			AggregateSideParams defender = (strike.attacker == Side.LEFT ? right : left);
 			final Map<DoubleProperty, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
 			final Map<DoubleProperty, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
-			final double attackerPan2 = (strike.attacker == Side.LEFT ? leftPan : rightPan);
-			final double attackerPan = (Math.abs(attackerPan2 - currentPan) < distanceWithNoPan ? currentPan : attackerPan2);
-			final double defenderPan2 = (strike.attacker == Side.LEFT ? rightPan : leftPan);
-			final double defenderPan = (Math.abs(defenderPan2 - attackerPan) < distanceWithNoPan ? attackerPan : defenderPan2);
+			final double attackerPan = (strike.attacker == Side.LEFT ? leftPan : rightPan);
+			final double defenderPan = (strike.attacker == Side.LEFT ? rightPan : leftPan);
+			currentPan = currentPan.withNewFocusCoords(attackerPan, 0, defenderPan, 0);
+			final BattlePanAnimations currentPanFinal = currentPan;
 			
 			final Animation attackModifierInAnims = HudFlag.seqFadeInAnim(
 				(strike.attacker == Side.LEFT ? leftModifiers : rightModifiers),
@@ -270,12 +275,7 @@ public final class BattleAnimation {
 				, isFinisher
 			);
 			animationParts.add(
-				Animations.doubleSimpleAnimation(
-					Duration.millis(Math.abs(currentPan - attackerPan)),
-					panTranslate.xProperty(),
-					currentPan,
-					attackerPan
-				)
+				currentPan.panToAttacker()
 			);
 			animationParts.add(new ParallelTransition(
 				attackModifierInAnims,
@@ -283,12 +283,7 @@ public final class BattleAnimation {
 					(origin) -> attacker.spell.getAnimation(
 						origin,
 						target,
-						Animations.doubleSimpleAnimation(
-							Duration.millis(Math.abs(defenderPan - attackerPan)),
-							panTranslate.xProperty(),
-							attackerPan,
-							defenderPan
-						),
+						currentPanFinal,
 						new ShakeAnimationFactory(screenShakeTranslate),
 						new ParallelTransition(
 							  hitAnimation
@@ -311,7 +306,6 @@ public final class BattleAnimation {
 			
 			leftCurrentHitpoints = leftNewHp;
 			rightCurrentHitpoints = rightNewHp;
-			currentPan = defenderPan;
 		}
 		
 		// If someone died, fade out the guys who died and make the ones who
@@ -358,7 +352,7 @@ public final class BattleAnimation {
 		final Duration timePerTick = Duration.millis(50);
 		final Duration time = timePerTick.multiply(Math.abs(to - from));
 		
-		return Animations.integerSimpleAnimation(time, hb.currentHealthProperty(), from, to);
+		return Animations.simpleAnimation(time, hb.currentHealthProperty(), from, to);
 	}
 	
 	private static final class ShakeAnimationFactory implements ShakeAnimationBiFunction {
@@ -472,8 +466,8 @@ public final class BattleAnimation {
 		n.setEffect(toWhiteEffect);
 		
 		return new SequentialTransition(
-			  Animations.doubleSimpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
-			, Animations.doubleSimpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
+			  Animations.simpleAnimation(Duration.millis(300), toWhiteEffect.brightnessProperty(), 0, 1)
+			, Animations.simpleAnimation(Duration.millis(200), n.opacityProperty(), 1, 0)
 		);
 	}
 	

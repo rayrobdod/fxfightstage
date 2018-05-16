@@ -42,6 +42,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.spellAnimationGroup.WritableObservableListWrapper;
 
@@ -91,7 +92,7 @@ public final class DissipateElectricAnimationFactory implements ElectricAnimatio
 	public Animation getAnimation(
 		Point2D origin,
 		Point2D target,
-		Animation panAnimation,
+		BattlePanAnimations panAnimation,
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
@@ -173,7 +174,7 @@ public final class DissipateElectricAnimationFactory implements ElectricAnimatio
 		));
 		
 		return new ParallelTransition(
-			panAnimation,
+			panAnimation.panToDefender(),
 			timeline,
 			new SequentialTransition(
 				new PauseTransition(flickerRate.multiply(2)),

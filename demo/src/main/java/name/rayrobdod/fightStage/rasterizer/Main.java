@@ -49,6 +49,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import name.rayrobdod.fightStage.Animations;
+import name.rayrobdod.fightStage.BattlePanAnimations;
 import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
@@ -105,7 +106,7 @@ public final class Main extends Application {
 					setSmoothRecursive(spell.getBackground(), false);
 				}
 				final Node canvas = new Group(forceThingsToStayInPlace, spell.getBackground(), spell.getForeground());
-				final Animation anim = spell.getAnimation(origin, target, Animations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
+				final Animation anim = spell.getAnimation(origin, target, BattlePanAnimations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
 				
 				anim.setRate(0.001);
 				anim.play();
