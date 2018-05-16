@@ -29,12 +29,14 @@ import javafx.scene.Node;
 public interface SpellAnimationGroup {
 	
 	/**
-	 * A Node that contains every visual element that will appear behinds
+	 * A Node that contains every visual element that will appear behind
 	 * the characters from the perspective of the player.
 	 * 
 	 * For any given instance of SpellAnimationGroup, this method must return
 	 * the same object upon each invocation. Different instances of
 	 * SpellAnimationGroup, this function must return different objects.
+	 * 
+	 * @return the nodes that appear behind the characters
 	 */
 	public Node getBackground();
 	
@@ -45,6 +47,8 @@ public interface SpellAnimationGroup {
 	 * For any given instance of SpellAnimationGroup, this method must return
 	 * the same object upon each invocation. Different instances of
 	 * SpellAnimationGroup, this function must return different objects.
+	 * 
+	 * @return the nodes that appear between the characters and the player
 	 */
 	public Node getForeground();
 	
@@ -59,9 +63,10 @@ public interface SpellAnimationGroup {
 	 * 
 	 * @param origin the origin point of the spell animation
 	 * @param target the target point of the spell animation
-	 * @param panAnimation the effects that move the camera from the attacker to the target.
+	 * @param panAnimations a factory of animations that move the viewport
 	 * @param shakeAnimationFactory A factory of animations that will cause the camera to shake
 	 * @param hitAnimation the effects that happen to indicate a hit.
+	 * @return an animation representing this spell
 	 */
 	public Animation getAnimation(
 		Point2D origin,
