@@ -37,6 +37,7 @@ public final class PreviewerSpi implements SpellAnimationGroups {
 			, new NameSupplierPair<>("Dark/Dark", () -> new Dark())
 			, new NameSupplierPair<>("Dark/Nosferatu", () -> new Nosferatu())
 			, new NameSupplierPair<>("Fire/Fireball", () -> new Fireball())
+			, new NameSupplierPair<>("Fire/Meteor", () -> new Meteor())
 			, new NameSupplierPair<>("Electric/Lightning (Fade)", () -> new BasicElectricitySpellAnimationGroup(new SkyBoltPoints(), FadeElectricAnimationFactory::new))
 			, new NameSupplierPair<>("Electric/Lightning (Dissipate)", () -> new BasicElectricitySpellAnimationGroup(new SkyBoltPoints(), DissipateElectricAnimationFactory::new))
 			, new NameSupplierPair<>("Electric/Spark (Fade)", () -> new BasicElectricitySpellAnimationGroup(new ChainPoints(), FadeElectricAnimationFactory::new))
