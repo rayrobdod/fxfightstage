@@ -15,7 +15,6 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -24,7 +23,6 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.SpellAnimationGroupTest;
 
 @ExtendWith(ApplicationExtension.class)
-@Tag("image")
 public class RadialLightningTest implements SpellAnimationGroupTest {
 	public SpellAnimationGroup getInstance() {
 		return new RadialLightning();

@@ -15,7 +15,6 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -24,7 +23,6 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 import name.rayrobdod.fightStage.UnitAnimationGroupTest;
 
 @ExtendWith(ApplicationExtension.class)
-@Tag("image")
 public class MageGuyTest implements UnitAnimationGroupTest {
 	public UnitAnimationGroup getInstance() {
 		return new MageGuy();
