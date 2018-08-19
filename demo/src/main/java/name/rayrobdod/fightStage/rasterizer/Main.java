@@ -99,13 +99,13 @@ public final class Main extends Application {
 				forceThingsToStayInPlace.setFill(Color.TRANSPARENT);
 				forceThingsToStayInPlace.setStroke(Color.BLACK);
 				forceThingsToStayInPlace.setStrokeWidth(2);
-				spell.getForeground().getTransforms().addAll(canvasOffset, scale);
-				spell.getBackground().getTransforms().addAll(canvasOffset, scale);
+				spell.objectFrontLayer().getTransforms().addAll(canvasOffset, scale);
+				spell.objectBehindLayer().getTransforms().addAll(canvasOffset, scale);
 				if (disableSmoothing) {
-					setSmoothRecursive(spell.getForeground(), false);
-					setSmoothRecursive(spell.getBackground(), false);
+					setSmoothRecursive(spell.objectFrontLayer(), false);
+					setSmoothRecursive(spell.objectBehindLayer(), false);
 				}
-				final Node canvas = new Group(forceThingsToStayInPlace, spell.getBackground(), spell.getForeground());
+				final Node canvas = new Group(forceThingsToStayInPlace, spell.objectBehindLayer(), spell.objectFrontLayer());
 				final Animation anim = spell.getAnimation(origin, target, BattlePanAnimations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
 				
 				anim.setRate(0.001);

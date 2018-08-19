@@ -22,7 +22,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -31,7 +30,6 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.matcher.control.LabeledMatchers;
 
 @ExtendWith(ApplicationExtension.class)
-@Tag("image")
 public final class HealthBarTest {
 	
 	@Test

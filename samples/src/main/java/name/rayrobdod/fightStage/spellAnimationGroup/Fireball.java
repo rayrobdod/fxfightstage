@@ -54,13 +54,13 @@ public final class Fireball implements SpellAnimationGroup {
 	);
 	
 	private final Group node;
-	private final Group background;
+	private final Group backLayer;
 	private final Circle[] approachWhiteParticlePool;
 	private final Circle[] approachYellowParticlePool;
 	private final Circle[] approachBlackParticlePool;
 	
 	public Fireball() {
-		this.background = new Group();
+		this.backLayer = new Group();
 		this.node = new Group();
 		
 		this.approachBlackParticlePool = createCircles(approachParticlePoolSize, this.node);
@@ -75,8 +75,8 @@ public final class Fireball implements SpellAnimationGroup {
 				.toArray(Circle[]::new);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.node; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,

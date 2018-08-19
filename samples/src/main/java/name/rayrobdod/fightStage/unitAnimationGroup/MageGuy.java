@@ -67,7 +67,7 @@ public final class MageGuy implements UnitAnimationGroup {
 	
 	private static final Duration frameLength = Duration.seconds(1.0 / 15.0);
 	
-	private final ImageView node;
+	private final ImageView backLayer;
 	private final DoubleProperty scaleXProp;
 	private final DoubleProperty translateXProp;
 	private final DoubleProperty translateYProp;
@@ -85,16 +85,16 @@ public final class MageGuy implements UnitAnimationGroup {
 		deathRotate.setPivotX(20);
 		deathRotate.setPivotY(0);
 		final Image img = new Image(filename);
-		this.node = new ImageView(img);
-		this.node.getTransforms().add(moveTranslate);
-		this.node.getTransforms().add(scale);
-		this.node.getTransforms().add(deathRotate);
-		this.node.getTransforms().add(footPointTranslate);
-		this.node.setViewport(standingViewport);
+		this.backLayer = new ImageView(img);
+		this.backLayer.getTransforms().add(moveTranslate);
+		this.backLayer.getTransforms().add(scale);
+		this.backLayer.getTransforms().add(deathRotate);
+		this.backLayer.getTransforms().add(footPointTranslate);
+		this.backLayer.setViewport(standingViewport);
 	}
 	
 	@Override
-	public Node getNode() { return this.node; }
+	public Node objectBehindLayer() { return this.backLayer; }
 	
 	@Override
 	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
@@ -129,7 +129,7 @@ public final class MageGuy implements UnitAnimationGroup {
 		for (int i = 0; i < beforeSpellViewports.length; i++) {
 			final Duration thisTime = frameLength.multiply(i);
 			beforeSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(node.viewportProperty(), beforeSpellViewports[i], Interpolator.DISCRETE)
+				new KeyValue(backLayer.viewportProperty(), beforeSpellViewports[i], Interpolator.DISCRETE)
 			));
 		}
 		
@@ -137,7 +137,7 @@ public final class MageGuy implements UnitAnimationGroup {
 		for (int i = 0; i < duringSpellViewports.length; i++) {
 			final Duration thisTime = frameLength.multiply(i + 1);
 			duringSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(node.viewportProperty(), duringSpellViewports[i], Interpolator.DISCRETE)
+				new KeyValue(backLayer.viewportProperty(), duringSpellViewports[i], Interpolator.DISCRETE)
 			));
 		}
 		
@@ -145,7 +145,7 @@ public final class MageGuy implements UnitAnimationGroup {
 		for (int i = 0; i < afterSpellViewports.length; i++) {
 			final Duration thisTime = frameLength.multiply(i);
 			afterSpellAnimation.getKeyFrames().add(new KeyFrame(thisTime,
-				new KeyValue(node.viewportProperty(), afterSpellViewports[i], Interpolator.DISCRETE)
+				new KeyValue(backLayer.viewportProperty(), afterSpellViewports[i], Interpolator.DISCRETE)
 			));
 		}
 		

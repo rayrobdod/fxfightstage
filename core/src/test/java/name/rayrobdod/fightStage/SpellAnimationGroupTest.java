@@ -36,34 +36,34 @@ public interface SpellAnimationGroupTest {
 	@Test
 	default void getBackground_isStable() {
 		SpellAnimationGroup v = this.getInstance();
-		Node n1 = v.getBackground();
-		Node n2 = v.getBackground();
+		Node n1 = v.objectBehindLayer();
+		Node n2 = v.objectBehindLayer();
 		Assertions.assertSame(n1, n2);
 	}
 	
 	@Test
 	default void getBackground_notStatic() {
 		SpellAnimationGroup v1 = this.getInstance();
-		Node n1 = v1.getBackground();
+		Node n1 = v1.objectBehindLayer();
 		SpellAnimationGroup v2 = this.getInstance();
-		Node n2 = v2.getBackground();
+		Node n2 = v2.objectBehindLayer();
 		Assertions.assertNotSame(n1, n2);
 	}
 	
 	@Test
 	default void getForeground_isStable() {
 		SpellAnimationGroup v = this.getInstance();
-		Node n1 = v.getForeground();
-		Node n2 = v.getForeground();
+		Node n1 = v.objectFrontLayer();
+		Node n2 = v.objectFrontLayer();
 		Assertions.assertSame(n1, n2);
 	}
 	
 	@Test
 	default void getForeground_notStatic() {
 		SpellAnimationGroup v1 = this.getInstance();
-		Node n1 = v1.getForeground();
+		Node n1 = v1.objectFrontLayer();
 		SpellAnimationGroup v2 = this.getInstance();
-		Node n2 = v2.getForeground();
+		Node n2 = v2.objectFrontLayer();
 		Assertions.assertNotSame(n1, n2);
 	}
 	

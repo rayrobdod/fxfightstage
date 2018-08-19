@@ -130,18 +130,12 @@ subprojects {
 	}
 	
 	test {
-		getInputs().property("enableAllJunitTags", project.hasProperty("enableAllJunitTags"))
-		
 		enableAssertions = true
 		useJUnitPlatform {
-			// the `image` tag refers to tests that require internal fx graphics to be initialized to run
 			// the `robot` tag refers to tests that make use of `org.testfx.api.FxRobot`
-			
-			// Tests with either of these tags will not run in a headless environment
-			if (project.hasProperty("enableAllJunitTags")) {
-				// do nothing
-			} else {
-				excludeTags 'image', 'robot'
+			// This hijacks a user's cursor for the duration of the tests, which may be undesirable
+			if (project.hasProperty("excludeRobotTests")) {
+				excludeTags 'robot'
 			}
 		}
 	}

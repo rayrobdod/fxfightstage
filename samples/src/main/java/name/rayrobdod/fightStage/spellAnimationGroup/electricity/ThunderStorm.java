@@ -52,8 +52,8 @@ public final class ThunderStorm implements SpellAnimationGroup {
 	private static final int enemySparkCount = 4;
 	private static final double skyPanDistance = 200;
 	
-	private final Group background;
-	private final Group foreground;
+	private final Group backLayer;
+	private final Group frontLayer;
 	
 	private final DoubleProperty cloudOpacity;
 	private final DoubleProperty cloudLeftTranslateX;
@@ -71,27 +71,27 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		this.cloudRightTranslateX = cloudRightTranslate.xProperty();
 		this.cloudOpacity.set(0);
 		
-		this.background = new Group(clouds);
-		this.foreground = new Group();
+		this.backLayer = new Group(clouds);
+		this.frontLayer = new Group();
 		
 		final ChainPoints chainPoints = new ChainPoints();
 		final SkyBoltPoints skyBoltPoints = new SkyBoltPoints();
 		this.cloudSparks = Stream
-				.generate(() -> new DissipateElectricAnimationFactory(chainPoints, background))
+				.generate(() -> new DissipateElectricAnimationFactory(chainPoints, backLayer))
 				.limit(cloudSparkCount)
 				.collect(Collectors.toList());
 		this.enemySparks = Stream
 				.generate(() -> Stream.of(
-					new FadeElectricAnimationFactory(skyBoltPoints, foreground),
-					new DissipateElectricAnimationFactory(skyBoltPoints, foreground)
+					new FadeElectricAnimationFactory(skyBoltPoints, frontLayer),
+					new DissipateElectricAnimationFactory(skyBoltPoints, frontLayer)
 				))
 				.flatMap(Function.identity())
 				.limit(enemySparkCount)
 				.collect(Collectors.toList());
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

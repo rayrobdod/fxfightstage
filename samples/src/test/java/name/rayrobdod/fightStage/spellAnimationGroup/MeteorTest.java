@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.unitAnimationGroup;
+package name.rayrobdod.fightStage.spellAnimationGroup;
 
-import org.junit.jupiter.api.extension.ExtendWith;
+import name.rayrobdod.fightStage.SpellAnimationGroup;
+import name.rayrobdod.fightStage.SpellAnimationGroupTest;
 
-import org.testfx.framework.junit5.ApplicationExtension;
-
-import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.UnitAnimationGroupTest;
-
-@ExtendWith(ApplicationExtension.class)
-public class MageGuyTest implements UnitAnimationGroupTest {
-	public UnitAnimationGroup getInstance() {
-		return new MageGuy();
+public class MeteorTest implements SpellAnimationGroupTest {
+	public SpellAnimationGroup getInstance() {
+		return new Meteor();
 	}
 }

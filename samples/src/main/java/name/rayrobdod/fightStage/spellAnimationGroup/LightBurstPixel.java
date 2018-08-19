@@ -17,8 +17,6 @@ package name.rayrobdod.fightStage.spellAnimationGroup;
 
 import static name.rayrobdod.fightStage.BattleAnimation.GROUND_Y;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javafx.animation.Animation;
@@ -32,13 +30,11 @@ import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.DisplacementMap;
-import javafx.scene.effect.FloatMap;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.CubicCurveTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -54,7 +50,7 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
  * 
  * Slightly inspired by FE4's Naga tome's visuals.
  */
-public final class LightBurst implements SpellAnimationGroup {
+public final class LightBurstPixel implements SpellAnimationGroup {
 	
 	private static final Duration fadeToBlackDur = Duration.seconds(1.1);
 	private static final Duration pauseBlackDur = Duration.seconds(0.5);
@@ -64,9 +60,11 @@ public final class LightBurst implements SpellAnimationGroup {
 	private static final Duration pauseWhiteDur = Duration.seconds(0.8); // damage somewhere in here
 	private static final Duration fadeToNormalDur = Duration.seconds(0.5);
 	
-	private static final Duration fadeToBlackStartTime = Duration.ZERO;
-	private static final Duration fadeToBlackEndTime = fadeToBlackStartTime.add(fadeToBlackDur);	private static final Duration pauseToBlackStartTime = fadeToBlackEndTime;
-	private static final Duration pauseToBlackEndTime = pauseToBlackStartTime.add(pauseBlackDur);	private static final Duration fadeToBurstStartTime = pauseToBlackEndTime;
+	private static final Duration fadeToBlackStartTime = Duration.ZERO; 
+	private static final Duration fadeToBlackEndTime = fadeToBlackStartTime.add(fadeToBlackDur); 
+	private static final Duration pauseToBlackStartTime = fadeToBlackEndTime;
+	private static final Duration pauseToBlackEndTime = pauseToBlackStartTime.add(pauseBlackDur); 
+	private static final Duration fadeToBurstStartTime = pauseToBlackEndTime;
 	private static final Duration fadeToBurstEndTime = fadeToBurstStartTime.add(fadeToBurstDur);
 	private static final Duration pauseBurstStartTime = fadeToBurstEndTime;
 	private static final Duration pauseBurstEndTime = pauseBurstStartTime.add(pauseBurstDur);
@@ -78,8 +76,6 @@ public final class LightBurst implements SpellAnimationGroup {
 	private static final Duration fadeToNormalEndTime = pauseWhiteEndTime.add(fadeToNormalDur);
 	
 	private static final int framesPerSecond = 8;
-	private static final int polarTransformPrecision = 100;
-	private static final int gradientPrecision = 100;
 	private static final int backLayerWidth = 500;
 	private static final int backLayerHeight = 500;
 	private static final int explodeSize = 400;
@@ -87,12 +83,9 @@ public final class LightBurst implements SpellAnimationGroup {
 	private static final Duration totalDuration = fadeToNormalEndTime;
 	private static final int gradientFrames = (int) (totalDuration.toSeconds() * framesPerSecond);
 	
-	private final LinearGradient[] horizontalGradients;
-	private final LinearGradient[] verticalGradients;
-	private final Rectangle horizontalGradientRect;
-	private final Rectangle verticalGradientRect;
+	private final Image[] burstFrames;
 	private final Rectangle blackRect;
-	private final Node gradientsGroup;
+	private final ImageView burstView;
 	private final Node backLayer;
 	
 	private final Rectangle whiteRect;
@@ -101,26 +94,15 @@ public final class LightBurst implements SpellAnimationGroup {
 	private final CubicCurveTo explodeShape3;
 	private final Node frontLayer;
 	
-	public LightBurst() {
-		this.horizontalGradients = new LinearGradient[gradientFrames];
-		this.verticalGradients = new LinearGradient[gradientFrames];
-		this.initializeGradients(new Random());
+	public LightBurstPixel() {
+		this.burstFrames = this.makeBurstFrames(new Random());
 		
 		this.blackRect = new Rectangle();
-		this.horizontalGradientRect = new Rectangle();
-		this.verticalGradientRect = new Rectangle();
-		this.verticalGradientRect.setBlendMode(BlendMode.OVERLAY);
-		
-		this.gradientsGroup = new Group(
-			this.horizontalGradientRect,
-			this.verticalGradientRect
-		);
+		this.burstView = new ImageView();
 		this.backLayer = new Group(
 			this.blackRect,
-			this.gradientsGroup
+			this.burstView
 		);
-		this.backLayer.setEffect(polarTransform());
-		
 		
 		this.whiteRect = new Rectangle();
 		this.explodeShape1 = new MoveTo();
@@ -155,21 +137,15 @@ public final class LightBurst implements SpellAnimationGroup {
 			new KeyValue(blackRect.yProperty(), backLayerY, Interpolator.DISCRETE),
 			new KeyValue(blackRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
 			new KeyValue(blackRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
+			new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.LINEAR),
 			new KeyValue(whiteRect.xProperty(), backLayerX, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.yProperty(), backLayerY, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.xProperty(), backLayerX, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.yProperty(), backLayerY, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.xProperty(), backLayerX, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.yProperty(), backLayerY, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
-			new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.DISCRETE),
-			new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.fillProperty(), Color.TRANSPARENT, Interpolator.DISCRETE),
+			new KeyValue(burstView.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(burstView.yProperty(), backLayerY, Interpolator.DISCRETE),
+			new KeyValue(burstView.opacityProperty(), 0.0, Interpolator.LINEAR),
 			new KeyValue(explodeShape1.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
 			new KeyValue(explodeShape2.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
 			new KeyValue(explodeShape3.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
@@ -195,31 +171,25 @@ public final class LightBurst implements SpellAnimationGroup {
 			new KeyValue(whiteRect.yProperty(), backLayerY, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.xProperty(), backLayerX, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.yProperty(), backLayerY, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
-			new KeyValue(horizontalGradientRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.xProperty(), backLayerX, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.yProperty(), backLayerY, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
-			new KeyValue(verticalGradientRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE)
+			new KeyValue(burstView.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(burstView.yProperty(), backLayerY, Interpolator.DISCRETE)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeToBlackEndTime,
 			new KeyValue(blackRect.fillProperty(), Color.BLACK, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeToBurstStartTime.subtract(Duration.ONE),
-			new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.LINEAR)
+			new KeyValue(burstView.opacityProperty(), 0.0, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeToBurstStartTime,
-			new KeyValue(gradientsGroup.opacityProperty(), 1.0, Interpolator.LINEAR)
+			new KeyValue(burstView.opacityProperty(), 1.0, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(pauseBurstEndTime.subtract(Duration.ONE),
 			new KeyValue(blackRect.fillProperty(), Color.BLACK, Interpolator.LINEAR),
-			new KeyValue(gradientsGroup.opacityProperty(), 1.0, Interpolator.LINEAR)
+			new KeyValue(burstView.opacityProperty(), 1.0, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(pauseBurstEndTime,
 			new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.LINEAR),
-			new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.LINEAR)
+			new KeyValue(burstView.opacityProperty(), 0.0, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(explodeStartTime,
 			new KeyValue(explodeShape1.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
@@ -281,8 +251,7 @@ public final class LightBurst implements SpellAnimationGroup {
 		
 		for (int i = 0; i < gradientFrames; i++) {
 			timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(((double) i) / framesPerSecond),
-				new KeyValue(horizontalGradientRect.fillProperty(), horizontalGradients[i], Interpolator.DISCRETE),
-				new KeyValue(verticalGradientRect.fillProperty(), verticalGradients[i], Interpolator.DISCRETE)
+				new KeyValue(burstView.imageProperty(), burstFrames[i], Interpolator.DISCRETE)
 			));
 		}
 		
@@ -301,80 +270,81 @@ public final class LightBurst implements SpellAnimationGroup {
 	}
 	
 	
-	
-	private void initializeGradients(Random rng) {
-		final double fadeToBurstStartTimeSecs = fadeToBurstStartTime.toSeconds();
-		final double fadeToBurstEndTimeSecs = fadeToBurstEndTime.toSeconds();
-		final PerlinNoise horizontalNoise = new PerlinNoise(rng);
-		final PerlinNoise verticalNoise = new PerlinNoise(rng);
+	private final Image[] makeBurstFrames(Random rng) {
+		final PerlinNoise noise = new PerlinNoise(rng);
+		final Image[] retval = new Image[gradientFrames];
 		
 		for (int t = 0; t < gradientFrames; t++) {
 			final double t2 = ((double) t) / framesPerSecond;
-			final double fadeInOffset = (
-				t2 <= fadeToBurstStartTimeSecs ? -0.1 : (
-					t2 <= fadeToBurstEndTimeSecs ? (t2 - fadeToBurstStartTimeSecs) / (fadeToBurstEndTimeSecs - fadeToBurstStartTimeSecs) : (
-						1
-					)
-				)
-			) - 0.1;
-			
-			List<Stop> horizontalGradientStops = new ArrayList<>(gradientPrecision);
-			for (int x = 0; x <= gradientPrecision; x++) {
-				double x2 = ((double) x) / gradientPrecision;
-				double lum = fadeInOffset + horizontalNoise.sum1D((x2 - t2 / 8) * 16, 2, 2, 4) * 2;
-				double colorY = Math.min(0.95f, Math.max(0.05f, lum));
-				double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
-				Color color = Color.color(colorY, colorY, colorB);
-				
-				horizontalGradientStops.add(new Stop(x2, color));
-			}
-			horizontalGradients[t] = new LinearGradient(0,0,1,0,true, CycleMethod.NO_CYCLE, horizontalGradientStops);
-			
-			
-			List<Stop> verticalGradientStops = new ArrayList<>(gradientPrecision);
-			for (int y = 0; y <= gradientPrecision; y++) {
-				double y2 = ((double) y) / gradientPrecision;
-				double lum = fadeInOffset + verticalNoise.sum1D(y2 * 32, 2, 2, 4) * 2;
-				double colorY = Math.min(0.95f, Math.max(0.05f, lum));
-				double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
-				Color color = Color.color(colorY, colorY, colorB);
-				
-				verticalGradientStops.add(new Stop(y2, color));
-			}
-			verticalGradients[t] = new LinearGradient(0,0,0,1,true, CycleMethod.NO_CYCLE, verticalGradientStops);
+			retval[t] = new WritableImage(new BurstPixelReader(noise, t2), backLayerWidth, backLayerHeight);
 		}
+		return retval;
 	}
 	
 	/**
-	 * Returns a DisplacementMap which when applied to a node transforms it into using
-	 * polar coordinates.
+	 * A PixelReader that afsd
 	 */
-	private static DisplacementMap polarTransform() {
-		final FloatMap floatMap = new FloatMap();
-		floatMap.setWidth(polarTransformPrecision);
-		floatMap.setHeight(polarTransformPrecision);
+	private final class BurstPixelReader implements PixelReader {
+		private final PerlinNoise noise;
+		private final double time;
+		private final double fadeInOffset;
+		private final int cx = backLayerWidth / 2;
+		private final int cy = backLayerHeight / 2;
 		
-		for (int i = 0; i < floatMap.getWidth(); i++) {
-			for (int j = 0; j < floatMap.getHeight(); j++) {
-				double centerX = 0.5;
-				double centerY = 0.5;
-				double currentX = (0.5 + i) / floatMap.getWidth();
-				double currentY = (0.5 + j) / floatMap.getHeight();
-				
-				double r = Math.hypot(currentX - centerX, currentY - centerY) * Math.sqrt(2);
-				double theta = Math.atan2(currentX - centerX, currentY - centerY) / Math.PI / 2 + 0.5;
-				
-				assert r <= 1.0 && r >= 0.0 && theta <= 1.0 && theta >= 0.0 : "r = " + r + "; ϴ = " + theta;
-				
-				double offsetX = r - currentX;
-				double offsetY = theta - currentY;
-				
-				floatMap.setSamples(i, j, (float) offsetX, (float) offsetY);
-			}
+		public BurstPixelReader(PerlinNoise noise, double time) {
+			this.noise = noise;
+			this.time = time;
+			
+			final double fadeToBurstStartTimeSecs = fadeToBurstStartTime.toSeconds();
+			final double fadeToBurstEndTimeSecs = fadeToBurstEndTime.toSeconds();
+			this.fadeInOffset = (
+				time <= fadeToBurstStartTimeSecs ? 0 : (
+					time <= fadeToBurstEndTimeSecs ? (time - fadeToBurstStartTimeSecs) / (fadeToBurstEndTimeSecs - fadeToBurstStartTimeSecs) : (
+						1
+					)
+				)
+			) - 0.2;
 		}
 		
-		DisplacementMap retval = new DisplacementMap();
-		retval.setMapData(floatMap);
-		return retval;
+		public int getArgb(int x, int y) {
+			final double radius = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+			final double angle = Math.atan2(x - cx, y - cy);
+			
+			final double lum = fadeInOffset + noise.sum2D(
+				angle * 3 + 50,
+				Math.max(radius, 7) / 40 - time * 2 + 200.2,
+				2, 2, 4
+			) * 1.5;
+			final double colorY = Math.min(0.95f, Math.max(0.05f, lum));
+			final double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
+			final int colorYb = (int) (colorY * 255);
+			final int colorBb = (int) (colorB * 255);
+			return 0xFF000000 | colorYb << 16 | colorYb << 8 | colorBb;
+		}
+		
+		public Color getColor(int x, int y) {
+			throw new UnsupportedOperationException();
+		}
+		
+		public javafx.scene.image.PixelFormat getPixelFormat() {
+			throw new UnsupportedOperationException();
+		}
+		
+		public void getPixels(int x, int y, int w, int h, javafx.scene.image.WritablePixelFormat<java.nio.ByteBuffer> pixelformat, byte[] buffer, int offset, int scanlineStride) {
+			throw new UnsupportedOperationException();
+		}
+		
+		public void getPixels(int x, int y, int w, int h, javafx.scene.image.WritablePixelFormat<java.nio.IntBuffer> pixelformat, int[] buffer, int offset, int scanlineStride) {
+			throw new UnsupportedOperationException();
+		}
+		
+		public <T extends java.nio.Buffer> void getPixels(int x, int y, int w, int h, javafx.scene.image.WritablePixelFormat<T> pixelformat, T buffer, int scanlineStride) {
+			for (int i = x; i < x + w; i++) {
+				for (int j = y; j < y + h; j++) {
+					pixelformat.setArgb(buffer, i, j, scanlineStride, this.getArgb(i, j));
+				}
+			}
+		}
 	}
+
 }

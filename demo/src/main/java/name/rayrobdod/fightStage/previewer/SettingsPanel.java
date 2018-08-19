@@ -25,9 +25,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -51,13 +52,13 @@ final class SettingsPanel {
 	public SettingsPanel() {
 		final Label labelUnit = new Label("Unit Animation");
 		labelUnit.setPadding(new javafx.geometry.Insets(4));
-		final ListView<NameSupplierPair<UnitAnimationGroup>> leftUnit = createNspListview(UnitAnimationGroups.getAll());
-		final ListView<NameSupplierPair<UnitAnimationGroup>> rightUnit = createNspListview(UnitAnimationGroups.getAll());
+		final TreeView<NameSupplierPair<UnitAnimationGroup>> leftUnit = createNspTreeview(UnitAnimationGroups.getAll());
+		final TreeView<NameSupplierPair<UnitAnimationGroup>> rightUnit = createNspTreeview(UnitAnimationGroups.getAll());
 		
 		final Label labelSpell = new Label("Spell Animation");
 		labelSpell.setPadding(new javafx.geometry.Insets(4));
-		final ListView<NameSupplierPair<SpellAnimationGroup>> leftSpell = createNspListview(SpellAnimationGroups.getAll());
-		final ListView<NameSupplierPair<SpellAnimationGroup>> rightSpell = createNspListview(SpellAnimationGroups.getAll());
+		final TreeView<NameSupplierPair<SpellAnimationGroup>> leftSpell = createNspTreeview(SpellAnimationGroups.getAll());
+		final TreeView<NameSupplierPair<SpellAnimationGroup>> rightSpell = createNspTreeview(SpellAnimationGroups.getAll());
 		
 		final Label labelDistance = new Label("Distance (px)");
 		labelDistance.setPadding(new javafx.geometry.Insets(4));
@@ -65,6 +66,10 @@ final class SettingsPanel {
 		distance.setMajorTickUnit(100);
 		distance.setBlockIncrement(100);
 		distance.setShowTickMarks(true);
+		
+		final Label labelStrikes = new Label("Strikes");
+		labelDistance.setPadding(new javafx.geometry.Insets(4));
+		final StrikeListEditor strikes = new StrikeListEditor();
 		
 		final Label labelHp = new Label("HP");
 		labelHp.setPadding(new javafx.geometry.Insets(4));
@@ -87,6 +92,7 @@ final class SettingsPanel {
 				, () -> rightCurrentHp.getValue()
 				, () -> leftMaximumHp.getValue()
 				, () -> rightMaximumHp.getValue()
+				, () -> strikes.valueProperty().get()
 				, () -> distance.getValue()
 			);
 		};
@@ -110,6 +116,8 @@ final class SettingsPanel {
 		this.node.add(labelHp, 0, 3);
 		this.node.add(leftHp, 1, 3);
 		this.node.add(rightHp, 2, 3);
+		this.node.add(labelStrikes, 0, 4);
+		this.node.add(strikes, 1, 4, GridPane.REMAINING, 1);
 		this.node.add(labelDistance, 0, 15);
 		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
 	}
@@ -121,21 +129,38 @@ final class SettingsPanel {
 	private static Spinner<Integer> createHpSpinner(int initialValue) {
 		Spinner<Integer> retval = new Spinner<>(1, 99, initialValue);
 		retval.setMaxWidth(1d/0d);
-		retval.setEditable(true);
+		retval.setEditable(false);
 		retval.getEditor().setPrefColumnCount(4);
 		return retval;
 	}
 	
-	/** Creates a choicebox that allows selection of an &lt;E&gt; value */
-	private static <E> ListView<NameSupplierPair<E>> createNspListview(List<NameSupplierPair<E>> options) {
-		ListView<NameSupplierPair<E>> retval = new ListView<>();
-		retval.getItems().addAll(options);
+	/** Creates a treeview that allows selection of an &lt;E&gt; value */
+	private static <E> TreeView<NameSupplierPair<E>> createNspTreeview(List<NameSupplierPair<E>> options) {
+		final TreeItem<NameSupplierPair<E>> root = new TreeItem<>(new NameSupplierPair<E>("", options.get(0).supplier));
+		options.forEach(option -> {
+			final String[] parts = option.displayName.split("/");
+			TreeItem<NameSupplierPair<E>> current = root;
+			for (String part : parts) {
+				final java.util.Optional<TreeItem<NameSupplierPair<E>>> nextOpt = current.getChildren().stream().filter(x -> part.equals(x.getValue().displayName)).findAny();
+				// current is not final, so no lambdas here
+				if (nextOpt.isPresent()) {
+					current = nextOpt.get();
+				} else {
+					final TreeItem<NameSupplierPair<E>> next = new TreeItem<>(new NameSupplierPair<E>(part, option.supplier));
+					current.getChildren().add(next);
+					current = next;
+				};
+			}
+		});
+		final TreeView<NameSupplierPair<E>> retval = new TreeView<>(root);
+		retval.setShowRoot(false);
 		retval.getSelectionModel().selectFirst();
 		retval.setCellFactory((view) ->
-			new javafx.scene.control.ListCell<NameSupplierPair<E>>() {
+			new javafx.scene.control.TreeCell<NameSupplierPair<E>>() {
 				@Override protected void updateItem(NameSupplierPair<E> item, boolean empty) {
 					super.updateItem(item, empty);
 					setText(item == null ? "" : item.displayName);
+					// TODO: figure out how to do alternate row striping without breaking everything else
 				}
 			}
 		);
@@ -144,10 +169,10 @@ final class SettingsPanel {
 		return retval;
 	}
 	
-	private static <E> Supplier<E> selectedItemOrFirst(ListView<NameSupplierPair<E>> list) {
+	private static <E> Supplier<E> selectedItemOrFirst(TreeView<NameSupplierPair<E>> list) {
 		return () -> (list.getSelectionModel().isEmpty() ?
-				list.getItems().get(0) :
-				list.getSelectionModel().getSelectedItem()
+				list.getRoot().getValue() :
+				list.getSelectionModel().getSelectedItem().getValue()
 			).supplier.get();
 	}
 }

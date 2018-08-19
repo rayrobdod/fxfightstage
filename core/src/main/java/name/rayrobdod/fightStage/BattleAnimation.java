@@ -93,12 +93,12 @@ public final class BattleAnimation {
 		
 		final Node gameNode = new Group(
 			  backgroundNode.apply(containerSize)
-			, left.spell.getBackground()
-			, right.spell.getBackground()
-			, left.unit.getNode()
-			, right.unit.getNode()
-			, left.spell.getForeground()
-			, right.spell.getForeground()
+			, left.spell.objectBehindLayer()
+			, right.spell.objectBehindLayer()
+			, left.unit.objectBehindLayer()
+			, right.unit.objectBehindLayer()
+			, left.spell.objectFrontLayer()
+			, right.spell.objectFrontLayer()
 			// , zeroIndicator
 			// , footPointIndicator
 		);
@@ -314,10 +314,10 @@ public final class BattleAnimation {
 			animationParts.add(new PauseTransition(pauseDuration.divide(2)));
 			final ArrayList<Animation> deathParts = new ArrayList<>(2);
 			if (leftCurrentHitpoints <= 0) {
-				deathParts.add(deathFadeOutAnimation(left.unit.getNode()));
+				deathParts.add(deathFadeOutAnimation(left.unit.objectBehindLayer()));
 			}
 			if (rightCurrentHitpoints <= 0) {
-				deathParts.add(deathFadeOutAnimation(right.unit.getNode()));
+				deathParts.add(deathFadeOutAnimation(right.unit.objectBehindLayer()));
 			}
 			if (rightCurrentHitpoints > 0) {
 				deathParts.add(right.unit.getVictoryAnimation());

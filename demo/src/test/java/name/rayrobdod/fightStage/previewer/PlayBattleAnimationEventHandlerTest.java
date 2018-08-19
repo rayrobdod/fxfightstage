@@ -15,6 +15,7 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -30,7 +31,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +48,6 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
-@Tag("image")
 public final class PlayBattleAnimationEventHandlerTest {
 	
 	@Test
@@ -66,6 +65,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 			, () -> 60
 			, () -> 60
 			, () -> 60
+			, Collections::emptyList
 			, () -> 200
 		);
 		// when:
@@ -89,6 +89,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 			, () -> 60
 			, () -> 60
 			, () -> 60
+			, Collections::emptyList
 			, () -> 200
 		);
 		evh.handle(null);
@@ -103,7 +104,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 	
 	private static class NilUnitAnimationGroup implements UnitAnimationGroup {
 		private Node node = new Group();
-		public Node getNode() {return node;}
+		public Node objectBehindLayer() {return node;}
 		public Point2D getSpellTarget(Map<DoubleProperty, Double> _1) {return Point2D.ZERO;}
 		public double getCurrentXOffset(Map<DoubleProperty, Double> _1) {return 0;}
 		public Animation getAttackAnimation(
@@ -123,8 +124,8 @@ public final class PlayBattleAnimationEventHandlerTest {
 	private static class NilSpellAnimationGroup implements SpellAnimationGroup {
 		private Node fore = new Group();
 		private Node back = new Group();
-		public Node getBackground() {return back;}
-		public Node getForeground() {return fore;}
+		public Node objectBehindLayer() {return back;}
+		public Node objectFrontLayer() {return fore;}
 		public Animation getAnimation(
 			  Point2D origin
 			, Point2D target

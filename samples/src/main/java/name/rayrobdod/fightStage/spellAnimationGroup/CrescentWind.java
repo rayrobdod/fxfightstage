@@ -52,8 +52,8 @@ public final class CrescentWind implements SpellAnimationGroup {
 	private static final double maxHeight = 150;
 	private static final double maxWidth = 75;
 	
-	private final Path foreground;
-	private final Path background;
+	private final Path frontLayer;
+	private final Path backLayer;
 	
 	private final DoubleProperty xProperty;
 	private final DoubleProperty yProperty;
@@ -73,39 +73,39 @@ public final class CrescentWind implements SpellAnimationGroup {
 		/// 2 |
 		///  \ |
 		///   3
-		final MoveTo foreground_1 = new MoveTo();
-		foreground_1.xProperty().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty)));
-		foreground_1.yProperty().bind(this.yProperty.add(this.heightProperty.divide(2)));
-		final QuadCurveTo foreground_2 = new QuadCurveTo();
-		foreground_2.controlXProperty().bind(this.xProperty);
-		foreground_2.controlYProperty().bind(this.yProperty.add(this.heightProperty.divide(3)));
-		foreground_2.xProperty().bind(this.xProperty);
-		foreground_2.yProperty().bind(this.yProperty);
-		final QuadCurveTo foreground_3 = new QuadCurveTo();
-		foreground_3.controlXProperty().bind(this.xProperty);
-		foreground_3.controlYProperty().bind(this.yProperty.subtract(this.heightProperty.divide(3)));
-		foreground_3.xProperty().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty)));
-		foreground_3.yProperty().bind(this.yProperty.subtract(this.heightProperty.divide(2)));
-		final CubicCurveTo foreground_4 = new CubicCurveTo();
-		foreground_4.controlX1Property().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty.divide(3))));
-		foreground_4.controlY1Property().bind(this.yProperty.subtract(this.heightProperty.divide(3)));
-		foreground_4.controlX2Property().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty.divide(3))));
-		foreground_4.controlY2Property().bind(this.yProperty.add(this.heightProperty.divide(3)));
-		foreground_4.xProperty().bind(foreground_1.xProperty());
-		foreground_4.yProperty().bind(foreground_1.yProperty());
+		final MoveTo frontLayer_1 = new MoveTo();
+		frontLayer_1.xProperty().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty)));
+		frontLayer_1.yProperty().bind(this.yProperty.add(this.heightProperty.divide(2)));
+		final QuadCurveTo frontLayer_2 = new QuadCurveTo();
+		frontLayer_2.controlXProperty().bind(this.xProperty);
+		frontLayer_2.controlYProperty().bind(this.yProperty.add(this.heightProperty.divide(3)));
+		frontLayer_2.xProperty().bind(this.xProperty);
+		frontLayer_2.yProperty().bind(this.yProperty);
+		final QuadCurveTo frontLayer_3 = new QuadCurveTo();
+		frontLayer_3.controlXProperty().bind(this.xProperty);
+		frontLayer_3.controlYProperty().bind(this.yProperty.subtract(this.heightProperty.divide(3)));
+		frontLayer_3.xProperty().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty)));
+		frontLayer_3.yProperty().bind(this.yProperty.subtract(this.heightProperty.divide(2)));
+		final CubicCurveTo frontLayer_4 = new CubicCurveTo();
+		frontLayer_4.controlX1Property().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty.divide(3))));
+		frontLayer_4.controlY1Property().bind(this.yProperty.subtract(this.heightProperty.divide(3)));
+		frontLayer_4.controlX2Property().bind(this.xProperty.add(this.orientationXProperty.multiply(this.widthProperty.divide(3))));
+		frontLayer_4.controlY2Property().bind(this.yProperty.add(this.heightProperty.divide(3)));
+		frontLayer_4.xProperty().bind(frontLayer_1.xProperty());
+		frontLayer_4.yProperty().bind(frontLayer_1.yProperty());
 		
-		this.foreground = new Path(foreground_1, foreground_2, foreground_3, foreground_4);
-		this.foreground.setFill(color);
-		this.foreground.setStroke(Color.TRANSPARENT);
-		// this.foreground.setBlendMode(javafx.scene.effect.BlendMode.SCREEN);
-		this.background = new Path(foreground_1, foreground_2, foreground_3, foreground_4);
-		this.background.setFill(color);
-		this.background.setStroke(Color.TRANSPARENT);
-		this.background.opacityProperty().bind(this.foreground.opacityProperty());
+		this.frontLayer = new Path(frontLayer_1, frontLayer_2, frontLayer_3, frontLayer_4);
+		this.frontLayer.setFill(color);
+		this.frontLayer.setStroke(Color.TRANSPARENT);
+		// this.frontLayer.setBlendMode(javafx.scene.effect.BlendMode.SCREEN);
+		this.backLayer = new Path(frontLayer_1, frontLayer_2, frontLayer_3, frontLayer_4);
+		this.backLayer.setFill(color);
+		this.backLayer.setStroke(Color.TRANSPARENT);
+		this.backLayer.opacityProperty().bind(this.frontLayer.opacityProperty());
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,
@@ -134,7 +134,7 @@ public final class CrescentWind implements SpellAnimationGroup {
 				new KeyValue(this.widthProperty, maxWidth, Interpolator.LINEAR),
 				new KeyValue(this.heightProperty, 0.0, Interpolator.LINEAR),
 				new KeyValue(this.orientationXProperty, orientation, Interpolator.LINEAR),
-				new KeyValue(this.foreground.opacityProperty(), 0.0, Interpolator.LINEAR)
+				new KeyValue(this.frontLayer.opacityProperty(), 0.0, Interpolator.LINEAR)
 			),
 			new KeyFrame(Duration.ONE,
 				new KeyValue(this.orientationXProperty, orientation, Interpolator.LINEAR),
@@ -144,14 +144,14 @@ public final class CrescentWind implements SpellAnimationGroup {
 			new KeyFrame(windupDuration,
 				new KeyValue(this.xProperty, origin.getX() + orientation * windupDistance, Interpolator.LINEAR),
 				new KeyValue(this.heightProperty, maxHeight, Interpolator.EASE_OUT),
-				new KeyValue(this.foreground.opacityProperty(), 1.0, Interpolator.EASE_OUT)
+				new KeyValue(this.frontLayer.opacityProperty(), 1.0, Interpolator.EASE_OUT)
 			),
 			new KeyFrame(windupDuration.add(hitDuration),
-				new KeyValue(this.foreground.opacityProperty(), 1.0, Interpolator.LINEAR)
+				new KeyValue(this.frontLayer.opacityProperty(), 1.0, Interpolator.LINEAR)
 			),
 			new KeyFrame(windupDuration.add(totalTravelDuration),
 				new KeyValue(this.xProperty, target.getX() - orientation * fadeoutDistance, travelInterpolator),
-				new KeyValue(this.foreground.opacityProperty(), 0.0, Interpolator.EASE_IN)
+				new KeyValue(this.frontLayer.opacityProperty(), 0.0, Interpolator.EASE_IN)
 			)
 		);
 		

@@ -52,17 +52,17 @@ public final class Dark implements SpellAnimationGroup {
 	
 	
 	private final Circle node;
-	private final Circle background;
+	private final Circle backLayer;
 	
 	public Dark() {
 		this.node = new Circle();
 		this.node.setFill(Color.BLACK);
 		this.node.setBlendMode(BlendMode.EXCLUSION);
-		this.background = new Circle();
+		this.backLayer = new Circle();
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.node; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,

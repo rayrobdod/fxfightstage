@@ -38,7 +38,7 @@ public interface SpellAnimationGroup {
 	 * 
 	 * @return the nodes that appear behind the characters
 	 */
-	public Node getBackground();
+	public Node objectBehindLayer();
 	
 	/**
 	 * A Node that contains every visual element that will appear between
@@ -50,7 +50,7 @@ public interface SpellAnimationGroup {
 	 * 
 	 * @return the nodes that appear between the characters and the player
 	 */
-	public Node getForeground();
+	public Node objectFrontLayer();
 	
 	/**
 	 * Returns an animation to be used for an attack animation

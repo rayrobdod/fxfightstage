@@ -53,7 +53,7 @@ public final class PhysicalHit implements SpellAnimationGroup {
 	private final Circle flare;
 	private final Node group;
 	
-	private final Circle background;
+	private final Circle backLayer;
 	
 	public PhysicalHit() {
 		this.emanations = new Ellipse[4];
@@ -67,11 +67,11 @@ public final class PhysicalHit implements SpellAnimationGroup {
 		this.flare.setStroke(Color.TRANSPARENT);
 		
 		this.group = new Group(flare, new Group(emanations));
-		this.background = new Circle();
+		this.backLayer = new Circle();
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.group; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.group; }
 	
 	public Animation getAnimation(
 		Point2D origin,
