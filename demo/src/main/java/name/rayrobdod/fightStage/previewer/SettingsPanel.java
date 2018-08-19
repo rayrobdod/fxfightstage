@@ -67,6 +67,10 @@ final class SettingsPanel {
 		distance.setBlockIncrement(100);
 		distance.setShowTickMarks(true);
 		
+		final Label labelStrikes = new Label("Strikes");
+		labelDistance.setPadding(new javafx.geometry.Insets(4));
+		final StrikeListEditor strikes = new StrikeListEditor();
+		
 		final Label labelHp = new Label("HP");
 		labelHp.setPadding(new javafx.geometry.Insets(4));
 		final Spinner<Integer> leftCurrentHp = createHpSpinner(40);
@@ -88,6 +92,7 @@ final class SettingsPanel {
 				, () -> rightCurrentHp.getValue()
 				, () -> leftMaximumHp.getValue()
 				, () -> rightMaximumHp.getValue()
+				, () -> strikes.valueProperty().get()
 				, () -> distance.getValue()
 			);
 		};
@@ -111,6 +116,8 @@ final class SettingsPanel {
 		this.node.add(labelHp, 0, 3);
 		this.node.add(leftHp, 1, 3);
 		this.node.add(rightHp, 2, 3);
+		this.node.add(labelStrikes, 0, 4);
+		this.node.add(strikes, 1, 4, GridPane.REMAINING, 1);
 		this.node.add(labelDistance, 0, 15);
 		this.node.add(distance, 1, 15, GridPane.REMAINING, 1);
 	}
@@ -122,7 +129,7 @@ final class SettingsPanel {
 	private static Spinner<Integer> createHpSpinner(int initialValue) {
 		Spinner<Integer> retval = new Spinner<>(1, 99, initialValue);
 		retval.setMaxWidth(1d/0d);
-		retval.setEditable(true);
+		retval.setEditable(false);
 		retval.getEditor().setPrefColumnCount(4);
 		return retval;
 	}

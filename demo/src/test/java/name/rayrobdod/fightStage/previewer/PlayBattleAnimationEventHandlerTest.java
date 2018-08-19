@@ -15,6 +15,7 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -64,6 +65,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 			, () -> 60
 			, () -> 60
 			, () -> 60
+			, Collections::emptyList
 			, () -> 200
 		);
 		// when:
@@ -87,6 +89,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 			, () -> 60
 			, () -> 60
 			, () -> 60
+			, Collections::emptyList
 			, () -> 200
 		);
 		evh.handle(null);

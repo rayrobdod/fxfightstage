@@ -15,10 +15,7 @@
  */
 package name.rayrobdod.fightStage.previewer;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -33,10 +30,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import name.rayrobdod.fightStage.AggregateSideParams;
-import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.BattleAnimation;
 import name.rayrobdod.fightStage.NodeAnimationPair;
-import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 import name.rayrobdod.fightStage.Strike;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
@@ -56,6 +51,7 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 	private final IntSupplier rightStartingHp;
 	private final IntSupplier leftMaximumHp;
 	private final IntSupplier rightMaximumHp;
+	private final Supplier<List<Strike>> strikes;
 	private final DoubleSupplier distance;
 	
 	public PlayBattleAnimationEventHandler(
@@ -69,6 +65,7 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 		, IntSupplier rightStartingHp
 		, IntSupplier leftMaximumHp
 		, IntSupplier rightMaximumHp
+		, Supplier<List<Strike>> strikes
 		, DoubleSupplier distance
 	) {
 		this.gamePane = gamePane;
@@ -81,17 +78,11 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 		this.rightStartingHp = rightStartingHp;
 		this.leftMaximumHp = leftMaximumHp;
 		this.rightMaximumHp = rightMaximumHp;
+		this.strikes = strikes;
 		this.distance = distance;
 	}
 	
 	public void handle(ActionEvent e) {
-		Set<AttackModifier> oneMods = new HashSet<>();
-		oneMods.add(new AttackModifier("Modifier"));
-		Set<AttackModifier> threeMods = new HashSet<>();
-		threeMods.add(new AttackModifier("Modifier 1"));
-		threeMods.add(new AttackModifier("Modifier 2"));
-		threeMods.add(new AttackModifier("Modifier 3"));
-		
 		final NodeAnimationPair pair = BattleAnimation.buildAnimation(
 			Field::buildGroup,
 			new Dimension2D(gamePane.getWidth(), gamePane.getHeight()),
@@ -106,12 +97,7 @@ final class PlayBattleAnimationEventHandler implements EventHandler<ActionEvent>
 				"ABCDEFGHIJKL", "ABCDEFGHIJKLMNOP", new Circle(10),
 				rightMaximumHp.getAsInt(), rightStartingHp.getAsInt()
 			),
-			Arrays.asList(
-				new Strike(Side.RIGHT, 20, 0, oneMods, Collections.emptySet()),
-				new Strike(Side.LEFT, 15, 0, Collections.emptySet(), Collections.emptySet()),
-				new Strike(Side.LEFT, 15, 0, threeMods, threeMods),
-				new Strike(Side.RIGHT, 20, 10, Collections.emptySet(), Collections.emptySet())
-			)
+			strikes.get()
 		);
 		
 		if (currentAnimationProperty.getValue() != null) {
