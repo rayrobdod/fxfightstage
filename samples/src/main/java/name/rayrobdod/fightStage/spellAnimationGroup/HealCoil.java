@@ -44,7 +44,7 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 /**
  * An animation which places "orbs" in a "cylindrical" pattern around the target
  * <p>
- * Demonstrates a more subtle use of the background buffer
+ * Demonstrates a more subtle use of the backLayer buffer
  */
 public final class HealCoil implements SpellAnimationGroup {
 	
@@ -64,13 +64,13 @@ public final class HealCoil implements SpellAnimationGroup {
 	private static final int particleCount = particlesPerRevolution * (coilRevolutions + 1);
 	private static final Effect paritcleEffect = new GaussianBlur(particleRadius);
 	
-	private final Group foreground;
-	private final Group background;
+	private final Group frontLayer;
+	private final Group backLayer;
 	private final Circle[] particles;
 	
 	public HealCoil() {
-		this.background = new Group();
-		this.foreground = new Group();
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		
 		this.particles = Stream.generate(Circle::new)
 				.limit(particleCount)
@@ -85,15 +85,15 @@ public final class HealCoil implements SpellAnimationGroup {
 			p.setVisible(false);
 			p.setEffect(paritcleEffect);
 			if (segment < particlesPerRevolution / 2) {
-				foreground.getChildren().add(p);
+				frontLayer.getChildren().add(p);
 			} else {
-				background.getChildren().add(p);
+				backLayer.getChildren().add(p);
 			}
 		}
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

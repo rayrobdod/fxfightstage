@@ -68,26 +68,26 @@ public final class Atom implements SpellAnimationGroup {
 	
 	
 	private final List<RingOfParticles> rings;
-	private final Group background;
-	private final Group foreground;
+	private final Group backLayer;
+	private final Group frontLayer;
 	
 	public Atom() {
 		this.rings = normals.stream()
 				.map(x -> new RingOfParticles())
 				.collect(Collectors.toList());
-		this.background = new Group();
-		this.foreground = new Group();
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		
 		this.rings.forEach(ring -> {
-			this.foreground.getChildren().add(ring.frontHead);
-			this.background.getChildren().add(ring.backHead);
-			this.foreground.getChildren().addAll(ring.frontParticles);
-			this.background.getChildren().addAll(ring.backParticles);
+			this.frontLayer.getChildren().add(ring.frontHead);
+			this.backLayer.getChildren().add(ring.backHead);
+			this.frontLayer.getChildren().addAll(ring.frontParticles);
+			this.backLayer.getChildren().addAll(ring.backParticles);
 		});
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

@@ -64,8 +64,8 @@ public final class Tornado implements SpellAnimationGroup {
 	private static final double perspectiveMultiplier = -0.4;
 	private static final double crescentWidthMultiplier = 0.8;
 	
-	private final Group foreground;
-	private final Group background;
+	private final Group frontLayer;
+	private final Group backLayer;
 	private final CrescentPathParts[] particlePool;
 	
 	private static final class CrescentPathParts {
@@ -121,10 +121,10 @@ public final class Tornado implements SpellAnimationGroup {
 	}
 	
 	public Tornado() {
-		this.background = new Group();
-		this.foreground = new Group();
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		
-		this.particlePool = createParticlePool(particleCount, this.foreground);
+		this.particlePool = createParticlePool(particleCount, this.frontLayer);
 	}
 	
 	private static CrescentPathParts[] createParticlePool(int count, Group addTo) {
@@ -134,8 +134,8 @@ public final class Tornado implements SpellAnimationGroup {
 				.toArray(CrescentPathParts[]::new);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

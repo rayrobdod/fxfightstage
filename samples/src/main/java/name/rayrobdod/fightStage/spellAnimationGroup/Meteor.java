@@ -65,27 +65,27 @@ public final class Meteor implements SpellAnimationGroup {
 	private static final double backdropY = -700;
 	private static final double backdropHeight = 700;
 	
-	private static final int backgroundStreakCount = 24;
-	private static final double backgroundMeteorRadius = 2.5;
-	private static final double backgroundStreakLength = 60;
-	private static final double backgroundStreakLengthVariant = 20;
-	private static final double backgroundStreakAngle = Math.PI * 0.6;
-	private static final double backgroundStreakAngleVariant = Math.PI * 0.1;
-	private static final Duration backgroundStreakTime = Duration.seconds(0.4);
+	private static final int backLayerStreakCount = 24;
+	private static final double backLayerMeteorRadius = 2.5;
+	private static final double backLayerStreakLength = 60;
+	private static final double backLayerStreakLengthVariant = 20;
+	private static final double backLayerStreakAngle = Math.PI * 0.6;
+	private static final double backLayerStreakAngleVariant = Math.PI * 0.1;
+	private static final Duration backLayerStreakTime = Duration.seconds(0.4);
 	
-	private static final double foregroundCoreRadius = 25;
+	private static final double objectFrontCoreRadius = 25;
 	
 	private static final Duration backdropFadeInTime = Duration.seconds(0.8);
 	private static final Duration backdropFadeOutTime = Duration.seconds(0.4);
 	
-	private static final Duration foregroundTime = Duration.seconds(1.6);
+	private static final Duration objectFrontTime = Duration.seconds(1.6);
 	
-	private final Group background;
-	private final Group foreground;
+	private final Group backLayer;
+	private final Group frontLayer;
 	private final DoubleProperty nightBackdropHeightPercent;
 	private final Rectangle nightBackdrop;
-	private final List<BackgroundMeteorStreak> backgroundStreaks;
-	private final ForegroundMeteor foregroundMeteor;
+	private final List<BackgroundMeteorStreak> backLayerStreaks;
+	private final ForegroundMeteor objectFrontMeteor;
 	
 	public Meteor() {
 		this.nightBackdropHeightPercent = new SimpleDoubleProperty();
@@ -96,27 +96,27 @@ public final class Meteor implements SpellAnimationGroup {
 		this.nightBackdrop.setOpacity(0.0);
 		this.nightBackdrop.fillProperty().bind(new GradientDropdownBinding(this.nightBackdropHeightPercent));
 		
-		this.foregroundMeteor = new ForegroundMeteor();
+		this.objectFrontMeteor = new ForegroundMeteor();
 		
-		this.backgroundStreaks = Stream
+		this.backLayerStreaks = Stream
 				.generate(BackgroundMeteorStreak::new)
-				.limit(backgroundStreakCount)
+				.limit(backLayerStreakCount)
 				.collect(Collectors.toList());
-		Node[] backgroundStreakNodes = this.backgroundStreaks.stream()
+		Node[] backLayerStreakNodes = this.backLayerStreaks.stream()
 				.map(x -> x.getNode())
 				.toArray(Node[]::new);
 		
-		this.background = new Group(
+		this.backLayer = new Group(
 			nightBackdrop,
-			new Group(backgroundStreakNodes)
+			new Group(backLayerStreakNodes)
 		);
-		this.foreground = new Group(
-			this.foregroundMeteor.getNode()
+		this.frontLayer = new Group(
+			this.objectFrontMeteor.getNode()
 		);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,
@@ -134,13 +134,13 @@ public final class Meteor implements SpellAnimationGroup {
 		final Animation backdropFadeOut = Animations.simpleAnimation(backdropFadeOutTime, nightBackdrop.opacityProperty(), 1.0, 0.0);
 		
 		final Animation streakAnims = new ParallelTransition(
-			Stream.iterate(0, i -> i + 1).limit(backgroundStreaks.size()).map(index -> {
-				Duration time = backgroundStreakTime.divide(3).multiply(index).add(backgroundStreakTime.multiply(rng.nextDouble()));
+			Stream.iterate(0, i -> i + 1).limit(backLayerStreaks.size()).map(index -> {
+				Duration time = backLayerStreakTime.divide(3).multiply(index).add(backLayerStreakTime.multiply(rng.nextDouble()));
 				double x = origin.getX() +
-						vector.getX() * index / backgroundStreakCount +
+						vector.getX() * index / backLayerStreakCount +
 						(rng.nextDouble() - 0.5) * 300;
 				double y = rng.nextDouble() * -150 - 300;
-				BackgroundMeteorStreak streak = backgroundStreaks.get(index);
+				BackgroundMeteorStreak streak = backLayerStreaks.get(index);
 				Animation retval = streak.getAnimation(x, y, rng, direction);
 				retval.setDelay(time);
 				return retval;
@@ -157,12 +157,12 @@ public final class Meteor implements SpellAnimationGroup {
 					panAnimation.panToDefenderRelative(0, skyPanDistance, streakAnims.getCycleDuration().subtract(backdropFadeInTime))
 				),
 				new SequentialTransition(
-					new PauseTransition(streakAnims.getCycleDuration().subtract(foregroundTime.divide(3))),
+					new PauseTransition(streakAnims.getCycleDuration().subtract(objectFrontTime.divide(3))),
 					new ParallelTransition(
-						this.foregroundMeteor.getAnimation(target, rng, direction),
+						this.objectFrontMeteor.getAnimation(target, rng, direction),
 						new SequentialTransition(
-							new PauseTransition(foregroundTime.multiply(1d / 3d)),
-							panAnimation.panToDefender(foregroundTime.multiply((1d / 2d) - (1d / 3d))),
+							new PauseTransition(objectFrontTime.multiply(1d / 3d)),
+							panAnimation.panToDefender(objectFrontTime.multiply((1d / 2d) - (1d / 3d))),
 							new ParallelTransition(
 								shakeAnimation.apply(12, Duration.millis(320)),
 								hitAnimation
@@ -191,22 +191,22 @@ public final class Meteor implements SpellAnimationGroup {
 			final DoubleBinding deltaLength = new LengthBinding(tailPointX, tailPointY, headPointX, headPointY);
 			final DoubleBinding deltaUnitX = headPointX.subtract(tailPointX).divide(deltaLength);
 			final DoubleBinding deltaUnitY = headPointY.subtract(tailPointY).divide(deltaLength);
-			final DoubleBinding x1 = new FmaBinding(-backgroundMeteorRadius, deltaUnitX, tailPointX);
-			final DoubleBinding y1 = new FmaBinding(-backgroundMeteorRadius, deltaUnitY, tailPointY);
-			final DoubleBinding x2 = new FmaBinding(-backgroundMeteorRadius, deltaUnitY, x1);
-			final DoubleBinding y2 = new FmaBinding(backgroundMeteorRadius, deltaUnitX, y1);
-			final DoubleBinding x8 = new FmaBinding(backgroundMeteorRadius, deltaUnitY, x1);
-			final DoubleBinding y8 = new FmaBinding(-backgroundMeteorRadius, deltaUnitX, y1);
-			final DoubleBinding x3 = new FmaBinding(-backgroundMeteorRadius, deltaUnitY, headPointX);
-			final DoubleBinding y3 = new FmaBinding(backgroundMeteorRadius, deltaUnitX, headPointY);
-			final DoubleBinding x7 = new FmaBinding(backgroundMeteorRadius, deltaUnitY, headPointX);
-			final DoubleBinding y7 = new FmaBinding(-backgroundMeteorRadius, deltaUnitX, headPointY);
-			final DoubleBinding x5 = new FmaBinding(backgroundMeteorRadius, deltaUnitX, headPointX);
-			final DoubleBinding y5 = new FmaBinding(backgroundMeteorRadius, deltaUnitY, headPointY);
-			final DoubleBinding x4 = new FmaBinding(-backgroundMeteorRadius, deltaUnitY, x5);
-			final DoubleBinding y4 = new FmaBinding(backgroundMeteorRadius, deltaUnitX, y5);
-			final DoubleBinding x6 = new FmaBinding(backgroundMeteorRadius, deltaUnitY, x5);
-			final DoubleBinding y6 = new FmaBinding(-backgroundMeteorRadius, deltaUnitX, y5);
+			final DoubleBinding x1 = new FmaBinding(-backLayerMeteorRadius, deltaUnitX, tailPointX);
+			final DoubleBinding y1 = new FmaBinding(-backLayerMeteorRadius, deltaUnitY, tailPointY);
+			final DoubleBinding x2 = new FmaBinding(-backLayerMeteorRadius, deltaUnitY, x1);
+			final DoubleBinding y2 = new FmaBinding(backLayerMeteorRadius, deltaUnitX, y1);
+			final DoubleBinding x8 = new FmaBinding(backLayerMeteorRadius, deltaUnitY, x1);
+			final DoubleBinding y8 = new FmaBinding(-backLayerMeteorRadius, deltaUnitX, y1);
+			final DoubleBinding x3 = new FmaBinding(-backLayerMeteorRadius, deltaUnitY, headPointX);
+			final DoubleBinding y3 = new FmaBinding(backLayerMeteorRadius, deltaUnitX, headPointY);
+			final DoubleBinding x7 = new FmaBinding(backLayerMeteorRadius, deltaUnitY, headPointX);
+			final DoubleBinding y7 = new FmaBinding(-backLayerMeteorRadius, deltaUnitX, headPointY);
+			final DoubleBinding x5 = new FmaBinding(backLayerMeteorRadius, deltaUnitX, headPointX);
+			final DoubleBinding y5 = new FmaBinding(backLayerMeteorRadius, deltaUnitY, headPointY);
+			final DoubleBinding x4 = new FmaBinding(-backLayerMeteorRadius, deltaUnitY, x5);
+			final DoubleBinding y4 = new FmaBinding(backLayerMeteorRadius, deltaUnitX, y5);
+			final DoubleBinding x6 = new FmaBinding(backLayerMeteorRadius, deltaUnitY, x5);
+			final DoubleBinding y6 = new FmaBinding(-backLayerMeteorRadius, deltaUnitX, y5);
 			
 			this.node = new Path(
 				PathElements.newBoundMoveTo(x1, y1),
@@ -242,8 +242,8 @@ public final class Meteor implements SpellAnimationGroup {
 		public Node getNode() { return this.node; }
 		
 		public Animation getAnimation(double initX, double initY, Random rng, double directionX) {
-			final double len = rng.nextDouble() * backgroundStreakLengthVariant + backgroundStreakLength;
-			final double angle = rng.nextDouble() * backgroundStreakAngleVariant + backgroundStreakAngle;
+			final double len = rng.nextDouble() * backLayerStreakLengthVariant + backLayerStreakLength;
+			final double angle = rng.nextDouble() * backLayerStreakAngleVariant + backLayerStreakAngle;
 			
 			final double endX = initX + directionX * len * Math.cos(angle);
 			final double endY = initY + len * Math.sin(angle);
@@ -258,14 +258,14 @@ public final class Meteor implements SpellAnimationGroup {
 					new KeyValue(headPointX, initX, Interpolator.LINEAR),
 					new KeyValue(headPointY, initY, Interpolator.LINEAR)
 				),
-				new KeyFrame(backgroundStreakTime.divide(2),
+				new KeyFrame(backLayerStreakTime.divide(2),
 					new KeyValue(this.node.fillProperty(), Color.hsb(hue, 0.2, 0.9), Interpolator.LINEAR),
 					new KeyValue(tailPointX, initX, Interpolator.LINEAR),
 					new KeyValue(tailPointY, initY, Interpolator.LINEAR),
 					new KeyValue(headPointX, endX, Interpolator.LINEAR),
 					new KeyValue(headPointY, endY, Interpolator.LINEAR)
 				),
-				new KeyFrame(backgroundStreakTime,
+				new KeyFrame(backLayerStreakTime,
 					new KeyValue(this.node.fillProperty(), Color.hsb(hue, 0.2, 0.4), Interpolator.LINEAR),
 					new KeyValue(tailPointX, endX, Interpolator.LINEAR),
 					new KeyValue(tailPointY, endY, Interpolator.LINEAR),
@@ -286,7 +286,7 @@ public final class Meteor implements SpellAnimationGroup {
 		private final DoubleProperty directionX;
 		
 		public ForegroundMeteor() {
-			final Circle core = new Circle(0, 10000, foregroundCoreRadius);
+			final Circle core = new Circle(0, 10000, objectFrontCoreRadius);
 			this.coreColorProp = core.fillProperty();
 			this.coreXProp = core.centerXProperty();
 			this.coreYProp = core.centerYProperty();
@@ -294,10 +294,10 @@ public final class Meteor implements SpellAnimationGroup {
 			this.streakAngle = new SimpleDoubleProperty();
 			this.directionX = new SimpleDoubleProperty(1.0);
 			
-			final Path wake1 = newWake(coreXProp, coreYProp, foregroundCoreRadius + 2, 2.5, streakLength, streakAngle, directionX);
+			final Path wake1 = newWake(coreXProp, coreYProp, objectFrontCoreRadius + 2, 2.5, streakLength, streakAngle, directionX);
 			wake1.setFill(Color.hsb(50, 0.4, 0.9, 0.9));
 			wake1.setStroke(Color.TRANSPARENT);
-			final Path wake2 = newWake(coreXProp, coreYProp, foregroundCoreRadius + 5, 10, streakLength.add(50), streakAngle, directionX);
+			final Path wake2 = newWake(coreXProp, coreYProp, objectFrontCoreRadius + 5, 10, streakLength.add(50), streakAngle, directionX);
 			wake2.setFill(Color.hsb(25, 0.6, 0.6, 0.6));
 			wake2.setStroke(Color.TRANSPARENT);
 			
@@ -308,7 +308,7 @@ public final class Meteor implements SpellAnimationGroup {
 		
 		public Animation getAnimation(Point2D target, Random rng, double directionX) {
 			final double len = 500;
-			final double angle = rng.nextDouble() * backgroundStreakAngleVariant + backgroundStreakAngle;
+			final double angle = rng.nextDouble() * backLayerStreakAngleVariant + backLayerStreakAngle;
 			final double hue = rng.nextDouble() * 360;
 			
 			final double targetX = target.getX();
@@ -327,7 +327,7 @@ public final class Meteor implements SpellAnimationGroup {
 				new KeyValue(coreXProp, startX, Interpolator.LINEAR),
 				new KeyValue(coreYProp, startY, Interpolator.LINEAR)
 			));
-			keyFrames.add(new KeyFrame(foregroundTime,
+			keyFrames.add(new KeyFrame(objectFrontTime,
 				new KeyValue(coreColorProp, Color.hsb(70, 0.2, 0.95), Interpolator.DISCRETE),
 				new KeyValue(this.directionX, directionX, Interpolator.LINEAR),
 				new KeyValue(streakLength, 80, Interpolator.LINEAR),

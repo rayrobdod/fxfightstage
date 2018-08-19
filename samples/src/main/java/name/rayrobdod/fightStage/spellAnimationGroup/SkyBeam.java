@@ -37,7 +37,7 @@ import name.rayrobdod.fightStage.ShakeAnimationBiFunction;
 import name.rayrobdod.fightStage.SpellAnimationGroup;
 
 /**
- * Kinda basic target-only, foreground-only animation
+ * Kinda basic target-only, frontLayer-only animation
  */
 public final class SkyBeam implements SpellAnimationGroup {
 	
@@ -56,8 +56,8 @@ public final class SkyBeam implements SpellAnimationGroup {
 	private static final Duration attackStayDur = Duration.seconds(0.35);
 	private static final Duration attackOutDur = Duration.seconds(0.3);
 	
-	private final Node background;
-	private final Node foreground;
+	private final Node backLayer;
+	private final Node frontLayer;
 	private final Rectangle beamShape;
 	
 	public SkyBeam() {
@@ -68,16 +68,16 @@ public final class SkyBeam implements SpellAnimationGroup {
 		this.beamShape.setOpacity(0.0);
 		this.beamShape.setBlendMode(javafx.scene.effect.BlendMode.SCREEN);
 		
-		this.background = new Group(
+		this.backLayer = new Group(
 		);
 		
-		this.foreground = new Group(
+		this.frontLayer = new Group(
 			this.beamShape
 		);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

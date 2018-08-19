@@ -48,7 +48,7 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 /**
  * A spell effect using a background.
  * 
- * Slightly inspired by FE4's Nara tome's visuals.
+ * Slightly inspired by FE4's Naga tome's visuals.
  */
 public final class LightBurstPixel implements SpellAnimationGroup {
 	
@@ -76,8 +76,8 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 	private static final Duration fadeToNormalEndTime = pauseWhiteEndTime.add(fadeToNormalDur);
 	
 	private static final int framesPerSecond = 8;
-	private static final int backgroundWidth = 500;
-	private static final int backgroundHeight = 500;
+	private static final int backLayerWidth = 500;
+	private static final int backLayerHeight = 500;
 	private static final int explodeSize = 400;
 	
 	private static final Duration totalDuration = fadeToNormalEndTime;
@@ -86,20 +86,20 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 	private final Image[] burstFrames;
 	private final Rectangle blackRect;
 	private final ImageView burstView;
-	private final Node background;
+	private final Node backLayer;
 	
 	private final Rectangle whiteRect;
 	private final MoveTo explodeShape1;
 	private final CubicCurveTo explodeShape2;
 	private final CubicCurveTo explodeShape3;
-	private final Node foreground;
+	private final Node frontLayer;
 	
 	public LightBurstPixel() {
 		this.burstFrames = this.makeBurstFrames(new Random());
 		
 		this.blackRect = new Rectangle();
 		this.burstView = new ImageView();
-		this.background = new Group(
+		this.backLayer = new Group(
 			this.blackRect,
 			this.burstView
 		);
@@ -111,14 +111,14 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 		final Path explodeShape = new Path(explodeShape1, explodeShape2, explodeShape3);
 		explodeShape.setFill(Color.WHITE);
 		explodeShape.setStroke(Color.TRANSPARENT);
-		this.foreground = new Group(
+		this.frontLayer = new Group(
 			explodeShape,
 			this.whiteRect
 		);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,
@@ -127,24 +127,24 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 		ShakeAnimationBiFunction shakeAnimation,
 		Animation hitAnimation
 	) {
-		final double backgroundX = (origin.getX() + target.getX()) / 2 - backgroundWidth / 2;
-		final double backgroundY = (origin.getY() + target.getY()) / 2 - backgroundHeight / 2;
+		final double backLayerX = (origin.getX() + target.getX()) / 2 - backLayerWidth / 2;
+		final double backLayerY = (origin.getY() + target.getY()) / 2 - backLayerHeight / 2;
 		final Point2D explosionCenter = new Point2D(target.getX(), GROUND_Y);
 		
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(blackRect.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(blackRect.yProperty(), backgroundY, Interpolator.DISCRETE),
-			new KeyValue(blackRect.widthProperty(), backgroundWidth, Interpolator.DISCRETE),
-			new KeyValue(blackRect.heightProperty(), backgroundHeight, Interpolator.DISCRETE),
+			new KeyValue(blackRect.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(blackRect.yProperty(), backLayerY, Interpolator.DISCRETE),
+			new KeyValue(blackRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
+			new KeyValue(blackRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
 			new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.LINEAR),
-			new KeyValue(whiteRect.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.yProperty(), backgroundY, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.widthProperty(), backgroundWidth, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.heightProperty(), backgroundHeight, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.yProperty(), backLayerY, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
 			new KeyValue(whiteRect.fillProperty(), Color.TRANSPARENT, Interpolator.DISCRETE),
-			new KeyValue(burstView.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(burstView.yProperty(), backgroundY, Interpolator.DISCRETE),
+			new KeyValue(burstView.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(burstView.yProperty(), backLayerY, Interpolator.DISCRETE),
 			new KeyValue(burstView.opacityProperty(), 0.0, Interpolator.LINEAR),
 			new KeyValue(explodeShape1.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
 			new KeyValue(explodeShape2.xProperty(), explosionCenter.getX(), Interpolator.DISCRETE),
@@ -163,16 +163,16 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 		));
 		// Timeline apparently will not touch something without it being mentioned at least twice
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ONE,
-			new KeyValue(blackRect.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(blackRect.yProperty(), backgroundY, Interpolator.DISCRETE),
-			new KeyValue(blackRect.widthProperty(), backgroundWidth, Interpolator.DISCRETE),
-			new KeyValue(blackRect.heightProperty(), backgroundHeight, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.yProperty(), backgroundY, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.widthProperty(), backgroundWidth, Interpolator.DISCRETE),
-			new KeyValue(whiteRect.heightProperty(), backgroundHeight, Interpolator.DISCRETE),
-			new KeyValue(burstView.xProperty(), backgroundX, Interpolator.DISCRETE),
-			new KeyValue(burstView.yProperty(), backgroundY, Interpolator.DISCRETE)
+			new KeyValue(blackRect.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(blackRect.yProperty(), backLayerY, Interpolator.DISCRETE),
+			new KeyValue(blackRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
+			new KeyValue(blackRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.yProperty(), backLayerY, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.widthProperty(), backLayerWidth, Interpolator.DISCRETE),
+			new KeyValue(whiteRect.heightProperty(), backLayerHeight, Interpolator.DISCRETE),
+			new KeyValue(burstView.xProperty(), backLayerX, Interpolator.DISCRETE),
+			new KeyValue(burstView.yProperty(), backLayerY, Interpolator.DISCRETE)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeToBlackEndTime,
 			new KeyValue(blackRect.fillProperty(), Color.BLACK, Interpolator.LINEAR)
@@ -276,7 +276,7 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 		
 		for (int t = 0; t < gradientFrames; t++) {
 			final double t2 = ((double) t) / framesPerSecond;
-			retval[t] = new WritableImage(new BurstPixelReader(noise, t2), backgroundWidth, backgroundHeight);
+			retval[t] = new WritableImage(new BurstPixelReader(noise, t2), backLayerWidth, backLayerHeight);
 		}
 		return retval;
 	}
@@ -288,8 +288,8 @@ public final class LightBurstPixel implements SpellAnimationGroup {
 		private final PerlinNoise noise;
 		private final double time;
 		private final double fadeInOffset;
-		private final int cx = backgroundWidth / 2;
-		private final int cy = backgroundHeight / 2;
+		private final int cx = backLayerWidth / 2;
+		private final int cy = backLayerHeight / 2;
 		
 		public BurstPixelReader(PerlinNoise noise, double time) {
 			this.noise = noise;

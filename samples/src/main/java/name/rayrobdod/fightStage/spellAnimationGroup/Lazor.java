@@ -46,7 +46,7 @@ public final class Lazor implements SpellAnimationGroup {
 	private static final int crossSectionWidth = 20;
 	
 	private final Path node;
-	private final Node background;
+	private final Node backLayer;
 	
 	private final MoveTo followerLeft;
 	private final LineTo followerRight;
@@ -61,11 +61,11 @@ public final class Lazor implements SpellAnimationGroup {
 		this.node = new Path(followerLeft, followerRight, leaderRight, leaderLeft);
 		this.node.setFill(color);
 		this.node.setStroke(Color.TRANSPARENT);
-		this.background = new Circle();
+		this.backLayer = new Circle();
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.node; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.node; }
 	
 	public Animation getAnimation(
 		Point2D origin,

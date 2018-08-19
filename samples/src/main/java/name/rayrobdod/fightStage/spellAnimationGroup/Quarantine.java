@@ -74,8 +74,8 @@ public final class Quarantine implements SpellAnimationGroup {
 	private static final Duration drillFadeOutDur = Duration.seconds(0.2);
 	private static final Duration fillFadeOutDur = Duration.seconds(0.2);
 	
-	private final Node background;
-	private final Group foreground;
+	private final Node backLayer;
+	private final Group frontLayer;
 	private final ObjectProperty<Point2D> target;
 	private final List<DoubleProperty> drillOffsetXs;
 	private final List<DoubleProperty> drillOffsetYs;
@@ -85,8 +85,8 @@ public final class Quarantine implements SpellAnimationGroup {
 	private final WritableObservableListWrapper<Double> fillPoints;
 	
 	public Quarantine() {
-		this.background = new Group();
-		this.foreground = new Group();
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		this.drillOffsetXs = Stream.generate(SimpleDoubleProperty::new).limit(pointCount).collect(Collectors.toList());
 		this.drillOffsetYs = Stream.generate(SimpleDoubleProperty::new).limit(pointCount).collect(Collectors.toList());
 		this.drillOpacity = new SimpleDoubleProperty(0.0);
@@ -104,7 +104,7 @@ public final class Quarantine implements SpellAnimationGroup {
 			fill.fillProperty().bind(fillFillProp);
 			
 			this.fillPoints = new WritableObservableListWrapper<>(fill.getPoints());
-			this.foreground.getChildren().add(fill);
+			this.frontLayer.getChildren().add(fill);
 		}
 		
 		for (int i = 0; i < pointCount; i++) {
@@ -125,7 +125,7 @@ public final class Quarantine implements SpellAnimationGroup {
 			cut.endXProperty().bind(targetX.add(new EndCutBinding(curX, vertex1.getX(), vertex2.getX())));
 			cut.endYProperty().bind(targetY.add(new EndCutBinding(curY, vertex1.getY(), vertex2.getY())));
 			
-			this.foreground.getChildren().add(cut);
+			this.frontLayer.getChildren().add(cut);
 		}
 		
 		for (int i = 0; i < pointCount; i++) {
@@ -139,12 +139,12 @@ public final class Quarantine implements SpellAnimationGroup {
 			drill.centerXProperty().bind(targetX.add(drillOffsetXs.get(i)));
 			drill.centerYProperty().bind(targetY.add(drillOffsetYs.get(i)));
 			
-			this.foreground.getChildren().add(drill);
+			this.frontLayer.getChildren().add(drill);
 		}
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

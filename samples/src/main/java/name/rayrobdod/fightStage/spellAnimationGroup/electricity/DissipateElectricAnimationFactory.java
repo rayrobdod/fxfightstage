@@ -69,7 +69,7 @@ public final class DissipateElectricAnimationFactory implements ElectricAnimatio
 	
 	public DissipateElectricAnimationFactory(
 		  final JaggedLineFactory lineGenerator
-		, final Group foreground
+		, final Group frontLayer
 	) {
 		this.lineGenerator = lineGenerator;
 		
@@ -85,8 +85,8 @@ public final class DissipateElectricAnimationFactory implements ElectricAnimatio
 		this.sharpShapePath = new WritableObservableListWrapper<>(sharpShape.getElements());
 		this.blurredShapePath = new WritableObservableListWrapper<>(blurredShape.getElements());
 		
-		foreground.getChildren().add(sharpShape);
-		foreground.getChildren().add(blurredShape);
+		frontLayer.getChildren().add(sharpShape);
+		frontLayer.getChildren().add(blurredShape);
 	}
 	
 	public Animation getAnimation(
