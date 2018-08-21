@@ -95,6 +95,7 @@ public final class Arrow implements SpellAnimationGroup {
 		this.frontLayer = new Group(arrow, physicalHit.objectFrontLayer());
 	}
 	
+	public Node backgroundLayer() { return physicalHit.backgroundLayer(); }
 	public Node objectBehindLayer() { return physicalHit.objectBehindLayer(); }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

@@ -124,8 +124,10 @@ public final class PlayBattleAnimationEventHandlerTest {
 	private static class NilSpellAnimationGroup implements SpellAnimationGroup {
 		private Node fore = new Group();
 		private Node back = new Group();
+		private Node backer = new Group();
 		public Node objectBehindLayer() {return back;}
 		public Node objectFrontLayer() {return fore;}
+		public Node backgroundLayer() {return backer;}
 		public Animation getAnimation(
 			  Point2D origin
 			, Point2D target

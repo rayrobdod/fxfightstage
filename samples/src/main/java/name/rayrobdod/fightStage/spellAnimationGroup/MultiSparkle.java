@@ -68,6 +68,7 @@ public final class MultiSparkle implements SpellAnimationGroup {
 	
 	private final Group frontLayer;
 	private final Group backLayer;
+	private final Group background;
 	
 	private final DoubleProperty targetX;
 	private final DoubleProperty targetY;
@@ -102,6 +103,7 @@ public final class MultiSparkle implements SpellAnimationGroup {
 		
 		this.frontLayer = new Group(shapes);
 		this.backLayer = new Group();
+		this.background = new Group();
 		
 		Arrays.asList(shapes).forEach(shape -> {
 			shape.setStroke(Color.TRANSPARENT);
@@ -111,6 +113,7 @@ public final class MultiSparkle implements SpellAnimationGroup {
 		this.shapeColors = Arrays.stream(shapes).map(x -> x.fillProperty()).collect(Collectors.toList());
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

@@ -70,6 +70,7 @@ public final class Atom implements SpellAnimationGroup {
 	private final List<RingOfParticles> rings;
 	private final Group backLayer;
 	private final Group frontLayer;
+	private final Group background;
 	
 	public Atom() {
 		this.rings = normals.stream()
@@ -77,6 +78,7 @@ public final class Atom implements SpellAnimationGroup {
 				.collect(Collectors.toList());
 		this.backLayer = new Group();
 		this.frontLayer = new Group();
+		this.background = new Group();
 		
 		this.rings.forEach(ring -> {
 			this.frontLayer.getChildren().add(ring.frontHead);
@@ -88,6 +90,7 @@ public final class Atom implements SpellAnimationGroup {
 	
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

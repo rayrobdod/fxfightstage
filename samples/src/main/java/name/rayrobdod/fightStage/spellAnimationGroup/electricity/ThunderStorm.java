@@ -52,6 +52,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 	private static final int enemySparkCount = 4;
 	private static final double skyPanDistance = 200;
 	
+	private final Group background;
 	private final Group backLayer;
 	private final Group frontLayer;
 	
@@ -71,6 +72,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 		this.cloudRightTranslateX = cloudRightTranslate.xProperty();
 		this.cloudOpacity.set(0);
 		
+		this.background = new Group();
 		this.backLayer = new Group(clouds);
 		this.frontLayer = new Group();
 		
@@ -90,6 +92,7 @@ public final class ThunderStorm implements SpellAnimationGroup {
 				.collect(Collectors.toList());
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	
