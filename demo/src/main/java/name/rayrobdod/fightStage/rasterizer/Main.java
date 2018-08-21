@@ -95,112 +95,28 @@ public final class Main extends Application {
 				final Point2D target = new Point2D(2 * canvasSize.getWidth() / 3, 2 * canvasSize.getHeight() * -1 / 10);
 				final Point2D origin = new Point2D(2 * canvasSize.getWidth() * 2 / 3, 2 * canvasSize.getHeight() * -1 / 10);
 				
-				final Rectangle forceThingsToStayInPlace = new Rectangle(- canvasSize.getWidth() / 2, - canvasSize.getHeight() / 2, canvasSize.getWidth() * 2, canvasSize.getHeight() * 2);
-				forceThingsToStayInPlace.setFill(Color.TRANSPARENT);
-				forceThingsToStayInPlace.setStroke(Color.BLACK);
-				forceThingsToStayInPlace.setStrokeWidth(2);
 				spell.objectFrontLayer().getTransforms().addAll(canvasOffset, scale);
 				spell.objectBehindLayer().getTransforms().addAll(canvasOffset, scale);
 				if (disableSmoothing) {
 					setSmoothRecursive(spell.objectFrontLayer(), false);
 					setSmoothRecursive(spell.objectBehindLayer(), false);
 				}
-				final Node canvas = new Group(forceThingsToStayInPlace, spell.objectBehindLayer(), spell.objectFrontLayer());
+				final Node canvasBehind = new Group(forceThingsToStayInPlaceNode(canvasSize), spell.objectBehindLayer());
+				final Node canvasFront = new Group(forceThingsToStayInPlaceNode(canvasSize), spell.objectFrontLayer());
 				final Animation anim = spell.getAnimation(origin, target, BattlePanAnimations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
-				
-				anim.setRate(0.001);
-				anim.play();
-				final int frameCount = (int) (anim.getTotalDuration().toMillis() / frameRate.toMillis());
 				
 				final Thread runner = new Thread(
 					() -> {
-						final Image frames[] = new Image[frameCount];
-						
 						try {
-							// generate each frame
-							for (int i = 0; i < frameCount; i++) {
-								final int i2 = i;
-								
-								runLaterAndAwait(() -> {
-									final Duration jumpToDur = frameRate.multiply(i2);
-									anim.jumpTo(jumpToDur);
-								});
-								runLaterAndAwait(() -> {
-									final SnapshotParameters parameters = new SnapshotParameters();
-									parameters.setFill(Color.TRANSPARENT);
-									parameters.setViewport(new Rectangle2D(0,0, canvasSize.getWidth(), canvasSize.getHeight()));
-									final WritableImage snapshot = canvas.snapshot(parameters, null);
-									frames[i2] = snapshot;
-								});
-							}
+							render(
+								canvasBehind, anim,
+								canvasSize, frameRate, bitDepth, outputFileStr + "_behind.png"
+							);
 							
-							// trim the frame's whitespace
-							final java.awt.Rectangle trimmedBounds = new java.awt.Rectangle(80, 110, 0, 0);
-							for (int k = 0; k < frameCount; k++)
-							for (int i = 0; i < canvasSize.getWidth(); i++)
-							for (int j = 0; j < canvasSize.getHeight(); j++) {
-								if (0 != frames[k].getPixelReader().getArgb(i, j)) {
-									trimmedBounds.add(i, j);
-								}
-							}
-							
-							// Compose frames
-							final int columns = (int) Math.ceil(Math.sqrt( frames.length * trimmedBounds.height / trimmedBounds.width ));
-							final int rows = (int) Math.ceil( ((float) frames.length) / columns );
-							WritableImage sheet = new WritableImage(trimmedBounds.width * columns, trimmedBounds.height * rows);
-							
-							for (int i = 0; i < frameCount; i++) {
-								final int xtile = i % columns;
-								final int ytile = i / columns;
-								final int x = xtile * trimmedBounds.width;
-								final int y = ytile * trimmedBounds.height;
-								
-								sheet.getPixelWriter().setPixels(
-									x, y,
-									trimmedBounds.width, trimmedBounds.height,
-									frames[i].getPixelReader(),
-									trimmedBounds.x, trimmedBounds.y
-								);
-							}
-							
-							// Quantize image to fit in the specified bit depth
-							if (bitDepth > 0) {
-								final Set<Color> quantizePallette = QuantizePallette.apply(sheet, bitDepth);
-								sheet = new WritableImage(
-									new QuantizingPixelReader(sheet.getPixelReader(), QuantizePallette.apply(sheet, bitDepth)),
-									// new TruncatingPixelReader(sheet.getPixelReader()),
-									trimmedBounds.width * columns,
-									trimmedBounds.height * rows
-								);
-							}
-							
-							// find hitFrame
-							List<FindMockShakeAnimationStartTimesResult> shakeTimes = findMockShakeAnimationStartTimes(anim).collect(Collectors.toList());
-							final String hitFramesStr = shakeTimes.stream().map(x -> (int) (x.startTime.toMillis() / frameRate.toMillis())).map(x -> "" + x).collect(Collectors.joining(", ", "[", "]"));
-							final String shakeFramesStr = shakeTimes.stream().map(x -> (int) (x.duration.toMillis() / frameRate.toMillis()) * 2 / 3).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
-							final String shakeIntensityStr = shakeTimes.stream().map(x -> (int) (x.intensity / 2)).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
-							
-							// Output file to disk
-							final BufferedImage sheetSwing = SwingFXUtils.fromFXImage(sheet, null);
-							final File outputFile = new File(outputFileStr);
-							
-							ImageIO.write(sheetSwing, "png", outputFile);
-							System.out.println("{");
-							System.out.println("\t\"name\": \"" + outputFile.getName() + "\",");
-							System.out.println("\t\"path\": \"res/battle_anim/" + outputFile.getName() + "\",");
-							System.out.println("\t\"frames\": " + frameCount + ",");
-							System.out.println("\t\"width\": " + trimmedBounds.width + ",");
-							System.out.println("\t\"height\": " + trimmedBounds.height + ",");
-							System.out.println("\t\"columns\": " + columns + ",");
-							System.out.println("\t\"offsetX\": " + (84 - trimmedBounds.x) + ",");
-							System.out.println("\t\"offsetY\": " + (120 - trimmedBounds.y) + ",");
-							System.out.println("\t\"speed\": " + frameRate.toSeconds() + ",");
-							System.out.println("\t\"freeze\": -1" + ",");
-							System.out.println("\t\"hitframes\": " + hitFramesStr + ",");
-							System.out.println("\t\"shakeFrames\": " + shakeFramesStr + ",");
-							System.out.println("\t\"shakeIntensity\": " + shakeIntensityStr + ",");
-							System.out.println("\t\"soundMap\": TODO");
-							System.out.println("}");
+							render(
+								canvasFront, anim,
+								canvasSize, frameRate, bitDepth, outputFileStr + "_front.png"
+							);
 							
 						} catch (InterruptedException ex) {
 							ex.printStackTrace();
@@ -275,6 +191,123 @@ public final class Main extends Application {
 			((javafx.scene.shape.Shape) n).setSmooth(newValue);
 		} else if (n instanceof javafx.scene.image.ImageView) {
 			((javafx.scene.image.ImageView) n).setSmooth(newValue);
+		}
+	}
+	
+	/**
+	 * An object with out-of-bounds rendering to make sure Node#render
+	 * doesn't move visible items around arbitrarily
+	 */
+	private static Node forceThingsToStayInPlaceNode(java.awt.Dimension canvasSize) {
+		final Rectangle forceThingsToStayInPlace = new Rectangle(
+				-canvasSize.getWidth() / 2, -canvasSize.getHeight() / 2,
+				canvasSize.getWidth() * 2, canvasSize.getHeight() * 2
+		);
+		forceThingsToStayInPlace.setFill(Color.TRANSPARENT);
+		forceThingsToStayInPlace.setStroke(Color.BLACK);
+		forceThingsToStayInPlace.setStrokeWidth(2);
+		return forceThingsToStayInPlace;
+	}
+	
+	/**
+	 * @pre cannot be called on the main thread
+	 */
+	private static void render(
+		Node canvas, Animation anim,
+		java.awt.Dimension canvasSize, Duration frameRate, int bitDepth, String outputFileStr
+	) throws InterruptedException, IOException {
+		anim.setRate(0.001);
+		anim.play();
+		final int frameCount = (int) (anim.getTotalDuration().toMillis() / frameRate.toMillis());
+		
+		final Image frames[] = new Image[frameCount];
+		// generate each frame
+		for (int i = 0; i < frameCount; i++) {
+			final int i2 = i;
+			
+			runLaterAndAwait(() -> {
+				final Duration jumpToDur = frameRate.multiply(i2);
+				anim.jumpTo(jumpToDur);
+			});
+			runLaterAndAwait(() -> {
+				final SnapshotParameters parameters = new SnapshotParameters();
+				parameters.setFill(Color.TRANSPARENT);
+				parameters.setViewport(new Rectangle2D(0,0, canvasSize.getWidth(), canvasSize.getHeight()));
+				final WritableImage snapshot = canvas.snapshot(parameters, null);
+				frames[i2] = snapshot;
+			});
+		}
+		
+		// trim the frame's whitespace
+		final java.awt.Rectangle trimmedBounds = new java.awt.Rectangle(80, 110, 0, 0);
+		for (int k = 0; k < frameCount; k++)
+		for (int i = 0; i < canvasSize.getWidth(); i++)
+		for (int j = 0; j < canvasSize.getHeight(); j++) {
+			if (0 != frames[k].getPixelReader().getArgb(i, j)) {
+				trimmedBounds.add(i, j);
+			}
+		}
+		
+		if (trimmedBounds.width != 0) {
+			// Compose frames
+			final int columns = (int) Math.ceil(Math.sqrt( frames.length * trimmedBounds.height / trimmedBounds.width ));
+			final int rows = (int) Math.ceil( ((float) frames.length) / columns );
+			WritableImage sheet = new WritableImage(trimmedBounds.width * columns, trimmedBounds.height * rows);
+			
+			for (int i = 0; i < frameCount; i++) {
+				final int xtile = i % columns;
+				final int ytile = i / columns;
+				final int x = xtile * trimmedBounds.width;
+				final int y = ytile * trimmedBounds.height;
+				
+				sheet.getPixelWriter().setPixels(
+					x, y,
+					trimmedBounds.width, trimmedBounds.height,
+					frames[i].getPixelReader(),
+					trimmedBounds.x, trimmedBounds.y
+				);
+			}
+			
+			// Quantize image to fit in the specified bit depth
+			if (bitDepth > 0) {
+				final Set<Color> quantizePallette = QuantizePallette.apply(sheet, bitDepth);
+				sheet = new WritableImage(
+					new QuantizingPixelReader(sheet.getPixelReader(), QuantizePallette.apply(sheet, bitDepth)),
+					// new TruncatingPixelReader(sheet.getPixelReader()),
+					trimmedBounds.width * columns,
+					trimmedBounds.height * rows
+				);
+			}
+			
+			// find hitFrame
+			List<FindMockShakeAnimationStartTimesResult> shakeTimes = findMockShakeAnimationStartTimes(anim).collect(Collectors.toList());
+			final String hitFramesStr = shakeTimes.stream().map(x -> (int) (x.startTime.toMillis() / frameRate.toMillis())).map(x -> "" + x).collect(Collectors.joining(", ", "[", "]"));
+			final String shakeFramesStr = shakeTimes.stream().map(x -> (int) (x.duration.toMillis() / frameRate.toMillis()) * 2 / 3).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
+			final String shakeIntensityStr = shakeTimes.stream().map(x -> (int) (x.intensity / 2)).map(x -> "" + x).collect(valueIfAllEqual()).orElse("TODO");
+			
+			// Output file to disk
+			final BufferedImage sheetSwing = SwingFXUtils.fromFXImage(sheet, null);
+			final File outputFile = new File(outputFileStr);
+			
+			ImageIO.write(sheetSwing, "png", outputFile);
+			System.out.println("{");
+			System.out.println("\t\"name\": \"" + outputFile.getName() + "\",");
+			System.out.println("\t\"path\": \"res/battle_anim/" + outputFile.getName() + "\",");
+			System.out.println("\t\"frames\": " + frameCount + ",");
+			System.out.println("\t\"width\": " + trimmedBounds.width + ",");
+			System.out.println("\t\"height\": " + trimmedBounds.height + ",");
+			System.out.println("\t\"columns\": " + columns + ",");
+			System.out.println("\t\"offsetX\": " + (84 - trimmedBounds.x) + ",");
+			System.out.println("\t\"offsetY\": " + (120 - trimmedBounds.y) + ",");
+			System.out.println("\t\"speed\": " + frameRate.toSeconds() + ",");
+			System.out.println("\t\"freeze\": -1" + ",");
+			System.out.println("\t\"hitframes\": " + hitFramesStr + ",");
+			System.out.println("\t\"shakeFrames\": " + shakeFramesStr + ",");
+			System.out.println("\t\"shakeIntensity\": " + shakeIntensityStr + ",");
+			System.out.println("\t\"soundMap\": TODO");
+			System.out.println("}");
+		} else {
+			System.out.println("No image produced for " + outputFileStr);
 		}
 	}
 	

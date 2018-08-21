@@ -205,7 +205,7 @@ project(":samples") {
 		ignoreExitValue = true
 	}
 	
-	//example: `gradlew runRasterize "-Pargs=--spell=Tornado --d=out.png --fps=60 --bitDepth=8"`
+	//example: `gradlew runRasterize "-Pargs=--spell=Tornado --d=out.png --fps=60 --bitDepth=8 --no-smooth"`
 	task runRasterize(dependsOn: classes, type: JavaExec) {
 		main = "name.rayrobdod.fightStage.rasterizer.Main"
 		classpath = sourceSets.main.runtimeClasspath
