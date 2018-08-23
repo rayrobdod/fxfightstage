@@ -90,19 +90,22 @@ public final class Main extends Application {
 				final SpellAnimationGroup spell = filteredSpells.get(0).supplier.get();
 				
 				final java.awt.Dimension canvasSize = new java.awt.Dimension(240, 180);
-				final Translate canvasOffset = new Translate(0, canvasSize.getHeight() * 2 / 3);
+				final Translate objectCanvasOffset = new Translate(0, canvasSize.getHeight() * 2 / 3);
 				final Scale scale = new Scale(0.5, 0.5);
 				final Point2D target = new Point2D(2 * canvasSize.getWidth() / 3, 2 * canvasSize.getHeight() * -1 / 10);
 				final Point2D origin = new Point2D(2 * canvasSize.getWidth() * 2 / 3, 2 * canvasSize.getHeight() * -1 / 10);
 				
-				spell.objectFrontLayer().getTransforms().addAll(canvasOffset, scale);
-				spell.objectBehindLayer().getTransforms().addAll(canvasOffset, scale);
+				spell.objectFrontLayer().getTransforms().addAll(objectCanvasOffset, scale);
+				spell.objectBehindLayer().getTransforms().addAll(objectCanvasOffset, scale);
+				spell.backgroundLayer().getTransforms().addAll(new Scale(canvasSize.getWidth(), canvasSize.getHeight()));
 				if (disableSmoothing) {
 					setSmoothRecursive(spell.objectFrontLayer(), false);
 					setSmoothRecursive(spell.objectBehindLayer(), false);
+					setSmoothRecursive(spell.backgroundLayer(), false);
 				}
 				final Node canvasBehind = new Group(forceThingsToStayInPlaceNode(canvasSize), spell.objectBehindLayer());
 				final Node canvasFront = new Group(forceThingsToStayInPlaceNode(canvasSize), spell.objectFrontLayer());
+				final Node canvasBackground = new Group(forceThingsToStayInPlaceNode(canvasSize), spell.backgroundLayer());
 				final Animation anim = spell.getAnimation(origin, target, BattlePanAnimations.nil(), new MockShakeAnimationBiFunction(), Animations.nil());
 				
 				final Thread runner = new Thread(
@@ -116,6 +119,11 @@ public final class Main extends Application {
 							render(
 								canvasFront, anim,
 								canvasSize, frameRate, bitDepth, outputFileStr + "_front.png"
+							);
+							
+							render(
+								canvasBackground, anim,
+								canvasSize, frameRate, bitDepth, outputFileStr + "_background.png"
 							);
 							
 						} catch (InterruptedException ex) {
