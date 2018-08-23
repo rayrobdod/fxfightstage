@@ -400,7 +400,7 @@ public final class BattleAnimation {
 		}
 		
 		public Animation apply(Duration duration) {
-			return this.apply(DEFAULT_INTENSITY, shakeFrequency);
+			return this.apply(DEFAULT_INTENSITY, duration);
 		}
 		
 		public Animation apply(double intensity, Duration duration) {

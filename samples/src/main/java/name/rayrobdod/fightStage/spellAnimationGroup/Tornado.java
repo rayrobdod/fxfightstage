@@ -222,10 +222,10 @@ public final class Tornado implements SpellAnimationGroup {
 			final double widthNoDrift = Interpolator.EASE_OUT.interpolate(tornadoBotWidth, tornadoTopWidth, fraction);
 			final double yNoDrift = Interpolator.LINEAR.interpolate(GROUND_Y, GROUND_Y - tornadoHeight, fraction);
 			
-			final double leftY = yNoDrift + noise.sum2D(particlePoolIndex / 10d, i * 12d, 4, 2, 2) * 20;
-			final double rightY = yNoDrift + noise.sum2D(particlePoolIndex / 10d, 64 + i * 12d, 4, 2, 2) * 20;
-			final double leftX = centerX - widthNoDrift / 2 + noise.sum2D(particlePoolIndex / 10d, 128 + i * 12d, 4, 2, 2) * 40;
-			final double rightX = centerX + widthNoDrift / 2 + noise.sum2D(particlePoolIndex / 10d, 192 + i * 12d, 4, 2, 2) * 40;
+			final double leftY = yNoDrift + noise.sum2D(particlePoolIndex / 10d, i * 12d, 4, 2, 2) * (tornadoHeight / 10);
+			final double rightY = yNoDrift + noise.sum2D(particlePoolIndex / 10d, 64 + i * 12d, 4, 2, 2) * (tornadoHeight / 10);
+			final double leftX = centerX - widthNoDrift / 2 + noise.sum2D(particlePoolIndex / 10d, 128 + i * 12d, 4, 2, 2) * (tornadoBotWidth / 2);
+			final double rightX = centerX + widthNoDrift / 2 + noise.sum2D(particlePoolIndex / 10d, 192 + i * 12d, 4, 2, 2) * (tornadoBotWidth / 2);
 			
 			retval.add(new KeyFrame(currentTime,
 				new KeyValue(particle.leftYProperty, leftY, Interpolator.LINEAR),

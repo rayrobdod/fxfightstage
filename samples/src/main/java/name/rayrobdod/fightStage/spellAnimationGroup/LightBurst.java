@@ -244,7 +244,7 @@ public final class LightBurst implements SpellAnimationGroup {
 			new KeyValue(explodeShape3.yProperty(), 0, Interpolator.DISCRETE)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeToNormalEndTime,
-			new KeyValue(whiteRect.fillProperty(), Color.TRANSPARENT, Interpolator.LINEAR)
+			new KeyValue(whiteRect.fillProperty(), Color.color(1.0,1.0,1.0,0.0), Interpolator.LINEAR)
 		));
 		
 		
