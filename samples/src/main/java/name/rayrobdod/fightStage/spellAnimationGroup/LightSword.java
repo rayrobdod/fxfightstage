@@ -103,6 +103,7 @@ public final class LightSword implements SpellAnimationGroup {
 	private static final double initOffsetY = 75;
 	private static final double overtimeFramerate = 15;
 	
+	private final Node background;
 	private final Node backLayer;
 	private final Path frontLayer;
 	/** The x-control-point properties found in the frontLayer, in order */
@@ -135,6 +136,8 @@ public final class LightSword implements SpellAnimationGroup {
 		this.ys = pointProps.ys;
 		
 		this.backLayer = new Rectangle();
+		this.background = new Rectangle();
+		
 		this.frontLayer = new Path(pathParts);
 		this.frontLayer.setFill(Color.CORNSILK);
 		this.frontLayer.setStroke(Color.TRANSPARENT);
@@ -144,6 +147,7 @@ public final class LightSword implements SpellAnimationGroup {
 	
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

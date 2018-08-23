@@ -58,6 +58,7 @@ public final class SkyBeam implements SpellAnimationGroup {
 	
 	private final Node backLayer;
 	private final Node frontLayer;
+	private final Node background;
 	private final Rectangle beamShape;
 	
 	public SkyBeam() {
@@ -74,8 +75,11 @@ public final class SkyBeam implements SpellAnimationGroup {
 		this.frontLayer = new Group(
 			this.beamShape
 		);
+		
+		this.background = new Group();
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

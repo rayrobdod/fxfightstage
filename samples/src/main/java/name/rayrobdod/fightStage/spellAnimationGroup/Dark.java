@@ -51,18 +51,21 @@ public final class Dark implements SpellAnimationGroup {
 	private static final double defaultCenterY = 200;
 	
 	
-	private final Circle node;
+	private final Circle frontLayer;
 	private final Circle backLayer;
+	private final Circle background;
 	
 	public Dark() {
-		this.node = new Circle();
-		this.node.setFill(Color.BLACK);
-		this.node.setBlendMode(BlendMode.EXCLUSION);
+		this.frontLayer = new Circle();
+		this.frontLayer.setFill(Color.BLACK);
+		this.frontLayer.setBlendMode(BlendMode.EXCLUSION);
 		this.backLayer = new Circle();
+		this.background = new Circle();
 	}
 	
 	public Node objectBehindLayer() { return this.backLayer; }
-	public Node objectFrontLayer() { return this.node; }
+	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,
@@ -73,24 +76,24 @@ public final class Dark implements SpellAnimationGroup {
 	) {
 		final Timeline timeline = new Timeline();
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO,
-			new KeyValue(this.node.centerXProperty(), target.getX(), Interpolator.DISCRETE),
-			new KeyValue(this.node.centerYProperty(), target.getY(), Interpolator.DISCRETE),
-			new KeyValue(this.node.fillProperty(), Color.BLACK, Interpolator.DISCRETE),
-			new KeyValue(this.node.radiusProperty(), mainRadius, Interpolator.DISCRETE)
+			new KeyValue(this.frontLayer.centerXProperty(), target.getX(), Interpolator.DISCRETE),
+			new KeyValue(this.frontLayer.centerYProperty(), target.getY(), Interpolator.DISCRETE),
+			new KeyValue(this.frontLayer.fillProperty(), Color.BLACK, Interpolator.DISCRETE),
+			new KeyValue(this.frontLayer.radiusProperty(), mainRadius, Interpolator.DISCRETE)
 		));
 		// Timeline apparently will not touch something without it being mentioned at least twice
 		timeline.getKeyFrames().add(new KeyFrame(Duration.ONE,
-			new KeyValue(this.node.centerXProperty(), target.getX(), Interpolator.DISCRETE),
-			new KeyValue(this.node.centerYProperty(), target.getY(), Interpolator.DISCRETE)
+			new KeyValue(this.frontLayer.centerXProperty(), target.getX(), Interpolator.DISCRETE),
+			new KeyValue(this.frontLayer.centerYProperty(), target.getY(), Interpolator.DISCRETE)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeInTime,
-			new KeyValue(this.node.fillProperty(), mainColor, Interpolator.LINEAR)
+			new KeyValue(this.frontLayer.fillProperty(), mainColor, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeInTime.add(stayTime),
-			new KeyValue(this.node.radiusProperty(), mainRadius, Interpolator.LINEAR)
+			new KeyValue(this.frontLayer.radiusProperty(), mainRadius, Interpolator.LINEAR)
 		));
 		timeline.getKeyFrames().add(new KeyFrame(fadeInTime.add(stayTime).add(fadeOutTime),
-			new KeyValue(this.node.radiusProperty(), 0, Interpolator.LINEAR)
+			new KeyValue(this.frontLayer.radiusProperty(), 0, Interpolator.LINEAR)
 		));
 		
 		return new SequentialTransition(

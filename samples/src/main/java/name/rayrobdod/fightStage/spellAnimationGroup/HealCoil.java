@@ -66,11 +66,13 @@ public final class HealCoil implements SpellAnimationGroup {
 	
 	private final Group frontLayer;
 	private final Group backLayer;
+	private final Group background;
 	private final Circle[] particles;
 	
 	public HealCoil() {
 		this.backLayer = new Group();
 		this.frontLayer = new Group();
+		this.background = new Group();
 		
 		this.particles = Stream.generate(Circle::new)
 				.limit(particleCount)
@@ -94,6 +96,7 @@ public final class HealCoil implements SpellAnimationGroup {
 	
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

@@ -91,8 +91,21 @@ public final class BattleAnimation {
 		final Translate panTranslate = new Translate();
 		final Scale magnifyTransform = new Scale();
 		
+		final Translate backgroundCenter = new Translate();
+		final Translate backgroundPan = new Translate();
+		final Scale backgroundScale = new Scale();
+		
+		final Node gameNodeBackgrounds = new Group(
+			  left.spell.backgroundLayer()
+			, right.spell.backgroundLayer()
+		);
+		gameNodeBackgrounds.getTransforms().add(backgroundScale);
+		gameNodeBackgrounds.getTransforms().add(backgroundCenter);
+		gameNodeBackgrounds.getTransforms().add(backgroundPan);
+		
 		final Node gameNode = new Group(
 			  backgroundNode.apply(containerSize)
+			, gameNodeBackgrounds
 			, left.spell.objectBehindLayer()
 			, right.spell.objectBehindLayer()
 			, left.unit.objectBehindLayer()
@@ -118,6 +131,12 @@ public final class BattleAnimation {
 		magnifyTransform.pivotXProperty().bind(centerTranslate.xProperty());
 		magnifyTransform.pivotYProperty().bind(centerTranslate.yProperty());
 		
+		backgroundScale.xProperty().bind(gamePane.widthProperty());
+		backgroundScale.yProperty().bind(gamePane.heightProperty());
+		backgroundCenter.xProperty().bind(centerTranslate.xProperty().negate().divide(gamePane.widthProperty()));
+		backgroundCenter.yProperty().bind(centerTranslate.yProperty().negate().divide(gamePane.heightProperty()));
+		backgroundPan.xProperty().bind(panTranslate.xProperty().negate().divide(gamePane.widthProperty()));
+		backgroundPan.yProperty().bind(panTranslate.yProperty().negate().divide(gamePane.heightProperty()));
 		
 		final HealthBar healthbarLeft = new HealthBar(HPos.LEFT, left.teamColor, left.initialCurrentHitpoints, left.maximumHitpoints);
 		final HealthBar healthbarRight = new HealthBar(HPos.RIGHT, right.teamColor, right.initialCurrentHitpoints, right.maximumHitpoints);

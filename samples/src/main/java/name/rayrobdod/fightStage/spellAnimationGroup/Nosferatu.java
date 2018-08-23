@@ -59,11 +59,13 @@ public final class Nosferatu implements SpellAnimationGroup {
 	
 	private final Group frontLayer;
 	private final Group backLayer;
+	private final Group background;
 	private final List<Circle> spokes;
 	
 	public Nosferatu() {
 		this.frontLayer = new Group();
 		this.backLayer = new Group();
+		this.background = new Group();
 		this.spokes = createCircles(spokeCount, frontLayer);
 	}
 	
@@ -78,6 +80,7 @@ public final class Nosferatu implements SpellAnimationGroup {
 				.collect(Collectors.toList());
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

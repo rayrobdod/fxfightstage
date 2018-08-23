@@ -53,6 +53,20 @@ public interface SpellAnimationGroup {
 	public Node objectFrontLayer();
 	
 	/**
+	 * A screen-filling background layer
+	 * 
+	 * This layer has a coordinate system such that 0,0 is one corner of the screen
+	 * and 1,1 is the opposite corner of the screen.
+	 * 
+	 * For any given instance of SpellAnimationGroup, this method must return
+	 * the same object upon each invocation. Different instances of
+	 * SpellAnimationGroup, this function must return different objects.
+	 * 
+	 * @return the nodes that appear between the characters and the player
+	 */
+	public Node backgroundLayer();
+	
+	/**
 	 * Returns an animation to be used for an attack animation
 	 * 
 	 * The returned Animation must include `panAnimation` exactly once,

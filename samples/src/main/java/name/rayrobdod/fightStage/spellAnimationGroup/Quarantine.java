@@ -76,6 +76,7 @@ public final class Quarantine implements SpellAnimationGroup {
 	
 	private final Node backLayer;
 	private final Group frontLayer;
+	private final Group background;
 	private final ObjectProperty<Point2D> target;
 	private final List<DoubleProperty> drillOffsetXs;
 	private final List<DoubleProperty> drillOffsetYs;
@@ -87,6 +88,7 @@ public final class Quarantine implements SpellAnimationGroup {
 	public Quarantine() {
 		this.backLayer = new Group();
 		this.frontLayer = new Group();
+		this.background = new Group();
 		this.drillOffsetXs = Stream.generate(SimpleDoubleProperty::new).limit(pointCount).collect(Collectors.toList());
 		this.drillOffsetYs = Stream.generate(SimpleDoubleProperty::new).limit(pointCount).collect(Collectors.toList());
 		this.drillOpacity = new SimpleDoubleProperty(0.0);
@@ -143,6 +145,7 @@ public final class Quarantine implements SpellAnimationGroup {
 		}
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

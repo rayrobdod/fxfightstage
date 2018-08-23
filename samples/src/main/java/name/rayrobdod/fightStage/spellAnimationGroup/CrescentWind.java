@@ -54,6 +54,7 @@ public final class CrescentWind implements SpellAnimationGroup {
 	
 	private final Path frontLayer;
 	private final Path backLayer;
+	private final Path background;
 	
 	private final DoubleProperty xProperty;
 	private final DoubleProperty yProperty;
@@ -102,10 +103,13 @@ public final class CrescentWind implements SpellAnimationGroup {
 		this.backLayer.setFill(color);
 		this.backLayer.setStroke(Color.TRANSPARENT);
 		this.backLayer.opacityProperty().bind(this.frontLayer.opacityProperty());
+		
+		this.background = new Path();
 	}
 	
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

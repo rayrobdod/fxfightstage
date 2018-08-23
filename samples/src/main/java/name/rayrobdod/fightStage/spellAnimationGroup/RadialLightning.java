@@ -53,6 +53,7 @@ public final class RadialLightning implements SpellAnimationGroup {
 	
 	private final ImageView frontLayer;
 	private final Node backLayer;
+	private final Node background;
 	private final DoubleProperty targetPointXProp;
 	private final DoubleProperty targetPointYProp;
 	
@@ -74,8 +75,10 @@ public final class RadialLightning implements SpellAnimationGroup {
 		this.frontLayer.setFitHeight(renderHeight);
 		
 		this.backLayer = new Group();
+		this.background = new Group();
 	}
 	
+	public Node backgroundLayer() { return this.background; }
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
 	

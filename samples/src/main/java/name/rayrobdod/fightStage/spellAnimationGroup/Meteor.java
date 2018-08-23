@@ -82,6 +82,7 @@ public final class Meteor implements SpellAnimationGroup {
 	
 	private final Group backLayer;
 	private final Group frontLayer;
+	private final Group background;
 	private final DoubleProperty nightBackdropHeightPercent;
 	private final Rectangle nightBackdrop;
 	private final List<BackgroundMeteorStreak> backLayerStreaks;
@@ -113,10 +114,12 @@ public final class Meteor implements SpellAnimationGroup {
 		this.frontLayer = new Group(
 			this.objectFrontMeteor.getNode()
 		);
+		this.background = new Group();
 	}
 	
 	public Node objectBehindLayer() { return this.backLayer; }
 	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,
