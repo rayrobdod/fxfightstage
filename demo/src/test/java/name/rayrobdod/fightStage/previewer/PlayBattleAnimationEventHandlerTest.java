@@ -104,7 +104,7 @@ public final class PlayBattleAnimationEventHandlerTest {
 	
 	private static class NilUnitAnimationGroup implements UnitAnimationGroup {
 		private Node node = new Group();
-		public Node getNode() {return node;}
+		public Node objectBehindLayer() {return node;}
 		public Point2D getSpellTarget(Map<DoubleProperty, Double> _1) {return Point2D.ZERO;}
 		public double getCurrentXOffset(Map<DoubleProperty, Double> _1) {return 0;}
 		public Animation getAttackAnimation(
@@ -124,8 +124,10 @@ public final class PlayBattleAnimationEventHandlerTest {
 	private static class NilSpellAnimationGroup implements SpellAnimationGroup {
 		private Node fore = new Group();
 		private Node back = new Group();
-		public Node getBackground() {return back;}
-		public Node getForeground() {return fore;}
+		private Node backer = new Group();
+		public Node objectBehindLayer() {return back;}
+		public Node objectFrontLayer() {return fore;}
+		public Node backgroundLayer() {return backer;}
 		public Animation getAnimation(
 			  Point2D origin
 			, Point2D target

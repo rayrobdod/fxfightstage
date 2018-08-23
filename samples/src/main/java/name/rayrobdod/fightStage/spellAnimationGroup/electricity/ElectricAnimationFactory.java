@@ -36,7 +36,7 @@ public interface ElectricAnimationFactory {
 	public static interface Factory {
 		public ElectricAnimationFactory build(
 			  final JaggedLineFactory lineGenerator
-			, final Group foreground
+			, final Group frontLayer
 		);
 	}
 	

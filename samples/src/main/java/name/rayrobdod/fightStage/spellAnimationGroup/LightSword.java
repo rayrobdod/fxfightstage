@@ -104,10 +104,11 @@ public final class LightSword implements SpellAnimationGroup {
 	private static final double overtimeFramerate = 15;
 	
 	private final Node background;
-	private final Path foreground;
-	/** The x-control-point properties found in the foreground, in order */
+	private final Node backLayer;
+	private final Path frontLayer;
+	/** The x-control-point properties found in the frontLayer, in order */
 	private final List<DoubleProperty> xs;
-	/** The y-control-point properties found in the foreground, in order */
+	/** The y-control-point properties found in the frontLayer, in order */
 	private final List<DoubleProperty> ys;
 	
 	
@@ -134,16 +135,19 @@ public final class LightSword implements SpellAnimationGroup {
 		this.xs = pointProps.xs;
 		this.ys = pointProps.ys;
 		
+		this.backLayer = new Rectangle();
 		this.background = new Rectangle();
-		this.foreground = new Path(pathParts);
-		this.foreground.setFill(Color.CORNSILK);
-		this.foreground.setStroke(Color.TRANSPARENT);
-		this.foreground.setOpacity(0.9);
-		this.foreground.setEffect(new GaussianBlur());
+		
+		this.frontLayer = new Path(pathParts);
+		this.frontLayer.setFill(Color.CORNSILK);
+		this.frontLayer.setStroke(Color.TRANSPARENT);
+		this.frontLayer.setOpacity(0.9);
+		this.frontLayer.setEffect(new GaussianBlur());
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

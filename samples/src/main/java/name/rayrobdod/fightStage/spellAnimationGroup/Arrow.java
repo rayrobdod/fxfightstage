@@ -53,7 +53,7 @@ public final class Arrow implements SpellAnimationGroup {
 	private static final double arrowArcMultiplier = 0.08;
 	
 	private final Group arrow;
-	private final Group node;
+	private final Group frontLayer;
 	private final PhysicalHit physicalHit;
 	
 	public Arrow() {
@@ -92,11 +92,12 @@ public final class Arrow implements SpellAnimationGroup {
 		
 		this.physicalHit = new PhysicalHit();
 		
-		this.node = new Group(arrow, physicalHit.getForeground());
+		this.frontLayer = new Group(arrow, physicalHit.objectFrontLayer());
 	}
 	
-	public Node getBackground() { return physicalHit.getBackground(); }
-	public Node getForeground() { return this.node; }
+	public Node backgroundLayer() { return physicalHit.backgroundLayer(); }
+	public Node objectBehindLayer() { return physicalHit.objectBehindLayer(); }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

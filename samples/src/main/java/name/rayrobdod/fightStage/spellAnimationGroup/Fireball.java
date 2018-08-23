@@ -53,19 +53,21 @@ public final class Fireball implements SpellAnimationGroup {
 		Math.ceil(approachTickParticleMaxDuration.toMillis() / approachTickTime.toMillis())
 	);
 	
-	private final Group node;
 	private final Group background;
+	private final Group frontLayer;
+	private final Group backLayer;
 	private final Circle[] approachWhiteParticlePool;
 	private final Circle[] approachYellowParticlePool;
 	private final Circle[] approachBlackParticlePool;
 	
 	public Fireball() {
 		this.background = new Group();
-		this.node = new Group();
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		
-		this.approachBlackParticlePool = createCircles(approachParticlePoolSize, this.node);
-		this.approachYellowParticlePool = createCircles(approachParticlePoolSize, this.node);
-		this.approachWhiteParticlePool = createCircles(approachParticlePoolSize, this.node);
+		this.approachBlackParticlePool = createCircles(approachParticlePoolSize, this.frontLayer);
+		this.approachYellowParticlePool = createCircles(approachParticlePoolSize, this.frontLayer);
+		this.approachWhiteParticlePool = createCircles(approachParticlePoolSize, this.frontLayer);
 	}
 	
 	private static Circle[] createCircles(int count, Group addTo) {
@@ -75,8 +77,9 @@ public final class Fireball implements SpellAnimationGroup {
 				.toArray(Circle[]::new);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.node; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
+	public Node backgroundLayer() { return this.background; }
 	
 	public Animation getAnimation(
 		Point2D origin,

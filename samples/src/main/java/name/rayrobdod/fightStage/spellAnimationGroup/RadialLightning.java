@@ -51,7 +51,8 @@ public final class RadialLightning implements SpellAnimationGroup {
 	private static final int framesPerRow = 4;
 	private static final Rectangle2D hiddenViewport = new Rectangle2D(0, 0, 1, 1);
 	
-	private final ImageView foreground;
+	private final ImageView frontLayer;
+	private final Node backLayer;
 	private final Node background;
 	private final DoubleProperty targetPointXProp;
 	private final DoubleProperty targetPointYProp;
@@ -66,18 +67,20 @@ public final class RadialLightning implements SpellAnimationGroup {
 		this.targetPointYProp = targetPointTranslate.yProperty();
 		
 		final Image img = new Image(filename);
-		this.foreground = new ImageView(img);
-		this.foreground.getTransforms().add(centerToZeroTranslate);
-		this.foreground.getTransforms().add(targetPointTranslate);
-		this.foreground.setViewport(hiddenViewport);
-		this.foreground.setFitWidth(renderWidth);
-		this.foreground.setFitHeight(renderHeight);
+		this.frontLayer = new ImageView(img);
+		this.frontLayer.getTransforms().add(centerToZeroTranslate);
+		this.frontLayer.getTransforms().add(targetPointTranslate);
+		this.frontLayer.setViewport(hiddenViewport);
+		this.frontLayer.setFitWidth(renderWidth);
+		this.frontLayer.setFitHeight(renderHeight);
 		
+		this.backLayer = new Group();
 		this.background = new Group();
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node backgroundLayer() { return this.background; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	@Override
 	public Animation getAnimation(
@@ -98,14 +101,14 @@ public final class RadialLightning implements SpellAnimationGroup {
 			beforeShakeAnim.getKeyFrames().add(new KeyFrame(time,
 				new KeyValue(this.targetPointXProp, target.getX(), Interpolator.DISCRETE),
 				new KeyValue(this.targetPointYProp, target.getY(), Interpolator.DISCRETE),
-				new KeyValue(foreground.viewportProperty(), new Rectangle2D(x, beforeY, sourceFrameWidth, sourceFrameHeight), Interpolator.DISCRETE)
+				new KeyValue(frontLayer.viewportProperty(), new Rectangle2D(x, beforeY, sourceFrameWidth, sourceFrameHeight), Interpolator.DISCRETE)
 			));
 			afterShakeAnim.getKeyFrames().add(new KeyFrame(time,
-				new KeyValue(foreground.viewportProperty(), new Rectangle2D(x, afterY, sourceFrameWidth, sourceFrameHeight), Interpolator.DISCRETE)
+				new KeyValue(frontLayer.viewportProperty(), new Rectangle2D(x, afterY, sourceFrameWidth, sourceFrameHeight), Interpolator.DISCRETE)
 			));
 		}
 		afterShakeAnim.getKeyFrames().add(new KeyFrame(frameLength.multiply(framesPerRow),
-			new KeyValue(foreground.viewportProperty(), hiddenViewport)
+			new KeyValue(frontLayer.viewportProperty(), hiddenViewport)
 		));
 		
 		return new SequentialTransition(

@@ -57,14 +57,16 @@ public final class Nosferatu implements SpellAnimationGroup {
 	private static final double spokeAngle = 2 * Math.PI / spokeCount;
 	private static final double initSpokeAngle = spokeAngle / 2;
 	
-	private final Group foreground;
+	private final Group frontLayer;
+	private final Group backLayer;
 	private final Group background;
 	private final List<Circle> spokes;
 	
 	public Nosferatu() {
-		this.foreground = new Group();
+		this.frontLayer = new Group();
+		this.backLayer = new Group();
 		this.background = new Group();
-		this.spokes = createCircles(spokeCount, foreground);
+		this.spokes = createCircles(spokeCount, frontLayer);
 	}
 	
 	private static List<Circle> createCircles(int count, Group addTo) {
@@ -78,8 +80,9 @@ public final class Nosferatu implements SpellAnimationGroup {
 				.collect(Collectors.toList());
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node backgroundLayer() { return this.background; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

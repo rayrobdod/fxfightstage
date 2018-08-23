@@ -38,7 +38,7 @@ public interface UnitAnimationGroup {
 	 * Returns the node associated with this object.
 	 * The object returned has the same identity every time. 
 	 */
-	public Node getNode();
+	public Node objectBehindLayer();
 	
 	/**
 	 * Returns the location on the node at which spells targeting this unit should be centered.

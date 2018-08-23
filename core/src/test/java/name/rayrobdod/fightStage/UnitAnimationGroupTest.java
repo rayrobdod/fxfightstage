@@ -38,17 +38,17 @@ public interface UnitAnimationGroupTest {
 	@Test
 	default void getNode_isStable() {
 		UnitAnimationGroup v = this.getInstance();
-		Node n1 = v.getNode();
-		Node n2 = v.getNode();
+		Node n1 = v.objectBehindLayer();
+		Node n2 = v.objectBehindLayer();
 		Assertions.assertSame(n1, n2);
 	}
 	
 	@Test
 	default void getNode_notStatic() {
 		UnitAnimationGroup v1 = this.getInstance();
-		Node n1 = v1.getNode();
+		Node n1 = v1.objectBehindLayer();
 		UnitAnimationGroup v2 = this.getInstance();
-		Node n2 = v2.getNode();
+		Node n2 = v2.objectBehindLayer();
 		Assertions.assertNotSame(n1, n2);
 	}
 	

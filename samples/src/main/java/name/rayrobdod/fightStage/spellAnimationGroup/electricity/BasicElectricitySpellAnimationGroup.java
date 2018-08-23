@@ -27,24 +27,27 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 /**
  */
 public final class BasicElectricitySpellAnimationGroup implements SpellAnimationGroup {
+	private final Group backLayer;
+	private final Group frontLayer;
 	private final Group background;
-	private final Group foreground;
 	private final ElectricAnimationFactory animGenerator;
 	
 	public BasicElectricitySpellAnimationGroup(
 		  JaggedLineFactory lineGenerator
 		, ElectricAnimationFactory.Factory animGenerator
 	) {
+		this.backLayer = new Group();
+		this.frontLayer = new Group();
 		this.background = new Group();
-		this.foreground = new Group();
 		this.animGenerator = animGenerator.build(
 			lineGenerator,
-			this.foreground
+			this.frontLayer
 		);
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node backgroundLayer() { return this.background; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,

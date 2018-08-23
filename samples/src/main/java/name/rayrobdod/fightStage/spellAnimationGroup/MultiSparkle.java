@@ -66,7 +66,8 @@ public final class MultiSparkle implements SpellAnimationGroup {
 	private static final int halfHeight = 30;
 	private static final int distanceFromTarget = 30;
 	
-	private final Group foreground;
+	private final Group frontLayer;
+	private final Group backLayer;
 	private final Group background;
 	
 	private final DoubleProperty targetX;
@@ -100,7 +101,8 @@ public final class MultiSparkle implements SpellAnimationGroup {
 			)
 		};
 		
-		this.foreground = new Group(shapes);
+		this.frontLayer = new Group(shapes);
+		this.backLayer = new Group();
 		this.background = new Group();
 		
 		Arrays.asList(shapes).forEach(shape -> {
@@ -111,8 +113,9 @@ public final class MultiSparkle implements SpellAnimationGroup {
 		this.shapeColors = Arrays.stream(shapes).map(x -> x.fillProperty()).collect(Collectors.toList());
 	}
 	
-	public Node getBackground() { return this.background; }
-	public Node getForeground() { return this.foreground; }
+	public Node backgroundLayer() { return this.background; }
+	public Node objectBehindLayer() { return this.backLayer; }
+	public Node objectFrontLayer() { return this.frontLayer; }
 	
 	public Animation getAnimation(
 		Point2D origin,
