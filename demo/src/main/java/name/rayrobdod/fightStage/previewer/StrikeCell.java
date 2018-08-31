@@ -60,6 +60,7 @@ public final class StrikeCell extends Control {
 	public StrikeCell() {
 		this.value = new ReadOnlyObjectWrapper<>(this, "value",
 				new Strike(Side.LEFT, 20, 0, Collections.emptySet(), Collections.emptySet()));
+		this.setFocusTraversable(false);
 	}
 	
 	protected Skin<?> createDefaultSkin() {return new DefaultSkin(this);}

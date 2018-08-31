@@ -39,6 +39,7 @@ final class StrikeListEditor extends Control {
 	
 	public StrikeListEditor() {
 		this.value = new ReadOnlyListWrapper<>(this, "value", FXCollections.observableArrayList());
+		this.setFocusTraversable(false);
 	}
 	
 	protected Skin<?> createDefaultSkin() {return new DefaultSkin(this);}
