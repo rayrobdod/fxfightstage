@@ -33,7 +33,6 @@ import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Dimension2D;
@@ -197,10 +196,10 @@ public final class BattleAnimation {
 			verticalDistance / 2,
 			GROUND_Y
 		);
-		final Map<DoubleProperty, Double> leftRolloverValues = left.unit.getInitializingKeyValues(Side.LEFT, mirrorX(initialUnitOffset));
-		final Map<DoubleProperty, Double> rightRolloverValues = right.unit.getInitializingKeyValues(Side.RIGHT, initialUnitOffset);
+		final Map<WritableDoubleValue, Double> leftRolloverValues = left.unit.getInitializingKeyValues(Side.LEFT, mirrorX(initialUnitOffset));
+		final Map<WritableDoubleValue, Double> rightRolloverValues = right.unit.getInitializingKeyValues(Side.RIGHT, initialUnitOffset);
 		{
-			final Map<DoubleProperty, Double> initialValues = new java.util.HashMap<>();
+			final Map<WritableDoubleValue, Double> initialValues = new java.util.HashMap<>();
 			initialValues.putAll(leftRolloverValues);
 			initialValues.putAll(rightRolloverValues);
 			final Timeline initializeAnim = new Timeline();
@@ -262,8 +261,8 @@ public final class BattleAnimation {
 			
 			AggregateSideParams attacker = (strike.attacker == Side.LEFT ? left : right);
 			AggregateSideParams defender = (strike.attacker == Side.LEFT ? right : left);
-			final Map<DoubleProperty, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
-			final Map<DoubleProperty, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
+			final Map<WritableDoubleValue, Double> attackerRolloverValues = (strike.attacker == Side.LEFT ? leftRolloverValues : rightRolloverValues);
+			final Map<WritableDoubleValue, Double> defenderRolloverValues = (strike.attacker == Side.LEFT ? rightRolloverValues : leftRolloverValues);
 			final double attackerPan = (strike.attacker == Side.LEFT ? leftPan : rightPan);
 			final double defenderPan = (strike.attacker == Side.LEFT ? rightPan : leftPan);
 			currentPan = currentPan.withNewFocusCoords(attackerPan, 0, defenderPan, 0);
@@ -555,7 +554,7 @@ public final class BattleAnimation {
 	}
 	
 	public static KeyFrame propValueMapToDiscreteKeyFrame(
-		Map<DoubleProperty, Double> map,
+		Map<WritableDoubleValue, Double> map,
 		Duration time
 	) {
 		KeyValue[] values = map.entrySet().stream()

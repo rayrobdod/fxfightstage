@@ -23,7 +23,7 @@ import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.util.Duration;
@@ -70,7 +70,7 @@ public interface UnitAnimationGroupTest {
 	
 	default void getCurrentXOffset_matchesValuePassedToInitializingKeyValues(double value) {
 		UnitAnimationGroup v = this.getInstance();
-		Map<DoubleProperty, Double> map = v.getInitializingKeyValues(Side.LEFT, new Point2D(value, 0.0));
+		Map<WritableDoubleValue, Double> map = v.getInitializingKeyValues(Side.LEFT, new Point2D(value, 0.0));
 		Assertions.assertEquals(value, v.getCurrentXOffset(map));
 	}
 	

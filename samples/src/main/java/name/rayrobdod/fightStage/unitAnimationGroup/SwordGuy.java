@@ -26,6 +26,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -143,7 +144,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 	public Node objectBehindLayer() { return this.backLayer; }
 	
 	@Override
-	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public Point2D getSpellTarget(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return new Point2D(
 			rolloverKeyValues.get(approachX) - rolloverKeyValues.get(facingScaleX) * 5,
 			rolloverKeyValues.get(approachY) - 60
@@ -151,14 +152,14 @@ public final class SwordGuy implements UnitAnimationGroup {
 	}
 	
 	@Override
-	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public double getCurrentXOffset(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return rolloverKeyValues.get(approachX);
 	}
 	
 	@Override
 	public Animation getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
-		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> attackerModifiers
@@ -320,11 +321,11 @@ public final class SwordGuy implements UnitAnimationGroup {
 		return anim;
 	}
 	
-	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
+	@Override public Map<WritableDoubleValue, Double> getInitializingKeyValues(
 		  Side side
 		, Point2D footPoint
 	) {
-		final Map<DoubleProperty, Double> retval = new java.util.HashMap<>();
+		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		retval.put(facingScaleX, (side == Side.LEFT ? -1.0 : 1.0));
 		retval.put(approachX, footPoint.getX());
 		retval.put(approachY, footPoint.getY());
