@@ -53,6 +53,7 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 public final class Sandbag implements UnitAnimationGroup {
 	
 	private final Group backLayer;
+	private final Group frontLayer;
 	private final DoubleProperty scaleXProp;
 	private final DoubleProperty moveXProp;
 	private final DoubleProperty moveYProp;
@@ -125,10 +126,13 @@ public final class Sandbag implements UnitAnimationGroup {
 			outline1,
 			outline2
 		);
+		this.frontLayer = new Group();
 	}
 	
 	@Override
 	public Node objectBehindLayer() { return this.backLayer; }
+	
+	@Override public Node objectFrontLayer() { return this.frontLayer; }
 	
 	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
 		  Side side

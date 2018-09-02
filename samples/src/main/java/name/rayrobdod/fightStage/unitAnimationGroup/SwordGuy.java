@@ -72,6 +72,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 	private static final double swordLength = 40;
 	private static final double approachToDistance = 100;
 	
+	private final Group frontLayer;
 	private final Group backLayer;
 	private final DoubleProperty swordAngle;
 	private final DoubleProperty swordHandX;
@@ -137,10 +138,14 @@ public final class SwordGuy implements UnitAnimationGroup {
 		);
 		this.backLayer.getTransforms().add(approachTranslate);
 		this.backLayer.getTransforms().add(facingScale);
+		
+		this.frontLayer = new Group();
 	}
 	
 	@Override
 	public Node objectBehindLayer() { return this.backLayer; }
+	
+	@Override public Node objectFrontLayer() { return this.frontLayer; }
 	
 	@Override
 	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {

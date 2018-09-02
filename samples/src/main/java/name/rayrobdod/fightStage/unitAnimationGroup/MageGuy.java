@@ -29,6 +29,7 @@ import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -68,6 +69,7 @@ public final class MageGuy implements UnitAnimationGroup {
 	private static final Duration frameLength = Duration.seconds(1.0 / 15.0);
 	
 	private final ImageView backLayer;
+	private final Group frontLayer;
 	private final DoubleProperty scaleXProp;
 	private final DoubleProperty translateXProp;
 	private final DoubleProperty translateYProp;
@@ -91,10 +93,13 @@ public final class MageGuy implements UnitAnimationGroup {
 		this.backLayer.getTransforms().add(deathRotate);
 		this.backLayer.getTransforms().add(footPointTranslate);
 		this.backLayer.setViewport(standingViewport);
+		this.frontLayer = new Group();
 	}
 	
 	@Override
 	public Node objectBehindLayer() { return this.backLayer; }
+	
+	@Override public Node objectFrontLayer() { return this.frontLayer; }
 	
 	@Override
 	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {

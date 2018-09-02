@@ -36,7 +36,7 @@ public interface UnitAnimationGroupTest {
 	UnitAnimationGroup getInstance();
 	
 	@Test
-	default void getNode_isStable() {
+	default void getObjectBehindLayer_isStable() {
 		UnitAnimationGroup v = this.getInstance();
 		Node n1 = v.objectBehindLayer();
 		Node n2 = v.objectBehindLayer();
@@ -44,11 +44,28 @@ public interface UnitAnimationGroupTest {
 	}
 	
 	@Test
-	default void getNode_notStatic() {
+	default void getObjectBehindLayer_notStatic() {
 		UnitAnimationGroup v1 = this.getInstance();
 		Node n1 = v1.objectBehindLayer();
 		UnitAnimationGroup v2 = this.getInstance();
 		Node n2 = v2.objectBehindLayer();
+		Assertions.assertNotSame(n1, n2);
+	}
+	
+	@Test
+	default void getObjectFrontLayer_isStable() {
+		UnitAnimationGroup v = this.getInstance();
+		Node n1 = v.objectFrontLayer();
+		Node n2 = v.objectFrontLayer();
+		Assertions.assertSame(n1, n2);
+	}
+	
+	@Test
+	default void getObjectFrontLayer_notStatic() {
+		UnitAnimationGroup v1 = this.getInstance();
+		Node n1 = v1.objectFrontLayer();
+		UnitAnimationGroup v2 = this.getInstance();
+		Node n2 = v2.objectFrontLayer();
 		Assertions.assertNotSame(n1, n2);
 	}
 	

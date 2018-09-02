@@ -191,8 +191,10 @@ public final class MediaControlPanelTest {
 	
 	
 	private static class NilUnitAnimationGroup implements UnitAnimationGroup {
-		private Node node = new Group();
-		public Node objectBehindLayer() {return node;}
+		private Node behind = new Group();
+		private Node front = new Group();
+		public Node objectBehindLayer() {return behind;}
+		public Node objectFrontLayer() {return front;}
 		public Point2D getSpellTarget(Map<DoubleProperty, Double> _1) {return Point2D.ZERO;}
 		public double getCurrentXOffset(Map<DoubleProperty, Double> _1) {return 0;}
 		public Animation getAttackAnimation(

@@ -110,6 +110,8 @@ public final class BattleAnimation {
 			, right.spell.objectBehindLayer()
 			, left.unit.objectBehindLayer()
 			, right.unit.objectBehindLayer()
+			, right.unit.objectFrontLayer()
+			, left.unit.objectFrontLayer()
 			, left.spell.objectFrontLayer()
 			, right.spell.objectFrontLayer()
 			// , zeroIndicator
