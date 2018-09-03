@@ -21,6 +21,7 @@ import java.util.List;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
 import name.rayrobdod.fightStage.previewer.spi.NameSupplierPair;
 import name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
+import name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.InfantryLancer;
 
 /**
  * An enumeration of {@link UnitAnimationGroup}s in this project
@@ -30,6 +31,7 @@ public final class PreviewerSpi implements UnitAnimationGroups {
 	@Override public List<NameSupplierPair<UnitAnimationGroup>> get() {
 		return Arrays.asList(
 			  new NameSupplierPair<>("SwordGuy", () -> new SwordGuy())
+			, new NameSupplierPair<>("LanceGuy", () -> new InfantryLancer())
 			, new NameSupplierPair<>("MageGuy", () -> new MageGuy())
 			, new NameSupplierPair<>("BowGuy", () -> new BowGuy())
 			, new NameSupplierPair<>("Sandbag/(medium)", () -> new Sandbag(60, 90))

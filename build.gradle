@@ -60,6 +60,10 @@ subprojects {
 
 	spotless {
 		java {
+			target project.fileTree(project.rootDir) {
+				include '**/*.java'
+				exclude '**/generated/**/*.*'
+			}
 			importOrder 'java', 'javax', 'javafx', 'org.junit', 'org.testfx', '', 'name.rayrobdod'
 			removeUnusedImports()
 			licenseHeaderFile '../spotless-license-java'
@@ -184,12 +188,183 @@ project(":samples") {
 	//TODO: convert to linksOffline after deciding where these will be online
 	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
 	javadoc.options.links(project(":demo").javadoc.destinationDir.toURI().toString())
+	//javadoc.options.showFromPrivate()
 	
 	dependencies {
 		compile project(":core")
 		compile project(":demo")
 		testCompile project(":core").sourceSets.test.output
 	}
+	
+	task genLancerControlPoints {
+		doLast {
+			List<String> fields = [
+				"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+				"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+				"head", "lanceCenter", "lanceControl"
+			]
+			String decl = fields.stream().map({s -> "public final Point2D ${s};"}).collect(java.util.stream.Collectors.joining())
+			String initPoly1 = fields.stream().map({s -> "final Point2D ${s}"}).collect(java.util.stream.Collectors.joining(","))
+			String initPoly2 = fields.stream().map({s -> "this.$s = $s;"}).collect(java.util.stream.Collectors.joining())
+			String initUnary = fields.stream().map({s -> "value"}).collect(java.util.stream.Collectors.joining(", ", "this(", ");"))
+			String zipMap = fields.stream().map({s -> "op.apply(this.$s, rhs.$s)"}).collect(java.util.stream.Collectors.joining(", "))
+			String map = fields.stream().map({s -> "op.apply(this.$s)"}).collect(java.util.stream.Collectors.joining(", "))
+			String tostr = fields.stream().map({s -> " \"${s}: \" + ${s}"}).collect(java.util.stream.Collectors.joining(" + \",\" +\n"));
+			
+			String copy = fields.stream().map({outer ->
+				String outerTitle = "${outer.charAt(0).toUpperCase()}${outer.substring(1)}"
+				fields.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(java.util.stream.Collectors.joining(
+					", ", "public LancerControlPoints copyWith$outerTitle(Point2D value) {return new LancerControlPoints(", ");}"
+				))
+			}).collect(java.util.stream.Collectors.joining("\n"))
+			
+			File lancerControlPointsOutDirFile = project.file("${buildDir}/generated/main/java/")
+			lancerControlPointsOutDirFile.mkdirs()
+			new File(lancerControlPointsOutDirFile, "LancerControlPoints.java").write """
+				package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+				import java.util.Map;
+				import java.util.function.BinaryOperator;
+				import java.util.function.UnaryOperator;
+				import javafx.animation.Interpolator;
+				import javafx.animation.KeyFrame;
+				import javafx.animation.KeyValue;
+				import javafx.beans.value.WritableDoubleValue;
+				import javafx.geometry.Point2D;
+				import javafx.util.Duration;
+				final class LancerControlPoints implements LancerControlPointsOps {
+					${decl}
+					public LancerControlPoints($initPoly1) {$initPoly2}
+					public LancerControlPoints(Point2D value) {$initUnary}
+					
+					public LancerControlPoints self() {return this;}
+					public LancerControlPoints zipMap(LancerControlPoints rhs, BinaryOperator<Point2D> op) {
+						return new LancerControlPoints( $zipMap );
+					}
+					public LancerControlPoints map(UnaryOperator<Point2D> op) {
+						return new LancerControlPoints( $map );
+					}
+					
+					$copy
+					
+					@Override public String toString() {return "LancerControlPoints [" + $tostr + "]"; }
+				}
+			"""
+		}
+	}
+	task genLancerWritableControlPoints {
+		doLast {
+			List<String> fields = [
+				"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+				"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+				"head", "lanceCenter", "lanceControl"
+			]
+			String decl = fields.stream().map({s -> "public final WritablePoint2dValue $s = new WritablePoint2dValue();\n"}).collect(java.util.stream.Collectors.joining())
+			
+			
+			File lancerControlPointsOutDirFile = project.file("${buildDir}/generated/main/java/")
+			lancerControlPointsOutDirFile.mkdirs()
+			new File(lancerControlPointsOutDirFile, "WritableLancerControlPoints.java").write """
+				package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+				import javafx.geometry.Point2D;
+				final class WritableLancerControlPoints implements WritableLancerControlPointsOps {
+					${decl}
+					public WritableLancerControlPoints self() {return this;}
+				}
+			"""
+		}
+	}
+	task genLancerTimelineBuilder {
+		doLast {
+			List<String> fields = [
+				"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+				"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+				"head", "lanceCenter", "lanceControl"
+			]
+			String decl = fields.stream().map({s -> "public final WritablePoint2dValue $s = new WritablePoint2dValue();\n"}).collect(java.util.stream.Collectors.joining())
+			String firstKeyFrame = fields.stream().flatMap({attr ->
+				java.util.stream.Stream.of("X", "Y").map({dir ->
+					"new KeyValue(keys.${attr}.writable${dir}, values.${attr}.get${dir}(), Interpolator.DISCRETE)"
+				})
+			}).collect(java.util.stream.Collectors.joining(",\n"))
+			
+			String appendSet = fields.stream().map({s ->
+				String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+				"""public void appendSet${sTitle}(Point2D value, Duration time, Interpolator interp) {
+					this.values = this.values.copyWith${sTitle}(value);
+					this.timeline.add(new KeyFrame(time,
+						new KeyValue(keys.${s}.writableX, value.getX(), interp),
+						new KeyValue(keys.${s}.writableY, value.getY(), interp)
+					));
+				}
+				"""
+			}).collect(java.util.stream.Collectors.joining())
+			String appendAdd = fields.stream().map({s ->
+				String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+				"""public void appendAdd${sTitle}(Point2D value, Duration time, Interpolator interp) {
+					this.appendSet${sTitle}(this.values.${s}.add(value), time, interp);
+				}
+				"""
+			}).collect(java.util.stream.Collectors.joining())
+			String storeInMap = fields.stream().flatMap({attr ->
+				java.util.stream.Stream.of("X", "Y").map({dir ->
+					"store.put(keys.${attr}.writable${dir}, values.${attr}.get${dir}());"
+				})
+			}).collect(java.util.stream.Collectors.joining())
+			String extract = fields.stream().map(
+				{s -> """new Point2D(store.get(keys.${s}.writableX), store.get(keys.${s}.writableY))"""}
+			).collect(java.util.stream.Collectors.joining(",\n"))
+			
+			
+			File lancerControlPointsOutDirFile = project.file("${buildDir}/generated/main/java/")
+			lancerControlPointsOutDirFile.mkdirs()
+			new File(lancerControlPointsOutDirFile, "LancerTimelineBuilder.java").write """
+				package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+				import java.util.Map;
+				import javafx.animation.Interpolator;
+				import javafx.animation.KeyFrame;
+				import javafx.animation.KeyValue;
+				import javafx.animation.Timeline;
+				import javafx.beans.value.WritableDoubleValue;
+				import javafx.geometry.Point2D;
+				import javafx.util.Duration;
+				final class LancerTimelineBuilder {
+					private final WritableLancerControlPoints keys;
+					private LancerControlPoints values;
+					private final java.util.ArrayList<KeyFrame> timeline;
+					
+					public LancerTimelineBuilder(WritableLancerControlPoints keys, LancerControlPoints initialValues) {
+						this.keys = keys;
+						this.values = initialValues;
+						this.timeline = new java.util.ArrayList<>();
+						
+						this.timeline.add(new KeyFrame(Duration.ZERO, $firstKeyFrame));
+					}
+					
+					public LancerTimelineBuilder(WritableLancerControlPoints keys, Map<WritableDoubleValue, Double> store) {
+						this(keys, extractFromMap(store, keys));
+					}
+					
+					public LancerControlPoints currentValues() {return values;}
+					public Timeline timeline() {return new Timeline(timeline.stream().toArray(KeyFrame[]::new));}
+					
+					public void storeInMap(Map<WritableDoubleValue, Double> store) {
+						$storeInMap
+					}
+					
+					private static LancerControlPoints extractFromMap(Map<WritableDoubleValue, Double> store, WritableLancerControlPoints keys) {
+						return new LancerControlPoints($extract);
+					}
+					
+					$appendSet
+					$appendAdd
+				}
+			"""
+		}
+	}
+	tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn genLancerControlPoints }
+	tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn genLancerWritableControlPoints }
+	tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn genLancerTimelineBuilder }
+	sourceSets.main.java.srcDir "${buildDir}/generated/main/java/"
 	
 	jar.manifest.attributes (
 		  'Main-Class': project.mainClassName
