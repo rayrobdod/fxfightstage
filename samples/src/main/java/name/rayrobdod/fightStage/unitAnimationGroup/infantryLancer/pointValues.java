@@ -38,9 +38,11 @@ import javafx.scene.shape.MoveTo;
 import name.rayrobdod.fightStage.PathElements;
 
 /**
- * Fluent bindings for Point2D ObservableValues
+ * Fluent bindings for Point2D ObservableValues.
+ * 
+ * Most of the methods mirror those in {@link javafx.geometry.Point2D}
  */
-interface Point2dExpression extends javafx.beans.Observable {
+interface Point2dExpression extends javafx.beans.Observable, javafx.beans.value.ObservableObjectValue<javafx.geometry.Point2D> {
 	Point2D getValue();
 	
 	default Point2dBinding add(Point2D rhs) {
@@ -67,6 +69,61 @@ interface Point2dExpression extends javafx.beans.Observable {
 		return createPoint2dBinding(() -> this.getValue().midpoint(rhs.getValue()), this, rhs);
 	}
 	
+	default DoubleBinding angle(ObservableValue<Point2D> p1, ObservableValue<Point2D> p2) {
+		return createDoubleBinding(() -> this.getValue().angle(p1.getValue(), p2.getValue()), this, p1, p2);
+	}
+	
+	/**
+	 * Returns a point on the interception of two lines (or the midpoint of p1 and p2 if there is not one unique such point)
+	 * @param this a point on the first line
+	 * @param p2 a point on the second line
+	 * @param v1 the direction of the first line
+	 * @param v2 the direction on the second line
+	 */
+	default Point2dBinding interception(ObservableValue<Point2D> v1, ObservableValue<Point2D> p2, ObservableValue<Point2D> v2) {
+		return createPoint2dBinding(() -> interceptionImpl(this.getValue(), v1.getValue(), p2.getValue(), v2.getValue()), this, v1, p2, v2);
+	}
+	
+	default Point2dBinding interception(ObservableValue<Point2D> v1, Point2D p2, Point2D v2) {
+		return createPoint2dBinding(() -> interceptionImpl(this.getValue(), v1.getValue(), p2, v2), this, v1);
+	}
+	
+	/**
+	 * (which java version allows interfaces to have private static methods?)
+	 * Returns a point on the interception of two lines (or the midpoint of p1 and p2 if there is not one unique such point)
+	 * @param p1 a point on the first line
+	 * @param p2 a point on the second line
+	 * @param v1 the direction of the first line
+	 * @param v2 the direction on the second line
+	 */
+	public static Point2D interceptionImpl(Point2D p1, Point2D v1, Point2D p2, Point2D v2) {
+		// `getX == 0` indicates a vertical line
+		if (v1.getX() == 0 && v2.getX() == 0) {
+			return p1.midpoint(p2);
+		} else if (v1.getX() == 0) {
+			final double m2 = v2.getY() / v2.getX();
+			final double b2 = p2.getY() - m2 * p2.getX();
+			return new Point2D(p1.getX(), m2 * p1.getX() + b2);
+		} else if (v2.getX() == 0) {
+			final double m1 = v1.getY() / v1.getX();
+			final double b1 = p1.getY() - m1 * p1.getX();
+			return new Point2D(p2.getX(), m1 * p2.getX() + b1);
+		} else {
+			final double m1 = v1.getY() / v1.getX();
+			final double m2 = v2.getY() / v2.getX();
+			final double b1 = p1.getY() - m1 * p1.getX();
+			final double b2 = p2.getY() - m2 * p2.getX();
+			
+			if (m1 == m2) {
+				return p1.midpoint(p2);
+			} else {
+				final double x = (b2 - b1) / (m1 - m2);
+				final double y = m1 * x + b1;
+				return new Point2D(x, y);
+			}
+		}
+	}
+	
 	default DoubleBinding magnitude() {
 		return createDoubleBinding(() -> this.getValue().magnitude(), this);
 	}
@@ -81,6 +138,14 @@ interface Point2dExpression extends javafx.beans.Observable {
 	
 	default Point2dBinding negate() {
 		return createPoint2dBinding(() -> new Point2D(-this.getValue().getX(), -this.getValue().getY()), this);
+	}
+	
+	default Point2dBinding withX(double newX) {
+		return createPoint2dBinding(() -> new Point2D(newX, this.getValue().getY()), this);
+	}
+	
+	default Point2dBinding withY(double newY) {
+		return createPoint2dBinding(() -> new Point2D(this.getValue().getX(), newY), this);
 	}
 	
 	default DoubleBinding x() {

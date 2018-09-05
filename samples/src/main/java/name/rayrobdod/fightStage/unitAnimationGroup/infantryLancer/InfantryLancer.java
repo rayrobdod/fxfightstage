@@ -51,6 +51,9 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		
 		this.backLayer = new Group(
 			  this.controlPoints.createStickFigure()
+			, this.controlPoints.createLeftLeg()
+			, this.controlPoints.createPantSeat()
+			, this.controlPoints.createRightLeg()
 			, this.controlPoints.createLance()
 		);
 		this.frontLayer = new Group();
@@ -99,7 +102,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(-10, 0), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(-20, 5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(-30, 0), windup, Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightKnee(new Point2D(-20, 6.5), windup, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddRightKnee(new Point2D(-20, 3.5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddRightPelvic(new Point2D(-20, 6.5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddRightShoulder(new Point2D(-20, 6.5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddRightElbow(new Point2D(-20, 6.5), windup, Interpolator.LINEAR);
@@ -149,7 +152,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		afterSpellAnimationBuilder.appendAddLeftKnee(new Point2D(10, 0), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(20, -5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddRightFoot(new Point2D(20, 0), windup, Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightKnee(new Point2D(20, -6.5), windup, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddRightKnee(new Point2D(20, -3.5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddRightPelvic(new Point2D(20, -6.5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddRightShoulder(new Point2D(20, -6.5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddRightElbow(new Point2D(20, -6.5), windup, Interpolator.LINEAR);
@@ -186,17 +189,17 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	) {
 		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		
-		retval.put(controlPoints.leftFoot.writableX, footPoint.getX() + 10);
+		retval.put(controlPoints.leftFoot.writableX, footPoint.getX() + 6);
 		retval.put(controlPoints.leftFoot.writableY, footPoint.getY() - 0);
-		retval.put(controlPoints.rightFoot.writableX, footPoint.getX() - 10);
+		retval.put(controlPoints.rightFoot.writableX, footPoint.getX() - 6);
 		retval.put(controlPoints.rightFoot.writableY, footPoint.getY() - 0);
-		retval.put(controlPoints.leftKnee.writableX, footPoint.getX() + 10);
+		retval.put(controlPoints.leftKnee.writableX, footPoint.getX() + 6);
 		retval.put(controlPoints.leftKnee.writableY, footPoint.getY() - 15);
-		retval.put(controlPoints.rightKnee.writableX, footPoint.getX() - 10);
+		retval.put(controlPoints.rightKnee.writableX, footPoint.getX() - 6);
 		retval.put(controlPoints.rightKnee.writableY, footPoint.getY() - 15);
-		retval.put(controlPoints.leftPelvic.writableX, footPoint.getX() + 10);
+		retval.put(controlPoints.leftPelvic.writableX, footPoint.getX() + 6);
 		retval.put(controlPoints.leftPelvic.writableY, footPoint.getY() - 30);
-		retval.put(controlPoints.rightPelvic.writableX, footPoint.getX() - 10);
+		retval.put(controlPoints.rightPelvic.writableX, footPoint.getX() - 6);
 		retval.put(controlPoints.rightPelvic.writableY, footPoint.getY() - 30);
 		retval.put(controlPoints.leftHand.writableX, footPoint.getX() + 30);
 		retval.put(controlPoints.leftHand.writableY, footPoint.getY() - 65);

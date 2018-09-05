@@ -19,8 +19,11 @@ import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundLineTo;
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundMoveTo;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.Path;
 
 /**
@@ -30,8 +33,9 @@ interface WritableLancerControlPointsOps {
 	WritableLancerControlPoints self();
 	
 	static final double LANCE_HALFWIDTH = 3;
+	static final double LEG_HALFWIDTH = 7;
 	
-	default Path createStickFigure() {
+	default Node createStickFigure() {
 		final Path retval = new Path(
 			  newBoundMoveTo(self().leftFoot)
 			, newBoundLineTo(self().leftKnee)
@@ -57,10 +61,10 @@ interface WritableLancerControlPointsOps {
 		return retval;
 	}
 	
-	default Group createLance() {
-		final WritablePoint2dValue center = self().lanceCenter;
-		final Point2dBinding direction = center.subtract(self().lanceControl).normalize();
-		final Point2dBinding perp = direction.perpendicular();
+	default Node createLance() {
+		final Point2dExpression center = self().lanceCenter;
+		final Point2dExpression direction = center.subtract(self().lanceControl).normalize();
+		final Point2dExpression perp = direction.perpendicular();
 		
 		
 		final Path shaft = new Path(
@@ -90,4 +94,66 @@ interface WritableLancerControlPointsOps {
 		
 		return new Group(shaft, head);
 	}
+	
+	default Node createPantSeat() {
+		final Point2dExpression left = self().leftPelvic;
+		final Point2dExpression right = self().rightPelvic;
+		
+		final Path leg = new Path(
+			// front
+			newBoundMoveTo(left.add(new Point2D(LEG_HALFWIDTH, 2))),
+			newBoundLineTo(left.add(new Point2D(LEG_HALFWIDTH, -10))),
+			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH, -10))),
+			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH, 2))),
+			new ClosePath()
+		);
+		leg.setStroke(Color.BLACK);
+		leg.setFill(Color.BLUE);
+		leg.setStrokeWidth(1);
+		return leg;
+	}
+	
+	default Node createLeftLeg() {
+		return createLeg(self().leftKnee, self().leftFoot, self().leftPelvic);
+	}
+	
+	default Node createRightLeg() {
+		return createLeg(self().rightKnee, self().rightFoot, self().rightPelvic);
+	}
+	
+	public static Node createLeg(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
+		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
+		final Point2dExpression perp1 = dir1.perpendicular();
+		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();
+		final Point2dExpression perp2 = dir2.perpendicular();
+		
+		final Point2dExpression backOfFoot = edge1.add(perp1.multiply(LEG_HALFWIDTH)).interception(dir1, new Point2D(0,0), new Point2D(1, 0));
+		final Point2dExpression backOfPelvic = edge2.add(perp2.multiply(LEG_HALFWIDTH));
+		final Point2dExpression frontOfFoot = edge1.add(perp1.multiply(-LEG_HALFWIDTH)).interception(dir1, new Point2D(0,0), new Point2D(1, 0));
+		final Point2dExpression frontOfPelvic = edge2.add(perp2.multiply(-LEG_HALFWIDTH));
+		final Point2dExpression frontOfKnee2 = pivot.add(perp2.multiply(-LEG_HALFWIDTH));
+		final Point2dExpression frontOfKnee1 = pivot.add(perp1.multiply(-LEG_HALFWIDTH));
+		
+		final Path leg = new Path(
+			// front
+			newBoundMoveTo(frontOfPelvic),
+			newBoundLineTo(frontOfKnee2),
+			newBoundCubicCurveTo(
+				frontOfKnee2.add(dir2.multiply(frontOfKnee2.subtract(frontOfKnee1).magnitude().multiply(0.75))),
+				frontOfKnee1.add(dir1.multiply(frontOfKnee1.subtract(frontOfKnee2).magnitude().multiply(-0.75))),
+				frontOfKnee1
+			),
+			newBoundLineTo(frontOfFoot),
+			// back
+			newBoundLineTo(backOfFoot),
+			newBoundLineTo(backOfFoot.interception(dir1, backOfPelvic, dir2)),
+			newBoundLineTo(backOfPelvic)
+			// not closed
+		);
+		leg.setStroke(Color.BLACK);
+		leg.setFill(Color.BLUE);
+		leg.setStrokeWidth(1);
+		return leg;
+	}
+	
 }
