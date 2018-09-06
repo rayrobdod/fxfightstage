@@ -1,0 +1,98 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+
+import java.util.Map;
+
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.value.WritableDoubleValue;
+import javafx.geometry.Point2D;
+import javafx.util.Duration;
+
+final class LancerTimelineBuilder {
+	private final WritableLancerControlPoints keys;
+	private LancerControlPoints values;
+	private final java.util.ArrayList<KeyFrame> timeline;
+	
+	public LancerTimelineBuilder(WritableLancerControlPoints keys, LancerControlPoints initialValues) {
+		this.keys = keys;
+		this.values = initialValues;
+		this.timeline = new java.util.ArrayList<>();
+		
+		this.timeline.add(new KeyFrame(Duration.ZERO,
+			<%
+				print fields.stream().flatMap({attr ->
+					java.util.stream.Stream.of("X", "Y").map({dir ->
+						"new KeyValue(keys.${attr}.writable${dir}, values.${attr}.get${dir}(), Interpolator.DISCRETE)"
+					})
+				}).collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
+			%>
+		));
+	}
+	
+	public LancerTimelineBuilder(WritableLancerControlPoints keys, Map<WritableDoubleValue, Double> store) {
+		this(keys, extractFromMap(store, keys));
+	}
+	
+	public LancerControlPoints currentValues() {return values;}
+	public Timeline timeline() {return new Timeline(timeline.stream().toArray(KeyFrame[]::new));}
+	
+	public void storeInMap(Map<WritableDoubleValue, Double> store) {
+		<%
+			print fields.stream().flatMap({attr ->
+				java.util.stream.Stream.of("X", "Y").map({dir ->
+					"store.put(keys.${attr}.writable${dir}, values.${attr}.get${dir}());"
+				})
+			}).collect(java.util.stream.Collectors.joining())
+		%>
+	}
+	
+	private static LancerControlPoints extractFromMap(Map<WritableDoubleValue, Double> store, WritableLancerControlPoints keys) {
+		return new LancerControlPoints(
+			<%
+			print fields.stream().map(
+					{s -> """new Point2D(store.get(keys.${s}.writableX), store.get(keys.${s}.writableY))"""}
+				).collect(java.util.stream.Collectors.joining(",\n\t\t"))
+			%>
+		);
+	}
+	
+	<%
+		print fields.stream().map({s ->
+			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+			"""public void appendSet${sTitle}(Point2D value, Duration time, Interpolator interp) {
+				this.values = this.values.copyWith${sTitle}(value);
+				this.timeline.add(new KeyFrame(time,
+					new KeyValue(keys.${s}.writableX, value.getX(), interp),
+					new KeyValue(keys.${s}.writableY, value.getY(), interp)
+				));
+			}
+			"""
+		}).collect(java.util.stream.Collectors.joining())
+	%>
+	<%
+		print fields.stream().map({s ->
+			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+			"""public void appendAdd${sTitle}(Point2D value, Duration time, Interpolator interp) {
+				this.appendSet${sTitle}(this.values.${s}.add(value), time, interp);
+			}
+			"""
+		}).collect(java.util.stream.Collectors.joining())
+	%>
+}

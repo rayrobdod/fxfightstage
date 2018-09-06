@@ -26,34 +26,45 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.Path;
 
-/**
- * Partial Classes! :D
- */
-interface WritableLancerControlPointsOps {
-	WritableLancerControlPoints self();
+final class WritableLancerControlPoints {
+	public final WritablePoint2dValue ${fields.join(";\n\tpublic final WritablePoint2dValue ")};
 	
-	static final double LANCE_HALFWIDTH = 3;
-	static final double LEG_HALFWIDTH = 7;
+	public WritableLancerControlPoints() {
+		<%
+			for (String field : fields) {
+				print "this."
+				print field
+				print " = new WritablePoint2dValue();\n\t\t"
+			}
+		%>
+	}
 	
-	default Node createStickFigure() {
+	
+	
+	
+	
+	private static final double LANCE_HALFWIDTH = 3;
+	private static final double LEG_HALFWIDTH = 7;
+	
+	public Node createStickFigure() {
 		final Path retval = new Path(
-			  newBoundMoveTo(self().leftFoot)
-			, newBoundLineTo(self().leftKnee)
-			, newBoundLineTo(self().leftPelvic)
-			, newBoundLineTo(self().rightPelvic)
-			, newBoundLineTo(self().rightKnee)
-			, newBoundLineTo(self().rightFoot)
-			, newBoundMoveTo(self().leftHand)
-			, newBoundLineTo(self().leftElbow)
-			, newBoundLineTo(self().leftShoulder)
-			, newBoundLineTo(self().rightShoulder)
-			, newBoundLineTo(self().rightElbow)
-			, newBoundLineTo(self().rightHand)
-			, newBoundMoveTo(self().rightPelvic)
-			, newBoundLineTo(self().rightShoulder)
-			, newBoundLineTo(self().head)
-			, newBoundLineTo(self().leftShoulder)
-			, newBoundLineTo(self().leftPelvic)
+			  newBoundMoveTo(this.leftFoot)
+			, newBoundLineTo(this.leftKnee)
+			, newBoundLineTo(this.leftPelvic)
+			, newBoundLineTo(this.rightPelvic)
+			, newBoundLineTo(this.rightKnee)
+			, newBoundLineTo(this.rightFoot)
+			, newBoundMoveTo(this.leftHand)
+			, newBoundLineTo(this.leftElbow)
+			, newBoundLineTo(this.leftShoulder)
+			, newBoundLineTo(this.rightShoulder)
+			, newBoundLineTo(this.rightElbow)
+			, newBoundLineTo(this.rightHand)
+			, newBoundMoveTo(this.rightPelvic)
+			, newBoundLineTo(this.rightShoulder)
+			, newBoundLineTo(this.head)
+			, newBoundLineTo(this.leftShoulder)
+			, newBoundLineTo(this.leftPelvic)
 		);
 		retval.setStroke(Color.BLACK);
 		retval.setFill(Color.TRANSPARENT);
@@ -61,9 +72,9 @@ interface WritableLancerControlPointsOps {
 		return retval;
 	}
 	
-	default Node createLance() {
-		final Point2dExpression center = self().lanceCenter;
-		final Point2dExpression direction = center.subtract(self().lanceControl).normalize();
+	public Node createLance() {
+		final Point2dExpression center = this.lanceCenter;
+		final Point2dExpression direction = center.subtract(this.lanceControl).normalize();
 		final Point2dExpression perp = direction.perpendicular();
 		
 		
@@ -95,9 +106,9 @@ interface WritableLancerControlPointsOps {
 		return new Group(shaft, head);
 	}
 	
-	default Node createPantSeat() {
-		final Point2dExpression left = self().leftPelvic;
-		final Point2dExpression right = self().rightPelvic;
+	public Node createPantSeat() {
+		final Point2dExpression left = this.leftPelvic;
+		final Point2dExpression right = this.rightPelvic;
 		
 		final Path leg = new Path(
 			// front
@@ -113,15 +124,15 @@ interface WritableLancerControlPointsOps {
 		return leg;
 	}
 	
-	default Node createLeftLeg() {
-		return createLeg(self().leftKnee, self().leftFoot, self().leftPelvic);
+	public Node createLeftLeg() {
+		return createLeg(this.leftKnee, this.leftFoot, this.leftPelvic);
 	}
 	
-	default Node createRightLeg() {
-		return createLeg(self().rightKnee, self().rightFoot, self().rightPelvic);
+	public Node createRightLeg() {
+		return createLeg(this.rightKnee, this.rightFoot, this.rightPelvic);
 	}
 	
-	public static Node createLeg(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
+	private static Node createLeg(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
 		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
 		final Point2dExpression perp1 = dir1.perpendicular();
 		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();

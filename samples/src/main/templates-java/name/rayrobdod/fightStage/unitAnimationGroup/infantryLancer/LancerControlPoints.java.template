@@ -1,0 +1,102 @@
+/*
+ * Copyright 2018 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+
+import java.util.function.BinaryOperator;
+import java.util.function.UnaryOperator;
+
+import javafx.geometry.Point2D;
+
+final class LancerControlPoints {
+	public final Point2D ${fields.join(";\n\tpublic final Point2D ")};
+	
+	public LancerControlPoints(
+		final Point2D ${fields.join(",\n\t\tfinal Point2D ")}
+	){
+		<%
+			for (String field : fields) {
+				print "this."
+				print field
+				print " = "
+				print field
+				print ";\n\t\t"
+			}
+		%>
+	}
+	
+	public LancerControlPoints(Point2D value) {
+		<%
+			for (String field : fields) {
+				print "this."
+				print field
+				print " = value;\n\t\t"
+			}
+		%>
+	}
+	
+	public LancerControlPoints self() {return this;}
+	public LancerControlPoints zipMap(LancerControlPoints rhs, BinaryOperator<Point2D> op) {
+		return new LancerControlPoints(
+			<%
+				print fields.stream()
+					.map({field -> "op.apply(this.${field}, rhs.${field})"})
+					.collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
+			%>
+		);
+	}
+	public LancerControlPoints map(UnaryOperator<Point2D> op) {
+		return new LancerControlPoints(
+			op.apply(this.${fields.join("),\n\t\t\top.apply(this.")})
+		);
+	}
+	
+	@Override public String toString() {
+		return "LancerControlPoints [" +
+			<%
+				for (String field : fields) {
+					print "\""
+					print field
+					print " : \" + "
+					print field
+					print " + \", \" +\n\t\t\t"
+				}
+			%>
+		"]";
+	}
+	
+	<%
+		print fields.stream().map({outer ->
+			String outerTitle = "${outer.charAt(0).toUpperCase()}${outer.substring(1)}"
+			fields.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(java.util.stream.Collectors.joining(
+				", ", "public LancerControlPoints copyWith$outerTitle(Point2D value) {return new LancerControlPoints(", ");}"
+			))
+		}).collect(java.util.stream.Collectors.joining("\n\t"))
+	%>
+	
+	public final LancerControlPoints add(LancerControlPoints rhs) {
+		return this.zipMap(rhs, Point2D::add);
+	}
+	public final LancerControlPoints multiply(int factor) {
+		return this.map(s -> s.multiply(factor));
+	}
+	
+	public final Point2D lanceTip() {
+		final Point2D center = self().lanceCenter;
+		final Point2D direction = center.subtract(self().lanceControl).normalize();
+		
+		return center.add(direction.multiply(70));
+	}
+}
