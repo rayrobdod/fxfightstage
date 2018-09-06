@@ -15,10 +15,12 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
 
+import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dBinding.createPoint2dBinding;
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundCubicCurveTo;
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundLineTo;
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundMoveTo;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -45,6 +47,7 @@ final class WritableLancerControlPoints {
 	
 	private static final double LANCE_HALFWIDTH = 3;
 	private static final double LEG_HALFWIDTH = 7;
+	private static final double ARM_HALFWIDTH = 5;
 	
 	public Node createStickFigure() {
 		final Path retval = new Path(
@@ -167,4 +170,104 @@ final class WritableLancerControlPoints {
 		return leg;
 	}
 	
+	public Node createRightArm() {
+		return createArm(this.rightElbow, this.rightHand, this.rightShoulder);
+	}
+	
+	public Node createLeftArm() {
+		return createArm(this.leftElbow, this.leftHand, this.leftShoulder);
+	}
+	
+	private static Node createArm(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
+		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
+		final Point2dExpression perp1 = dir1.perpendicular();
+		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();
+		final Point2dExpression perp2 = dir2.perpendicular();
+		
+		
+		
+		final Point2dExpression topOfHand = edge1.add(perp1.multiply(ARM_HALFWIDTH));
+		final Point2dExpression topOfKnee1 = pivot.add(perp1.multiply(ARM_HALFWIDTH));
+		final Point2dExpression topOfKnee2 = pivot.add(perp2.multiply(ARM_HALFWIDTH));
+		final Point2dExpression topOfShoulder = edge2.add(perp2.multiply(ARM_HALFWIDTH));
+		final Point2dExpression bottomOfHand = edge1.add(perp1.multiply(-ARM_HALFWIDTH));
+		final Point2dExpression bottomOfKnee1 = pivot.add(perp1.multiply(-ARM_HALFWIDTH));
+		final Point2dExpression bottomOfKnee2 = pivot.add(perp2.multiply(-ARM_HALFWIDTH));
+		final Point2dExpression bottomOfShoulder = edge2.add(perp2.multiply(-ARM_HALFWIDTH));
+		
+		final Path leg = new Path(
+			// front
+			newBoundMoveTo(topOfShoulder),
+			newBoundLineTo(roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 3)),
+			newBoundCubicCurveTo(
+				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 2),
+				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 1),
+				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 0)
+			),
+			newBoundLineTo(topOfHand),
+			// back
+			newBoundLineTo(bottomOfHand),
+			newBoundLineTo(roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 0)),
+			newBoundCubicCurveTo(
+				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 1),
+				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 2),
+				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 3)
+			),
+			newBoundLineTo(bottomOfShoulder)
+			// not closed
+		);
+		leg.setStroke(Color.BLACK);
+		leg.setFill(Color.RED);
+		leg.setStrokeWidth(1);
+		return leg;
+	}
+	
+	
+	public Node createLeftHand() {
+		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
+		retval.centerXProperty().bind(this.leftHand.x());
+		retval.centerYProperty().bind(this.leftHand.y());
+		retval.radiusProperty().set(ARM_HALFWIDTH);
+		retval.setStroke(Color.BLACK);
+		retval.setFill(Color.PINK);
+		retval.setStrokeWidth(1);
+		return retval;
+	}
+	
+	public Node createRightHand() {
+		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
+		retval.centerXProperty().bind(this.rightHand.x());
+		retval.centerYProperty().bind(this.rightHand.y());
+		retval.radiusProperty().set(ARM_HALFWIDTH);
+		retval.setStroke(Color.BLACK);
+		retval.setFill(Color.PINK);
+		retval.setStrokeWidth(1);
+		return retval;
+	}
+	
+	
+	
+	
+	
+	private static Point2D roundJoinPoint(Point2D center, Point2D edge1, Point2D dir1, Point2D edge2, Point2D dir2, int polarity) {
+		Point2D intercept = Point2Ds.interception(edge1, dir1, edge2, dir2);
+		double controlDistance = edge1.distance(edge2) * -0.75;
+		
+		if (edge1.add(dir1).distance(intercept) < edge1.distance(intercept)) {
+			return intercept;
+		} else {
+			switch (polarity % 4) {
+				case 0: return edge1;
+				case 1: return edge1.add(dir1.multiply(controlDistance));
+				case 2: return edge2.add(dir2.multiply(controlDistance));
+				case 3: return edge2;
+				default: return edge1.midpoint(edge2);
+			}
+		}
+	}
+	
+	private static Point2dExpression roundJoinPoint(ObservableValue<Point2D> center, ObservableValue<Point2D> edge1, ObservableValue<Point2D> dir1, ObservableValue<Point2D> edge2, ObservableValue<Point2D> dir2, int polarity) {
+		return createPoint2dBinding(() -> roundJoinPoint(center.getValue(), edge1.getValue(), dir1.getValue(), edge2.getValue(), dir2.getValue(), polarity),
+					center, edge1, dir1, edge2, dir2);
+	}
 }

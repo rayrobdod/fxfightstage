@@ -51,10 +51,14 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		
 		this.backLayer = new Group(
 			  this.controlPoints.createStickFigure()
+			, this.controlPoints.createLeftArm()
 			, this.controlPoints.createLeftLeg()
 			, this.controlPoints.createPantSeat()
 			, this.controlPoints.createRightLeg()
+			, this.controlPoints.createRightArm()
 			, this.controlPoints.createLance()
+			, this.controlPoints.createLeftHand()
+			, this.controlPoints.createRightHand()
 		);
 		this.frontLayer = new Group();
 	}
@@ -109,7 +113,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(-30, 25), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLanceCenter(new Point2D(-30, 25), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(-20, 5), windup, Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-20, 5), windup, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-10, 5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendSetLeftHand(beforeSpellAnimationBuilder.currentValues().rightHand.add(30, 0), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddHead(new Point2D(-20, 5), windup, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendSetLanceControl(beforeSpellAnimationBuilder.currentValues().lanceCenter.add(-60, 0), windup, Interpolator.LINEAR);
@@ -125,7 +129,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(80, 0), thrust, Interpolator.EASE_IN);
 		beforeSpellAnimationBuilder.appendAddLanceCenter(new Point2D(100, 0), thrust, Interpolator.EASE_IN);
 		beforeSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(20, 1.5), thrust, Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(0, 0), thrust, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(20, 0), thrust, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLeftHand(new Point2D(80, 0), thrust, Interpolator.EASE_IN);
 		beforeSpellAnimationBuilder.appendAddHead(new Point2D(20, 1.5), thrust, Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLanceControl(new Point2D(-40, 0), thrust, Interpolator.LINEAR);
@@ -144,7 +148,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		afterSpellAnimationBuilder.appendAddRightHand(new Point2D(-80, 0), extract, Interpolator.EASE_IN);
 		afterSpellAnimationBuilder.appendAddLanceCenter(new Point2D(-100, 0), extract, Interpolator.EASE_IN);
 		afterSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(-20, -1.5), extract, Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(0, 0), extract, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-20, 0), extract, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddLeftHand(new Point2D(-80, 0), extract, Interpolator.EASE_IN);
 		afterSpellAnimationBuilder.appendAddHead(new Point2D(-20, -1.5), extract, Interpolator.LINEAR);
 		
@@ -159,7 +163,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		afterSpellAnimationBuilder.appendAddRightHand(new Point2D(30, -15), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddLanceCenter(new Point2D(30, -15), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(20, -5), windup, Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(20, -5), windup, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(10, -5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendSetLeftHand(afterSpellAnimationBuilder.currentValues().leftElbow.add(10, 5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddHead(new Point2D(20, -5), windup, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendSetLanceControl(afterSpellAnimationBuilder.currentValues().lanceCenter.add(0, 60), windup, Interpolator.LINEAR);

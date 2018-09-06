@@ -81,47 +81,11 @@ interface Point2dExpression extends javafx.beans.Observable, javafx.beans.value.
 	 * @param v2 the direction on the second line
 	 */
 	default Point2dBinding interception(ObservableValue<Point2D> v1, ObservableValue<Point2D> p2, ObservableValue<Point2D> v2) {
-		return createPoint2dBinding(() -> interceptionImpl(this.getValue(), v1.getValue(), p2.getValue(), v2.getValue()), this, v1, p2, v2);
+		return createPoint2dBinding(() -> Point2Ds.interception(this.getValue(), v1.getValue(), p2.getValue(), v2.getValue()), this, v1, p2, v2);
 	}
 	
 	default Point2dBinding interception(ObservableValue<Point2D> v1, Point2D p2, Point2D v2) {
-		return createPoint2dBinding(() -> interceptionImpl(this.getValue(), v1.getValue(), p2, v2), this, v1);
-	}
-	
-	/**
-	 * (which java version allows interfaces to have private static methods?)
-	 * Returns a point on the interception of two lines (or the midpoint of p1 and p2 if there is not one unique such point)
-	 * @param p1 a point on the first line
-	 * @param p2 a point on the second line
-	 * @param v1 the direction of the first line
-	 * @param v2 the direction on the second line
-	 */
-	public static Point2D interceptionImpl(Point2D p1, Point2D v1, Point2D p2, Point2D v2) {
-		// `getX == 0` indicates a vertical line
-		if (v1.getX() == 0 && v2.getX() == 0) {
-			return p1.midpoint(p2);
-		} else if (v1.getX() == 0) {
-			final double m2 = v2.getY() / v2.getX();
-			final double b2 = p2.getY() - m2 * p2.getX();
-			return new Point2D(p1.getX(), m2 * p1.getX() + b2);
-		} else if (v2.getX() == 0) {
-			final double m1 = v1.getY() / v1.getX();
-			final double b1 = p1.getY() - m1 * p1.getX();
-			return new Point2D(p2.getX(), m1 * p2.getX() + b1);
-		} else {
-			final double m1 = v1.getY() / v1.getX();
-			final double m2 = v2.getY() / v2.getX();
-			final double b1 = p1.getY() - m1 * p1.getX();
-			final double b2 = p2.getY() - m2 * p2.getX();
-			
-			if (m1 == m2) {
-				return p1.midpoint(p2);
-			} else {
-				final double x = (b2 - b1) / (m1 - m2);
-				final double y = m1 * x + b1;
-				return new Point2D(x, y);
-			}
-		}
+		return createPoint2dBinding(() -> Point2Ds.interception(this.getValue(), v1.getValue(), p2, v2), this, v1);
 	}
 	
 	default DoubleBinding magnitude() {
@@ -239,5 +203,45 @@ final class Point2dPathElements {
 	static LineTo newBoundLineTo(final Point2dExpression p) {return PathElements.newBoundLineTo(p.x(), p.y());}
 	static CubicCurveTo newBoundCubicCurveTo(final Point2dExpression c1, final Point2dExpression c2, final Point2dExpression p) {
 		return PathElements.newBoundCubicCurveTo(c1.x(), c1.y(), c2.x(), c2.y(), p.x(), p.y());
+	}
+}
+
+final class Point2Ds {
+	private Point2Ds() {}
+	
+	/**
+	 * (which java version allows interfaces to have private static methods?)
+	 * Returns a point on the interception of two lines (or the midpoint of p1 and p2 if there is not one unique such point)
+	 * @param p1 a point on the first line
+	 * @param p2 a point on the second line
+	 * @param v1 the direction of the first line
+	 * @param v2 the direction on the second line
+	 */
+	public static Point2D interception(Point2D p1, Point2D v1, Point2D p2, Point2D v2) {
+		// `getX == 0` indicates a vertical line
+		if (v1.getX() == 0 && v2.getX() == 0) {
+			return p1.midpoint(p2);
+		} else if (v1.getX() == 0) {
+			final double m2 = v2.getY() / v2.getX();
+			final double b2 = p2.getY() - m2 * p2.getX();
+			return new Point2D(p1.getX(), m2 * p1.getX() + b2);
+		} else if (v2.getX() == 0) {
+			final double m1 = v1.getY() / v1.getX();
+			final double b1 = p1.getY() - m1 * p1.getX();
+			return new Point2D(p2.getX(), m1 * p2.getX() + b1);
+		} else {
+			final double m1 = v1.getY() / v1.getX();
+			final double m2 = v2.getY() / v2.getX();
+			final double b1 = p1.getY() - m1 * p1.getX();
+			final double b2 = p2.getY() - m2 * p2.getX();
+			
+			if (m1 == m2) {
+				return p1.midpoint(p2);
+			} else {
+				final double x = (b2 - b1) / (m1 - m2);
+				final double y = m1 * x + b1;
+				return new Point2D(x, y);
+			}
+		}
 	}
 }
