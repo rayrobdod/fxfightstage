@@ -24,4 +24,6 @@ artifacts:
    - path: ./samples/build/libs/*.tar.gz
      name: samples_libs
    - path: ./samples/build/distributions/FxFightStageSamples.jar
-     name: samples_runner
+     name: samples_fatjar
+   - path: ./samples/build/distributions/jlink/
+     name: samples_jlink

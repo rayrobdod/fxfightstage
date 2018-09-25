@@ -37,7 +37,7 @@ subprojects {
 	apply plugin: 'maven'
 	apply plugin: "com.diffplug.gradle.spotless"
 	
-	sourceCompatibility = 1.8
+	sourceCompatibility = (org.gradle.api.JavaVersion.current() == org.gradle.api.JavaVersion.VERSION_1_8 ? 8 : 9)
 	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 	[compileJava, compileTestJava]*.options*.deprecation = true
 	[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:unchecked"]
@@ -47,6 +47,7 @@ subprojects {
 	javadoc.options.overview = new File(sourceSets.main.java.srcDirs[0], 'overview.html')
 	javadoc.options.links("https://docs.oracle.com/javase/8/docs/api/")
 	javadoc.options.links("https://docs.oracle.com/javase/8/javafx/api/")
+	javadoc.options.links("https://docs.oracle.com/javase/9/docs/api/")
 	
 	repositories {
 		mavenCentral()
@@ -58,11 +59,35 @@ subprojects {
 		testCompile "org.testfx:testfx-junit5:4.0.13-alpha"
 	}
 
+	if (JavaVersion.current().isJava9Compatible()) {
+		sourceSets {
+			main {
+				java {
+					srcDirs 'src/main/java', 'src/main/java-9+'
+				}
+			}
+		}
+		
+		compileJava {
+			doFirst {
+				options.compilerArgs = [
+				'--module-path', classpath.asPath,
+				]
+				classpath = files()
+			}
+		}
+		javadoc {
+			doFirst {
+				options.addStringOption('-module-path', classpath.asPath)
+			}
+		}
+	}
+	
 	spotless {
 		java {
 			importOrder 'java', 'javax', 'javafx', 'org.junit', 'org.testfx', '', 'name.rayrobdod'
 			removeUnusedImports()
-			licenseHeaderFile '../spotless-license-java'
+			licenseHeaderFile '../spotless-license-java', 'package|module'
 			endWithNewline()
 			replaceRegex 'one blank line after package line', '(package .+;)\n+import', '$1\n\nimport'
 			replaceRegex 'one blank line after import lists', '(import .+;\n\n)\n+', '$1'
@@ -213,6 +238,17 @@ project(":samples") {
 		standardInput = System.in
 		ignoreExitValue = true
 	}
+	if (JavaVersion.current().isJava9Compatible()) {
+		run {
+			doFirst {
+				jvmArgs = [
+					'--module-path', classpath.asPath,
+					'--module', "name.rayrobdod.fightStage.demo/${project.mainClassName}"
+				]
+				classpath = files()
+			}
+		}
+	}
 	
 	task fatjar(dependsOn: classes, type: Jar) {
 		// delay execution of expandZips unitil after the classpath is created
@@ -228,4 +264,51 @@ project(":samples") {
 		)
 	}
 	assemble.dependsOn(fatjar)
+
+	if (JavaVersion.current().isJava9Compatible()) {
+		task extractLicenseToDir(type: Copy) {
+			from "$rootDir/LICENSE.txt"
+			into "$buildDir/tmp/mod/legal"
+		}
+		task extractSoundToDir(type: Copy) {
+			from "$projectDir/src/main/resources/name/rayrobdod/fightStage/sounds/swing.wav"
+			into "$buildDir/tmp/mod/libs"
+		}
+		task mod(type: Exec) {
+			dependsOn 'jar'
+			dependsOn 'extractLicenseToDir'
+			dependsOn 'extractSoundToDir'
+			dependsOn 'cleanMod'
+			workingDir buildDir
+			outputs.file "${buildDir}/libs/samples.jmod"
+			
+			commandLine "${System.properties.'java.home'}/bin/jmod",
+					'create',
+					'--class-path', "${jar.archivePath}",
+					'--legal-notices', "$buildDir/tmp/mod/legal",
+					'--libs', "$buildDir/tmp/mod/libs",
+					'distributions/fightstage-samples.jmod'
+		}
+		
+		
+		task link(type: Exec) {
+			dependsOn 'mod'
+			dependsOn 'cleanLink'
+			workingDir buildDir
+			outputs.file "${buildDir}/distributions/jlink"
+			
+			commandLine "${System.properties.'java.home'}/bin/jlink",
+					//'--module-path', "${project.configurations.runtime.asPath}${File.pathSeparatorChar}${jar.archivePath}${File.pathSeparatorChar}${System.properties.'java.home'}/jmods",
+					'--module-path', "${project.configurations.runtime.asPath}${File.pathSeparatorChar}distributions/fightstage-samples.jmod${File.pathSeparatorChar}${System.properties.'java.home'}/jmods",
+					'--add-modules', 'name.rayrobdod.fightStage.samples',
+					'--launcher', "samples=name.rayrobdod.fightStage.demo/${project.mainClassName}",
+					'--output', 'distributions/jlink',
+					//'--bind-services',
+					'--strip-debug',
+					'--compress', '0',
+					'--no-header-files',
+					'--no-man-pages'
+		}
+		assemble.dependsOn(link)
+	}
 }
