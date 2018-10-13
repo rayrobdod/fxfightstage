@@ -53,6 +53,8 @@ public final class InfantryLancer implements UnitAnimationGroup {
 			  this.controlPoints.createStickFigure()
 			, this.controlPoints.createLeftArm()
 			, this.controlPoints.createLeftLeg()
+			, this.controlPoints.createTorso()
+			, this.controlPoints.createHead()
 			, this.controlPoints.createPantSeat()
 			, this.controlPoints.createRightLeg()
 			, this.controlPoints.createRightArm()

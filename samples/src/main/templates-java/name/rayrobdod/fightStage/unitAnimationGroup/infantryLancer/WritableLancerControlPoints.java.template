@@ -48,6 +48,7 @@ final class WritableLancerControlPoints {
 	private static final double LANCE_HALFWIDTH = 3;
 	private static final double LEG_HALFWIDTH = 7;
 	private static final double ARM_HALFWIDTH = 5;
+	private static final double HEAD_HALFWIDTH = 15;
 	
 	public Node createStickFigure() {
 		final Path retval = new Path(
@@ -245,7 +246,44 @@ final class WritableLancerControlPoints {
 		return retval;
 	}
 	
+	public Node createTorso() {
+		final Point2dExpression topDir = leftShoulder.subtract(rightShoulder).normalize();
+		final Point2dExpression botDir = leftPelvic.subtract(rightPelvic).normalize();
+		final Point2dExpression leftDir = leftShoulder.subtract(leftPelvic).normalize();
+		final Point2dExpression rightDir = rightShoulder.subtract(rightPelvic).normalize();
+		
+		final Point2dExpression topLeftSide = this.leftShoulder.add(topDir.multiply(ARM_HALFWIDTH));
+		final Point2dExpression topRightSide = this.rightShoulder.add(topDir.multiply(-ARM_HALFWIDTH));
+		final Point2dExpression topLeftTop = this.leftShoulder.add(leftDir.multiply(ARM_HALFWIDTH));
+		final Point2dExpression topRightTop = this.rightShoulder.add(rightDir.multiply(ARM_HALFWIDTH));
+		final Point2dExpression botLeft = this.leftPelvic.add(botDir.multiply(LEG_HALFWIDTH));
+		final Point2dExpression botRight = this.rightPelvic.add(botDir.multiply(-LEG_HALFWIDTH));
+		
+		final Path retval = new Path(
+			newBoundMoveTo(botRight),
+			newBoundLineTo(botLeft),
+			newBoundLineTo(topLeftSide),
+			newBoundLineTo(topLeftTop),
+			newBoundLineTo(topRightTop),
+			newBoundLineTo(topRightSide),
+			new ClosePath()
+		);
+		retval.setStroke(Color.BLACK);
+		retval.setFill(Color.RED);
+		retval.setStrokeWidth(1);
+		return retval;
+	}
 	
+	public Node createHead() {
+		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
+		retval.centerXProperty().bind(this.head.x());
+		retval.centerYProperty().bind(this.head.y());
+		retval.radiusProperty().set(HEAD_HALFWIDTH);
+		retval.setStroke(Color.BLACK);
+		retval.setFill(Color.PINK);
+		retval.setStrokeWidth(1);
+		return retval;
+	}
 	
 	
 	
