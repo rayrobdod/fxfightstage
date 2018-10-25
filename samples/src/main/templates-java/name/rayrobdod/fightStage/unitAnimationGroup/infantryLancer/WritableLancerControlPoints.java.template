@@ -44,6 +44,7 @@ final class WritableLancerControlPoints {
 	
 	
 	
+	<% String[] sides = ["left", "right"] %>
 	
 	private static final double LANCE_HALFWIDTH = 3;
 	private static final double LEG_HALFWIDTH = 7;
@@ -115,7 +116,6 @@ final class WritableLancerControlPoints {
 		final Point2dExpression right = this.rightPelvic;
 		
 		final Path leg = new Path(
-			// front
 			newBoundMoveTo(left.add(new Point2D(LEG_HALFWIDTH, 2))),
 			newBoundLineTo(left.add(new Point2D(LEG_HALFWIDTH, -10))),
 			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH, -10))),
@@ -128,13 +128,11 @@ final class WritableLancerControlPoints {
 		return leg;
 	}
 	
-	public Node createLeftLeg() {
-		return createLeg(this.leftKnee, this.leftFoot, this.leftPelvic);
+	<% for (String side : sides) { %>
+	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Leg() {
+		return createLeg(this.${side}Knee, this.${side}Foot, this.${side}Pelvic);
 	}
-	
-	public Node createRightLeg() {
-		return createLeg(this.rightKnee, this.rightFoot, this.rightPelvic);
-	}
+	<% } %>
 	
 	private static Node createLeg(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
 		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
@@ -171,13 +169,11 @@ final class WritableLancerControlPoints {
 		return leg;
 	}
 	
-	public Node createRightArm() {
-		return createArm(this.rightElbow, this.rightHand, this.rightShoulder);
+	<% for (String side : sides) { %>
+	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Arm() {
+		return createArm(this.${side}Elbow, this.${side}Hand, this.${side}Shoulder);
 	}
-	
-	public Node createLeftArm() {
-		return createArm(this.leftElbow, this.leftHand, this.leftShoulder);
-	}
+	<% } %>
 	
 	private static Node createArm(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
 		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
@@ -224,27 +220,18 @@ final class WritableLancerControlPoints {
 	}
 	
 	
-	public Node createLeftHand() {
+	<% for (String side : sides) { %>
+	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Hand() {
 		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
-		retval.centerXProperty().bind(this.leftHand.x());
-		retval.centerYProperty().bind(this.leftHand.y());
+		retval.centerXProperty().bind(this.${side}Hand.x());
+		retval.centerYProperty().bind(this.${side}Hand.y());
 		retval.radiusProperty().set(ARM_HALFWIDTH);
 		retval.setStroke(Color.BLACK);
 		retval.setFill(Color.PINK);
 		retval.setStrokeWidth(1);
 		return retval;
 	}
-	
-	public Node createRightHand() {
-		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
-		retval.centerXProperty().bind(this.rightHand.x());
-		retval.centerYProperty().bind(this.rightHand.y());
-		retval.radiusProperty().set(ARM_HALFWIDTH);
-		retval.setStroke(Color.BLACK);
-		retval.setFill(Color.PINK);
-		retval.setStrokeWidth(1);
-		return retval;
-	}
+	<% } %>
 	
 	public Node createTorso() {
 		final Point2dExpression topDir = leftShoulder.subtract(rightShoulder).normalize();
