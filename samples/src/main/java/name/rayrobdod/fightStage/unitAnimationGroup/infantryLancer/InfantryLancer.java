@@ -49,19 +49,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	public InfantryLancer() {
 		this.controlPoints = new WritableLancerControlPoints();
 		
-		this.backLayer = new Group(
-			  this.controlPoints.createStickFigure()
-			, this.controlPoints.createLeftArm()
-			, this.controlPoints.createLeftLeg()
-			, this.controlPoints.createTorso()
-			, this.controlPoints.createHead()
-			, this.controlPoints.createPantSeat()
-			, this.controlPoints.createRightLeg()
-			, this.controlPoints.createRightArm()
-			, this.controlPoints.createLance()
-			, this.controlPoints.createLeftHand()
-			, this.controlPoints.createRightHand()
-		);
+		this.backLayer = this.controlPoints.createFigure();
 		this.frontLayer = new Group();
 	}
 	

@@ -51,7 +51,7 @@ final class WritableLancerControlPoints {
 	private static final double ARM_HALFWIDTH = 5;
 	private static final double HEAD_HALFWIDTH = 15;
 	
-	public Node createStickFigure() {
+	private Node createStickFigure() {
 		final Path retval = new Path(
 			  newBoundMoveTo(this.leftFoot)
 			, newBoundLineTo(this.leftKnee)
@@ -77,7 +77,7 @@ final class WritableLancerControlPoints {
 		return retval;
 	}
 	
-	public Node createLance() {
+	private Node createLance() {
 		final Point2dExpression center = this.lanceCenter;
 		final Point2dExpression direction = center.subtract(this.lanceControl).normalize();
 		final Point2dExpression perp = direction.perpendicular();
@@ -111,7 +111,7 @@ final class WritableLancerControlPoints {
 		return new Group(shaft, head);
 	}
 	
-	public Node createPantSeat() {
+	private Node createPantSeat() {
 		final Point2dExpression left = this.leftPelvic;
 		final Point2dExpression right = this.rightPelvic;
 		
@@ -129,7 +129,7 @@ final class WritableLancerControlPoints {
 	}
 	
 	<% for (String side : sides) { %>
-	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Leg() {
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Leg() {
 		return createLeg(this.${side}Knee, this.${side}Foot, this.${side}Pelvic);
 	}
 	<% } %>
@@ -170,7 +170,7 @@ final class WritableLancerControlPoints {
 	}
 	
 	<% for (String side : sides) { %>
-	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Arm() {
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Arm() {
 		return createArm(this.${side}Elbow, this.${side}Hand, this.${side}Shoulder);
 	}
 	<% } %>
@@ -221,7 +221,7 @@ final class WritableLancerControlPoints {
 	
 	
 	<% for (String side : sides) { %>
-	public Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Hand() {
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Hand() {
 		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
 		retval.centerXProperty().bind(this.${side}Hand.x());
 		retval.centerYProperty().bind(this.${side}Hand.y());
@@ -233,7 +233,7 @@ final class WritableLancerControlPoints {
 	}
 	<% } %>
 	
-	public Node createTorso() {
+	private Node createTorso() {
 		final Point2dExpression topDir = leftShoulder.subtract(rightShoulder).normalize();
 		final Point2dExpression botDir = leftPelvic.subtract(rightPelvic).normalize();
 		final Point2dExpression leftDir = leftShoulder.subtract(leftPelvic).normalize();
@@ -261,7 +261,7 @@ final class WritableLancerControlPoints {
 		return retval;
 	}
 	
-	public Node createHead() {
+	private Node createHead() {
 		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
 		retval.centerXProperty().bind(this.head.x());
 		retval.centerYProperty().bind(this.head.y());
@@ -270,6 +270,24 @@ final class WritableLancerControlPoints {
 		retval.setFill(Color.PINK);
 		retval.setStrokeWidth(1);
 		return retval;
+	}
+	
+	
+	
+	public Group createFigure() {
+		return new Group(
+			  this.createStickFigure()
+			, this.createLeftArm()
+			, this.createLeftLeg()
+			, this.createTorso()
+			, this.createHead()
+			, this.createPantSeat()
+			, this.createRightLeg()
+			, this.createRightArm()
+			, this.createLance()
+			, this.createLeftHand()
+			, this.createRightHand()
+		);
 	}
 	
 	
