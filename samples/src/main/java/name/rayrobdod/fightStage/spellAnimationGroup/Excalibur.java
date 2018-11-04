@@ -67,9 +67,7 @@ public final class Excalibur implements SpellAnimationGroup {
 	private final PerlinNoise horizontalNoise;
 	private final PerlinNoise verticalNoise;
 	
-	private final WritableDoubleValue backgroundScaleXProperty;
-	private final WritableDoubleValue backgroundScaleYProperty;
-	private final WritableDoubleValue backgroundScalePivotXProperty;
+	private final WritableDoubleValue backgroundDirectionXProperty;
 	private final WritableObjectValue<Paint> blackFillProperty;
 	private final WritableDoubleValue gradientsOpacityProperty;
 	private final WritableObjectValue<Paint> horizFillProperty;
@@ -89,10 +87,9 @@ public final class Excalibur implements SpellAnimationGroup {
 		final Rectangle vertGradientRect = bufferedRectangle();
 		vertGradientRect.setBlendMode(BlendMode.OVERLAY);
 		final Scale backgroundScale = new Scale();
+		backgroundScale.setPivotX(0.5);
 		
-		this.backgroundScaleXProperty = backgroundScale.xProperty();
-		this.backgroundScaleYProperty = backgroundScale.yProperty();
-		this.backgroundScalePivotXProperty = backgroundScale.pivotXProperty();
+		this.backgroundDirectionXProperty = backgroundScale.xProperty();
 		
 		this.blackFillProperty = blackRect.fillProperty();
 		this.horizFillProperty = horizGradientRect.fillProperty();
@@ -110,6 +107,7 @@ public final class Excalibur implements SpellAnimationGroup {
 			gradientsGroup
 		);
 		this.background.getTransforms().add(backgroundScale);
+		this.background.getTransforms().add(new Scale(1d / backgroundDimension, 1d / backgroundDimension));
 		this.background.setEffect(gradientTransform());
 		
 		this.frontLayer = new Group();
@@ -131,9 +129,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		
 		final TimelineBuilder builder = new TimelineBuilder();
 		
-		builder.setBackgroundScaleX(direction * 1d / backgroundDimension);
-		builder.setBackgroundScaleY(1d / backgroundDimension);
-		builder.setBackgroundScalePivotX(direction > 0 ? 0 : 1);
+		builder.setBackgroundDirectionX(direction);
 		builder.setBlackFill(Color.TRANSPARENT);
 		builder.setGradientsOpacity(0.0);
 		builder.stampFrame();
@@ -266,9 +262,7 @@ public final class Excalibur implements SpellAnimationGroup {
 	private final class TimelineBuilder {
 		private Duration currentTime;
 		
-		private double backgroundScaleX;
-		private double backgroundScaleY;
-		private double backgroundScalePivotX;
+		private double backgroundDirectionX;
 		private Paint blackFill;
 		private double gradientsOpacity;
 		
@@ -277,9 +271,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		public TimelineBuilder() {
 			this.currentTime = Duration.ZERO;
 			
-			this.backgroundScaleX = 0.0;
-			this.backgroundScaleY = 0.0;
-			this.backgroundScalePivotX = 0.0;
+			this.backgroundDirectionX = 1.0;
 			this.blackFill = Color.TRANSPARENT;
 			this.gradientsOpacity = 0.0;
 			
@@ -289,9 +281,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		/** Add the current builder state to the internal list of key frames */
 		public void stampFrame() {
 			timeline.add(new KeyFrame(currentTime,
-				new KeyValue(backgroundScaleXProperty, backgroundScaleX, Interpolator.LINEAR),
-				new KeyValue(backgroundScaleYProperty, backgroundScaleY, Interpolator.LINEAR),
-				new KeyValue(backgroundScalePivotXProperty, backgroundScalePivotX, Interpolator.LINEAR),
+				new KeyValue(backgroundDirectionXProperty, backgroundDirectionX, Interpolator.LINEAR),
 				new KeyValue(blackFillProperty, blackFill, Interpolator.LINEAR),
 				new KeyValue(gradientsOpacityProperty, gradientsOpacity, Interpolator.LINEAR)
 			));
@@ -305,9 +295,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		public Timeline build() {return new Timeline(timeline.stream().toArray(KeyFrame[]::new));}
 		
 		
-		public void setBackgroundScaleX(double v) {this.backgroundScaleX = v;}
-		public void setBackgroundScaleY(double v) {this.backgroundScaleY = v;}
-		public void setBackgroundScalePivotX(double v) {this.backgroundScalePivotX = v;}
+		public void setBackgroundDirectionX(double v) {this.backgroundDirectionX = v;}
 		public void setBlackFill(Paint v) {this.blackFill = v;}
 		public void setGradientsOpacity(double v) {this.gradientsOpacity = v;}
 	}
