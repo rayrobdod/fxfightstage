@@ -11,6 +11,8 @@ environment:
      JFX: -PnoExternalJavafx
    - JAVA_HOME: C:\Program Files\Java\jdk10
      JFX: -PnoExternalJavafx
+   - JAVA_HOME: C:\Program Files\Java\jdk11
+     JFX:
    - JAVA_HOME: C:\Program Files\Java\openjdk11
      JFX:
 init:
@@ -18,13 +20,12 @@ init:
    - ps: |
            Add-Type -AssemblyName System.IO.Compression.FileSystem
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk11") {
-              (new-object System.Net.WebClient).DownloadFile(
-                 'https://download.java.net/java/early_access/jdk11/28/GPL/openjdk-11+28_windows-x64_bin.zip',
-                 "$ENV:TMP\openjdk.zip"
-              )
-              [System.IO.Compression.ZipFile]::ExtractToDirectory("$ENV:TMP\openjdk.zip", "$ENV:TMP\openjdk")
-              MOVE "$ENV:TMP\openjdk\jdk-11" "$ENV:JAVA_HOME"
+              & choco install openjdk --version 11.0.1
            }
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\jdk11") {
+              & choco install jdk11
+           }
+   - refreshenv
 build_script:
    - 'gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
 test_script:

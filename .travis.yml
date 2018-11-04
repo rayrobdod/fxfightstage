@@ -6,13 +6,13 @@ matrix:
         env: JFX=-PnoExternalJavafx
       - jdk: oraclejdk9
         env: JFX=-PnoExternalJavafx
-      - jdk: oraclejdk10
-        env: JFX=-PnoExternalJavafx
       - jdk: oraclejdk11
         env: JFX=
       - jdk: openjdk10
         env: JFX=
       - jdk: openjdk11
+        env: JFX=
+      - jdk: openjdk-ea
         env: JFX=
 
 before_install:

@@ -56,9 +56,19 @@ subprojects {
 	group = "name.rayrobdod"
 	version = 'SNAPSHOT'
 	javadoc.options.overview = new File(sourceSets.main.java.srcDirs[0], 'overview.html')
-	javadoc.options.links("https://docs.oracle.com/javase/8/docs/api/")
-	javadoc.options.links("https://docs.oracle.com/javase/8/javafx/api/")
-	javadoc.options.links("https://docs.oracle.com/javase/9/docs/api/")
+	if (JavaVersion.current().isJava8()) {
+		javadoc.options.links("https://docs.oracle.com/javase/8/docs/api/")
+		javadoc.options.links("https://docs.oracle.com/javase/8/javafx/api/")
+	} else if (JavaVersion.current().isJava9()) {
+		javadoc.options.links("https://docs.oracle.com/javase/9/docs/api/")
+	} else if (JavaVersion.current().isJava10()) {
+		javadoc.options.links("https://docs.oracle.com/javase/10/docs/api/")
+	} else if (JavaVersion.current().isJava11()) {
+		javadoc.options.links("https://docs.oracle.com/en/java/javase/11/docs/api/")
+		javadoc.options.links("https://openjfx.io/javadoc/11/")
+	} else {
+		// https://download.java.net/java/early_access/jdk12/docs/api/
+	}
 	
 	repositories {
 		mavenCentral()
