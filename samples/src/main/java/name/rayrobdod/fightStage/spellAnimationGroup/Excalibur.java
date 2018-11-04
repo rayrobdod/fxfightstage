@@ -16,7 +16,6 @@
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javafx.animation.Animation;
@@ -24,9 +23,10 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
-import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
+import javafx.beans.value.WritableDoubleValue;
+import javafx.beans.value.WritableObjectValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -36,6 +36,7 @@ import javafx.scene.effect.FloatMap;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
@@ -53,71 +54,63 @@ public final class Excalibur implements SpellAnimationGroup {
 	private static final Duration fadeToBlackDur = Duration.seconds(1.1);
 	private static final Duration pauseBlackDur = Duration.seconds(0.5);
 	private static final Duration fadeToBurstDur = Duration.seconds(2.0);
-	private static final Duration pauseBurstDur = Duration.seconds(4.0);
-	private static final Duration explodeDur = Duration.seconds(2.2);
-	private static final Duration pauseWhiteDur = Duration.seconds(0.8); // damage somewhere in here
-	private static final Duration fadeToNormalDur = Duration.seconds(0.5);
+	private static final Duration pauseBurst1Dur = Duration.seconds(3.0);
+	private static final Duration pauseBurst2Dur = Duration.seconds(1.0);
+	private static final Duration fadeOutBurstDur = Duration.seconds(1.0);
 	
-	private static final Duration fadeToBlackStartTime = Duration.ZERO;
-	private static final Duration fadeToBlackEndTime = fadeToBlackStartTime.add(fadeToBlackDur);	private static final Duration pauseToBlackStartTime = fadeToBlackEndTime;
-	private static final Duration pauseToBlackEndTime = pauseToBlackStartTime.add(pauseBlackDur);	private static final Duration fadeToBurstStartTime = pauseToBlackEndTime;
-	private static final Duration fadeToBurstEndTime = fadeToBurstStartTime.add(fadeToBurstDur);
-	private static final Duration pauseBurstStartTime = fadeToBurstEndTime;
-	private static final Duration pauseBurstEndTime = pauseBurstStartTime.add(pauseBurstDur);
-	private static final Duration explodeStartTime = pauseBurstEndTime.subtract(explodeDur);
-	private static final Duration explodeEndTime = pauseBurstEndTime;
-	private static final Duration pauseWhiteStartTime = explodeEndTime;
-	private static final Duration pauseWhiteEndTime = explodeEndTime.add(pauseWhiteDur);
-	private static final Duration fadeToNormalStartTime = pauseWhiteEndTime;
-	private static final Duration fadeToNormalEndTime = pauseWhiteEndTime.add(fadeToNormalDur);
 	
 	private static final int framesPerSecond = 16;
-	private static final int gradientTransformPrecision = 100;
-	private static final int gradientPrecision = 100;
+	private static final int gradientTransformPrecision = 64;
+	private static final int gradientPrecision = 128;
 	private static final int backgroundDimension = 100;
-	private static final int explodeSize = 400;
 	
-	private static final Duration totalDuration = fadeToNormalEndTime;
-	private static final int gradientFrames = (int) (totalDuration.toSeconds() * framesPerSecond);
+	private final PerlinNoise horizontalNoise;
+	private final PerlinNoise verticalNoise;
 	
-	private final Scale backgroundScale;
-	private final LinearGradient[] horizontalGradients;
-	private final LinearGradient[] verticalGradients;
-	private final Rectangle horizontalGradientRect;
-	private final Rectangle verticalGradientRect;
-	private final Rectangle blackRect;
-	private final Node gradientsGroup;
+	private final WritableDoubleValue backgroundScaleXProperty;
+	private final WritableDoubleValue backgroundScaleYProperty;
+	private final WritableDoubleValue backgroundScalePivotXProperty;
+	private final WritableObjectValue<Paint> blackFillProperty;
+	private final WritableDoubleValue gradientsOpacityProperty;
+	private final WritableObjectValue<Paint> horizFillProperty;
+	private final WritableObjectValue<Paint> vertFillProperty;
+	
 	private final Node background;
-	
 	private final Node backLayer;
-	
-	private final Rectangle whiteRect;
 	private final Node frontLayer;
 	
 	public Excalibur() {
-		this.horizontalGradients = new LinearGradient[gradientFrames];
-		this.verticalGradients = new LinearGradient[gradientFrames];
-		this.initializeGradients(new Random());
+		final Random rng = new Random();
+		this.horizontalNoise = new PerlinNoise(rng);
+		this.verticalNoise = new PerlinNoise(rng);
 		
-		this.blackRect = bufferedRectangle();
-		this.horizontalGradientRect = bufferedRectangle();
-		this.verticalGradientRect = bufferedRectangle();
-		this.verticalGradientRect.setBlendMode(BlendMode.OVERLAY);
-		this.whiteRect = bufferedRectangle();
-		this.backgroundScale = new Scale();
+		final Rectangle blackRect = bufferedRectangle();
+		final Rectangle horizGradientRect = bufferedRectangle();
+		final Rectangle vertGradientRect = bufferedRectangle();
+		vertGradientRect.setBlendMode(BlendMode.OVERLAY);
+		final Scale backgroundScale = new Scale();
 		
-		this.gradientsGroup = new Group(
-			this.horizontalGradientRect,
-			this.verticalGradientRect
+		this.backgroundScaleXProperty = backgroundScale.xProperty();
+		this.backgroundScaleYProperty = backgroundScale.yProperty();
+		this.backgroundScalePivotXProperty = backgroundScale.pivotXProperty();
+		
+		this.blackFillProperty = blackRect.fillProperty();
+		this.horizFillProperty = horizGradientRect.fillProperty();
+		this.vertFillProperty = vertGradientRect.fillProperty();
+		
+		
+		final Node gradientsGroup = new Group(
+			horizGradientRect,
+			vertGradientRect
 		);
+		this.gradientsOpacityProperty = gradientsGroup.opacityProperty();
+		
 		this.background = new Group(
-			this.blackRect,
-			this.gradientsGroup,
-			this.whiteRect
+			blackRect,
+			gradientsGroup
 		);
-		this.background.getTransforms().add(this.backgroundScale);
+		this.background.getTransforms().add(backgroundScale);
 		this.background.setEffect(gradientTransform());
-		
 		
 		this.frontLayer = new Group();
 		this.backLayer = new Group();
@@ -136,114 +129,102 @@ public final class Excalibur implements SpellAnimationGroup {
 	) {
 		final double direction = Math.signum(target.getX() - origin.getX());
 		
-		final Timeline timeline = new Timeline(
-			new KeyFrame(Duration.ZERO,
-				new KeyValue(backgroundScale.xProperty(), direction * 1d / backgroundDimension, Interpolator.DISCRETE),
-				new KeyValue(backgroundScale.yProperty(), 1d / backgroundDimension, Interpolator.DISCRETE),
-				new KeyValue(backgroundScale.pivotXProperty(), direction > 0 ? 0 : 1, Interpolator.DISCRETE),
-				new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.DISCRETE),
-				new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.DISCRETE),
-				new KeyValue(whiteRect.fillProperty(), Color.TRANSPARENT, Interpolator.DISCRETE)
-			),
-			new KeyFrame(fadeToBlackEndTime,
-				new KeyValue(blackRect.fillProperty(), Color.BLACK, Interpolator.LINEAR)
-			),
-			new KeyFrame(fadeToBurstStartTime.subtract(Duration.ONE),
-				new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.LINEAR)
-			),
-			new KeyFrame(fadeToBurstStartTime,
-				new KeyValue(gradientsGroup.opacityProperty(), 1.0, Interpolator.LINEAR)
-			),
-			new KeyFrame(pauseBurstEndTime.subtract(Duration.ONE),
-				new KeyValue(blackRect.fillProperty(), Color.BLACK, Interpolator.LINEAR),
-				new KeyValue(gradientsGroup.opacityProperty(), 1.0, Interpolator.LINEAR)
-			),
-			new KeyFrame(pauseBurstEndTime,
-				new KeyValue(blackRect.fillProperty(), Color.TRANSPARENT, Interpolator.LINEAR),
-				new KeyValue(gradientsGroup.opacityProperty(), 0.0, Interpolator.LINEAR)
-			),
-			new KeyFrame(explodeStartTime.add(explodeEndTime).divide(2),
-				new KeyValue(whiteRect.fillProperty(), Color.color(1.0,1.0,1.0,0.0), Interpolator.DISCRETE)
-			),
-			new KeyFrame(explodeEndTime,
-				new KeyValue(whiteRect.fillProperty(), Color.WHITE, Interpolator.LINEAR)
-			),
-			new KeyFrame(fadeToNormalStartTime,
-				new KeyValue(whiteRect.fillProperty(), Color.WHITE, Interpolator.LINEAR)
-			),
-			new KeyFrame(fadeToNormalEndTime,
-				new KeyValue(backgroundScale.xProperty(), direction * 1d / backgroundDimension, Interpolator.DISCRETE),
-				new KeyValue(backgroundScale.yProperty(), 1d / backgroundDimension, Interpolator.DISCRETE),
-				new KeyValue(backgroundScale.pivotXProperty(), direction > 0 ? 0 : 1, Interpolator.DISCRETE),
-				new KeyValue(whiteRect.fillProperty(), Color.color(1.0,1.0,1.0,0.0), Interpolator.LINEAR)
-			)
-		);
+		final TimelineBuilder builder = new TimelineBuilder();
+		
+		builder.setBackgroundScaleX(direction * 1d / backgroundDimension);
+		builder.setBackgroundScaleY(1d / backgroundDimension);
+		builder.setBackgroundScalePivotX(direction > 0 ? 0 : 1);
+		builder.setBlackFill(Color.TRANSPARENT);
+		builder.setGradientsOpacity(0.0);
+		builder.stampFrame();
+		
+		builder.incrementTime(fadeToBlackDur);
+		builder.setBlackFill(Color.BLACK);
+		builder.stampFrame();
+
+		builder.incrementTime(pauseBlackDur);
+		builder.stampFrame();
+		
+		builder.incrementTime(fadeToBurstDur);
+		builder.setGradientsOpacity(1.0);
+		builder.stampFrame();
+		
+		builder.incrementTime(pauseBurst1Dur);
+		builder.stampFrame();
+		final Timeline beforeHit = builder.build();
+		
+		builder.resetTime();
+		builder.clearTimeline();
+		builder.stampFrame();
+		
+		builder.incrementTime(pauseBurst2Dur);
+		builder.setBlackFill(Color.TRANSPARENT);
+		builder.stampFrame();
+		
+		builder.incrementTime(fadeOutBurstDur);
+		builder.setGradientsOpacity(0.0);
+		builder.stampFrame();
+		final Timeline afterHit = builder.build();
 		
 		
-		for (int i = 0; i < gradientFrames; i++) {
-			timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(((double) i) / framesPerSecond),
-				new KeyValue(horizontalGradientRect.fillProperty(), horizontalGradients[i], Interpolator.DISCRETE),
-				new KeyValue(verticalGradientRect.fillProperty(), verticalGradients[i], Interpolator.DISCRETE)
-			));
+		// Create the gradient frames
+		{
+			final int beforeHitStartIndex = (int) Math.floor(fadeToBlackDur.add(pauseBlackDur).toSeconds() * framesPerSecond);
+			final int beforeHitEndIndex = beforeHitStartIndex + (int) Math.ceil(fadeToBurstDur.add(pauseBurst1Dur).toSeconds() * framesPerSecond);
+			final int afterHitStartIndex = 0;
+			final int afterHitEndIndex = (int) Math.floor(pauseBurst2Dur.add(fadeOutBurstDur).toSeconds() * framesPerSecond);
+			
+			for (int i = beforeHitStartIndex; i < beforeHitEndIndex; i++) {
+				final double secs = ((double) i) / framesPerSecond;
+				final Duration dur = Duration.seconds(secs);
+				
+				beforeHit.getKeyFrames().add(new KeyFrame(dur,
+					new KeyValue(horizFillProperty, createGradient(true, secs), Interpolator.DISCRETE),
+					new KeyValue(vertFillProperty, createGradient(false, secs), Interpolator.DISCRETE)
+				));
+			}
+			
+			for (int i = afterHitStartIndex; i < afterHitEndIndex; i++) {
+				final double offsetSecs = ((double) beforeHitEndIndex) / framesPerSecond;
+				final double secs = ((double) i) / framesPerSecond;
+				final Duration dur = Duration.seconds(secs);
+				
+				afterHit.getKeyFrames().add(new KeyFrame(dur,
+					new KeyValue(horizFillProperty, createGradient(true, secs + offsetSecs), Interpolator.DISCRETE),
+					new KeyValue(vertFillProperty, createGradient(false, secs + offsetSecs), Interpolator.DISCRETE)
+				));
+			}
 		}
 		
 		
 		return new ParallelTransition(
 			panAnimation.panToDefender(),
-			timeline,
 			new SequentialTransition(
-				new PauseTransition(pauseWhiteStartTime.add(pauseWhiteDur.divide(3))),
+				beforeHit,
 				new ParallelTransition(
 					shakeAnimation.apply(),
-					hitAnimation
+					hitAnimation,
+					afterHit
 				)
 			)
 		);
 	}
 	
 	
-	
-	private void initializeGradients(Random rng) {
-		final double fadeToBurstStartTimeSecs = fadeToBurstStartTime.toSeconds();
-		final double fadeToBurstEndTimeSecs = fadeToBurstEndTime.toSeconds();
-		final PerlinNoise horizontalNoise = new PerlinNoise(rng);
-		final PerlinNoise verticalNoise = new PerlinNoise(rng);
+	private LinearGradient createGradient(boolean useHoriz, double time) {
+		final PerlinNoise noise = (useHoriz ? horizontalNoise : verticalNoise);
 		
-		for (int t = 0; t < gradientFrames; t++) {
-			final double t2 = ((double) t) / framesPerSecond;
-			final double fadeInOffset = (
-				t2 <= fadeToBurstStartTimeSecs ? -0.1 : (
-					t2 <= fadeToBurstEndTimeSecs ? (t2 - fadeToBurstStartTimeSecs) / (fadeToBurstEndTimeSecs - fadeToBurstStartTimeSecs) : (
-						1
-					)
-				)
-			) - 0.1;
+		final ArrayList<Stop> gradientStops = new ArrayList<>(gradientPrecision);
+		for (int x = 0; x <= gradientPrecision; x++) {
+			double x2 = ((double) x) / gradientPrecision;
+			double lum = 0.9 + horizontalNoise.sum1D(useHoriz ? (x2 - time / 8) * 16 : x2 * 32, 2, 2, 4) * 2;
+			double colorG = Math.min(0.95f, Math.max(0.05f, lum));
+			double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
+			Color color = Color.color(colorB, colorG, (colorB + colorG) / 2);
 			
-			List<Stop> horizontalGradientStops = new ArrayList<>(gradientPrecision);
-			for (int x = 0; x <= gradientPrecision; x++) {
-				double x2 = ((double) x) / gradientPrecision;
-				double lum = fadeInOffset + horizontalNoise.sum1D((x2 - t2 / 8) * 16, 2, 2, 4) * 2;
-				double colorG = Math.min(0.95f, Math.max(0.05f, lum));
-				double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
-				Color color = Color.color(colorB, colorG, (colorB + colorG) / 2);
-				
-				horizontalGradientStops.add(new Stop(x2, color));
-			}
-			horizontalGradients[t] = new LinearGradient(0,0,1,0,true, CycleMethod.NO_CYCLE, horizontalGradientStops);
-			
-			
-			List<Stop> verticalGradientStops = new ArrayList<>(gradientPrecision);
-			for (int y = 0; y <= gradientPrecision; y++) {
-				double y2 = ((double) y) / gradientPrecision;
-				double lum = fadeInOffset + verticalNoise.sum1D(y2 * 32, 2, 2, 4) * 2;
-				double colorY = Math.min(0.95f, Math.max(0.05f, lum));
-				double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
-				Color color = Color.color(colorY, colorY, colorB);
-				
-				verticalGradientStops.add(new Stop(y2, color));
-			}
-			verticalGradients[t] = new LinearGradient(0,0,0,1,true, CycleMethod.NO_CYCLE, verticalGradientStops);
+			gradientStops.add(new Stop(x2, color));
 		}
+		return new LinearGradient(0, 0, (useHoriz ? 1 : 0), (useHoriz ? 0 : 1), true, CycleMethod.NO_CYCLE, gradientStops);
 	}
 	
 	/**
@@ -280,5 +261,42 @@ public final class Excalibur implements SpellAnimationGroup {
 			backgroundDimension * 3 / 2);
 		retval.setFill(Color.TRANSPARENT);
 		return retval;
+	}
+	
+	private final class TimelineBuilder {
+		private Duration currentTime = Duration.ZERO;
+		
+		private double backgroundScaleX = 0.0;
+		private double backgroundScaleY = 0.0;
+		private double backgroundScalePivotX = 0.0;
+		private Paint blackFill = Color.TRANSPARENT;
+		private double gradientsOpacity = 0.0;
+		
+		private final java.util.ArrayList<KeyFrame> timeline = new java.util.ArrayList<>();
+		
+		/** Add the current builder state to the internal list of key frames */
+		public void stampFrame() {
+			timeline.add(new KeyFrame(currentTime,
+				new KeyValue(backgroundScaleXProperty, backgroundScaleX, Interpolator.LINEAR),
+				new KeyValue(backgroundScaleYProperty, backgroundScaleY, Interpolator.LINEAR),
+				new KeyValue(backgroundScalePivotXProperty, backgroundScalePivotX, Interpolator.LINEAR),
+				new KeyValue(blackFillProperty, blackFill, Interpolator.LINEAR),
+				new KeyValue(gradientsOpacityProperty, gradientsOpacity, Interpolator.LINEAR)
+			));
+		}
+		/** clear the internal list of key frames */
+		public void clearTimeline() {this.timeline.clear();}
+		
+		public void incrementTime(Duration delta) {this.currentTime = this.currentTime.add(delta);}
+		public void resetTime() {this.currentTime = Duration.ZERO;}
+		
+		public Timeline build() {return new Timeline(timeline.stream().toArray(KeyFrame[]::new));}
+		
+		
+		public void setBackgroundScaleX(double v) {this.backgroundScaleX = v;}
+		public void setBackgroundScaleY(double v) {this.backgroundScaleY = v;}
+		public void setBackgroundScalePivotX(double v) {this.backgroundScalePivotX = v;}
+		public void setBlackFill(Paint v) {this.blackFill = v;}
+		public void setGradientsOpacity(double v) {this.gradientsOpacity = v;}
 	}
 }
