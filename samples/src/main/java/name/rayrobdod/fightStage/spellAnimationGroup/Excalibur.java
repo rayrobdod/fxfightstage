@@ -264,15 +264,27 @@ public final class Excalibur implements SpellAnimationGroup {
 	}
 	
 	private final class TimelineBuilder {
-		private Duration currentTime = Duration.ZERO;
+		private Duration currentTime;
 		
-		private double backgroundScaleX = 0.0;
-		private double backgroundScaleY = 0.0;
-		private double backgroundScalePivotX = 0.0;
-		private Paint blackFill = Color.TRANSPARENT;
-		private double gradientsOpacity = 0.0;
+		private double backgroundScaleX;
+		private double backgroundScaleY;
+		private double backgroundScalePivotX;
+		private Paint blackFill;
+		private double gradientsOpacity;
 		
-		private final java.util.ArrayList<KeyFrame> timeline = new java.util.ArrayList<>();
+		private final ArrayList<KeyFrame> timeline;
+		
+		public TimelineBuilder() {
+			this.currentTime = Duration.ZERO;
+			
+			this.backgroundScaleX = 0.0;
+			this.backgroundScaleY = 0.0;
+			this.backgroundScalePivotX = 0.0;
+			this.blackFill = Color.TRANSPARENT;
+			this.gradientsOpacity = 0.0;
+			
+			this.timeline = new ArrayList<>();
+		}
 		
 		/** Add the current builder state to the internal list of key frames */
 		public void stampFrame() {
