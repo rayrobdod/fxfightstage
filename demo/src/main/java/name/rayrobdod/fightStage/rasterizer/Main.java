@@ -253,6 +253,7 @@ public final class Main extends Application {
 		for (int j = 0; j < canvasSize.getHeight(); j++) {
 			if (0 != frames[k].getPixelReader().getArgb(i, j)) {
 				trimmedBounds.add(i, j);
+				trimmedBounds.add(i + 1, j + 1);
 			}
 		}
 		
