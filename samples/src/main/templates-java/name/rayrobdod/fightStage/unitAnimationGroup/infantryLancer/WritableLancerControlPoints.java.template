@@ -46,6 +46,7 @@ final class WritableLancerControlPoints {
 	
 	<% String[] sides = ["left", "right"] %>
 	
+	private static final double STROKE_HALFWIDTH = 0.5;
 	private static final double LANCE_HALFWIDTH = 3;
 	private static final double LEG_HALFWIDTH = 7;
 	private static final double ARM_HALFWIDTH = 5;
@@ -111,140 +112,174 @@ final class WritableLancerControlPoints {
 		return new Group(shaft, head);
 	}
 	
-	private Node createPantSeat() {
+	
+	private Node createPantSeat() {return this.createPantSeatTemplate(Color.BLUE, -STROKE_HALFWIDTH);}
+	private Node createPantSeatBorder() {return this.createPantSeatTemplate(Color.BLACK, STROKE_HALFWIDTH);}
+	
+	private Node createPantSeatTemplate(final Color fill, final double outset) {
 		final Point2dExpression left = this.leftPelvic;
 		final Point2dExpression right = this.rightPelvic;
 		
 		final Path leg = new Path(
-			newBoundMoveTo(left.add(new Point2D(LEG_HALFWIDTH, 2))),
-			newBoundLineTo(left.add(new Point2D(LEG_HALFWIDTH, -10))),
-			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH, -10))),
-			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH, 2))),
+			newBoundMoveTo(left.add(new Point2D(LEG_HALFWIDTH + outset, 2 + outset))),
+			newBoundLineTo(left.add(new Point2D(LEG_HALFWIDTH + outset, -10 - outset))),
+			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH - outset, -10 - outset))),
+			newBoundLineTo(right.add(new Point2D(-LEG_HALFWIDTH - outset, 2 + outset))),
 			new ClosePath()
 		);
-		leg.setStroke(Color.BLACK);
-		leg.setFill(Color.BLUE);
-		leg.setStrokeWidth(1);
+		leg.setFill(fill);
+		leg.setStrokeWidth(0);
 		return leg;
 	}
 	
 	<% for (String side : sides) { %>
 	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Leg() {
-		return createLeg(this.${side}Knee, this.${side}Foot, this.${side}Pelvic);
+		return createLegTemplate(this.${side}Knee, this.${side}Foot, this.${side}Pelvic, Color.BLUE, -STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}LegBorder() {
+		return createLegTemplate(this.${side}Knee, this.${side}Foot, this.${side}Pelvic, Color.BLACK, STROKE_HALFWIDTH);
 	}
 	<% } %>
 	
-	private static Node createLeg(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
+	private static Node createLegTemplate(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2, final Color fill, final double outset) {
 		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
 		final Point2dExpression perp1 = dir1.perpendicular();
 		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();
 		final Point2dExpression perp2 = dir2.perpendicular();
 		
-		final Point2dExpression backOfFoot = edge1.add(perp1.multiply(LEG_HALFWIDTH)).interception(dir1, new Point2D(0,0), new Point2D(1, 0));
-		final Point2dExpression backOfPelvic = edge2.add(perp2.multiply(LEG_HALFWIDTH));
-		final Point2dExpression frontOfFoot = edge1.add(perp1.multiply(-LEG_HALFWIDTH)).interception(dir1, new Point2D(0,0), new Point2D(1, 0));
-		final Point2dExpression frontOfPelvic = edge2.add(perp2.multiply(-LEG_HALFWIDTH));
-		final Point2dExpression frontOfKnee2 = pivot.add(perp2.multiply(-LEG_HALFWIDTH));
-		final Point2dExpression frontOfKnee1 = pivot.add(perp1.multiply(-LEG_HALFWIDTH));
+		final Point2dExpression backOfFoot = edge1.add(perp1.multiply(LEG_HALFWIDTH + outset)).interception(dir1, new Point2D(0, outset), new Point2D(1, 0));
+		final Point2dExpression backOfPelvic = edge2.add(perp2.multiply(LEG_HALFWIDTH + outset));
+		final Point2dExpression frontOfFoot = edge1.add(perp1.multiply(-LEG_HALFWIDTH - outset)).interception(dir1, new Point2D(0, outset), new Point2D(1, 0));
+		final Point2dExpression frontOfPelvic = edge2.add(perp2.multiply(-LEG_HALFWIDTH - outset));
+		final Point2dExpression frontOfKnee2 = pivot.add(perp2.multiply(-LEG_HALFWIDTH - outset));
+		final Point2dExpression frontOfKnee1 = pivot.add(perp1.multiply(-LEG_HALFWIDTH - outset));
 		
 		final Path leg = new Path(
 			// front
 			newBoundMoveTo(frontOfPelvic),
 			newBoundLineTo(frontOfKnee2),
 			newBoundCubicCurveTo(
-				frontOfKnee2.add(dir2.multiply(frontOfKnee2.subtract(frontOfKnee1).magnitude().multiply(0.75))),
-				frontOfKnee1.add(dir1.multiply(frontOfKnee1.subtract(frontOfKnee2).magnitude().multiply(-0.75))),
+				frontOfKnee2.add(dir2.multiply(frontOfKnee2.subtract(frontOfKnee1).magnitude().multiply(0.75).add(outset))),
+				frontOfKnee1.add(dir1.multiply(frontOfKnee1.subtract(frontOfKnee2).magnitude().multiply(-0.75).subtract(outset))),
 				frontOfKnee1
 			),
 			newBoundLineTo(frontOfFoot),
 			// back
 			newBoundLineTo(backOfFoot),
 			newBoundLineTo(backOfFoot.interception(dir1, backOfPelvic, dir2)),
-			newBoundLineTo(backOfPelvic)
-			// not closed
+			newBoundLineTo(backOfPelvic),
+			new ClosePath()
 		);
-		leg.setStroke(Color.BLACK);
-		leg.setFill(Color.BLUE);
-		leg.setStrokeWidth(1);
+		leg.setFill(fill);
+		leg.setStrokeWidth(0);
 		return leg;
 	}
 	
 	<% for (String side : sides) { %>
-	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Arm() {
-		return createArm(this.${side}Elbow, this.${side}Hand, this.${side}Shoulder);
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Forearm() {
+		return createForearmTemplate(this.${side}Elbow, this.${side}Hand, Color.RED, -STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}ForearmBorder() {
+		return createForearmTemplate(this.${side}Elbow, this.${side}Hand, Color.BLACK, +STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Upperarm() {
+		return createUpperarmTemplate(this.${side}Elbow, this.${side}Shoulder, Color.RED, -STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}UpperarmBorder() {
+		return createUpperarmTemplate(this.${side}Elbow, this.${side}Shoulder, Color.BLACK, +STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Elbow() {
+		return createElbowTemplate(this.${side}Elbow, Color.RED, -STROKE_HALFWIDTH);
+	}
+	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}ElbowBorder() {
+		return createElbowTemplate(this.${side}Elbow, Color.BLACK, +STROKE_HALFWIDTH);
 	}
 	<% } %>
 	
-	private static Node createArm(final Point2dExpression pivot, final Point2dExpression edge1, final Point2dExpression edge2) {
-		final Point2dExpression dir1 = edge1.subtract(pivot).normalize();
-		final Point2dExpression perp1 = dir1.perpendicular();
-		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();
-		final Point2dExpression perp2 = dir2.perpendicular();
+	private static Node createForearmTemplate(final Point2dExpression elbow, final Point2dExpression hand, final Color fill, final double outset) {
+		final Point2dExpression dir = elbow.subtract(hand).normalize();
+		final Point2dExpression perp = dir.perpendicular();
 		
+		final Point2dExpression topOfHand = hand.add(perp.multiply(ARM_HALFWIDTH + outset));
+		final Point2dExpression botOfHand = hand.subtract(perp.multiply(ARM_HALFWIDTH + outset));
+		final Point2dExpression topOfElbow = elbow.add(perp.multiply(ARM_HALFWIDTH + outset)).add(dir.multiply(-outset));
+		final Point2dExpression botOfElbow = elbow.subtract(perp.multiply(ARM_HALFWIDTH + outset)).add(dir.multiply(-outset));
 		
-		
-		final Point2dExpression topOfHand = edge1.add(perp1.multiply(ARM_HALFWIDTH));
-		final Point2dExpression topOfKnee1 = pivot.add(perp1.multiply(ARM_HALFWIDTH));
-		final Point2dExpression topOfKnee2 = pivot.add(perp2.multiply(ARM_HALFWIDTH));
-		final Point2dExpression topOfShoulder = edge2.add(perp2.multiply(ARM_HALFWIDTH));
-		final Point2dExpression bottomOfHand = edge1.add(perp1.multiply(-ARM_HALFWIDTH));
-		final Point2dExpression bottomOfKnee1 = pivot.add(perp1.multiply(-ARM_HALFWIDTH));
-		final Point2dExpression bottomOfKnee2 = pivot.add(perp2.multiply(-ARM_HALFWIDTH));
-		final Point2dExpression bottomOfShoulder = edge2.add(perp2.multiply(-ARM_HALFWIDTH));
-		
-		final Path leg = new Path(
-			// front
-			newBoundMoveTo(topOfShoulder),
-			newBoundLineTo(roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 3)),
-			newBoundCubicCurveTo(
-				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 2),
-				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 1),
-				roundJoinPoint(pivot, topOfKnee1, dir1, topOfKnee2, dir2, 0)
-			),
-			newBoundLineTo(topOfHand),
-			// back
-			newBoundLineTo(bottomOfHand),
-			newBoundLineTo(roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 0)),
-			newBoundCubicCurveTo(
-				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 1),
-				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 2),
-				roundJoinPoint(pivot, bottomOfKnee1, dir1, bottomOfKnee2, dir2.negate(), 3)
-			),
-			newBoundLineTo(bottomOfShoulder)
-			// not closed
+		final Path retval = new Path(
+			newBoundMoveTo(topOfHand),
+			newBoundLineTo(topOfElbow),
+			newBoundLineTo(botOfElbow),
+			newBoundLineTo(botOfHand),
+			new ClosePath()
 		);
-		leg.setStroke(Color.BLACK);
-		leg.setFill(Color.RED);
-		leg.setStrokeWidth(1);
-		return leg;
-	}
-	
-	
-	<% for (String side : sides) { %>
-	private Node create${side.substring(0, 1).toUpperCase() + side.substring(1)}Hand() {
-		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
-		retval.centerXProperty().bind(this.${side}Hand.x());
-		retval.centerYProperty().bind(this.${side}Hand.y());
-		retval.radiusProperty().set(ARM_HALFWIDTH);
-		retval.setStroke(Color.BLACK);
-		retval.setFill(Color.PINK);
-		retval.setStrokeWidth(1);
+		retval.setFill(fill);
+		retval.setStrokeWidth(0);
 		return retval;
 	}
-	<% } %>
 	
-	private Node createTorso() {
+	private static Node createUpperarmTemplate(final Point2dExpression elbow, final Point2dExpression shoulder, final Color fill, final double outset) {
+		final Point2dExpression dir = elbow.subtract(shoulder).normalize();
+		final Point2dExpression perp = dir.perpendicular();
+		
+		final Point2dExpression topOfHand = shoulder.add(perp.multiply(ARM_HALFWIDTH + outset)).subtract(dir.multiply(-outset));
+		final Point2dExpression botOfHand = shoulder.subtract(perp.multiply(ARM_HALFWIDTH + outset)).subtract(dir.multiply(-outset));
+		final Point2dExpression topOfElbow = elbow.add(perp.multiply(ARM_HALFWIDTH + outset)).add(dir.multiply(-outset));
+		final Point2dExpression botOfElbow = elbow.subtract(perp.multiply(ARM_HALFWIDTH + outset)).add(dir.multiply(-outset));
+		
+		final Path retval = new Path(
+			newBoundMoveTo(topOfHand),
+			newBoundLineTo(topOfElbow),
+			newBoundLineTo(botOfElbow),
+			newBoundLineTo(botOfHand),
+			new ClosePath()
+		);
+		retval.setFill(fill);
+		retval.setStrokeWidth(0);
+		return retval;
+	}
+	
+	private static Node createElbowTemplate(final WritablePoint2dValue center, final Color fill, final double outset) {
+		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
+		retval.centerXProperty().bind(center.x());
+		retval.centerYProperty().bind(center.y());
+		retval.radiusProperty().set(ARM_HALFWIDTH + outset);
+		retval.setFill(fill);
+		retval.setStrokeWidth(0);
+		return retval;
+	}
+	
+	
+	private Node createLeftHand() {return this.createHandTemplate(this.leftHand, Color.PINK, -STROKE_HALFWIDTH);}
+	private Node createLeftHandBorder() {return this.createHandTemplate(this.leftHand, Color.BLACK, STROKE_HALFWIDTH);}
+	private Node createRightHand() {return this.createHandTemplate(this.rightHand, Color.PINK, -STROKE_HALFWIDTH);}
+	private Node createRightHandBorder() {return this.createHandTemplate(this.rightHand, Color.BLACK, STROKE_HALFWIDTH);}
+	
+	private static Node createHandTemplate(final WritablePoint2dValue center, final Color fill, final double outset) {
+		javafx.scene.shape.Circle retval = new javafx.scene.shape.Circle();
+		retval.centerXProperty().bind(center.x());
+		retval.centerYProperty().bind(center.y());
+		retval.radiusProperty().set(ARM_HALFWIDTH + outset);
+		retval.setFill(fill);
+		retval.setStrokeWidth(0);
+		return retval;
+	}
+	
+	
+	private Node createTorso() {return this.createTorsoTemplate(Color.RED, -STROKE_HALFWIDTH);}
+	private Node createTorsoBorder() {return this.createTorsoTemplate(Color.BLACK, STROKE_HALFWIDTH);}
+	
+	private Node createTorsoTemplate(final Color fill, final double outset) {
 		final Point2dExpression topDir = leftShoulder.subtract(rightShoulder).normalize();
 		final Point2dExpression botDir = leftPelvic.subtract(rightPelvic).normalize();
 		final Point2dExpression leftDir = leftShoulder.subtract(leftPelvic).normalize();
 		final Point2dExpression rightDir = rightShoulder.subtract(rightPelvic).normalize();
 		
-		final Point2dExpression topLeftSide = this.leftShoulder.add(topDir.multiply(ARM_HALFWIDTH));
-		final Point2dExpression topRightSide = this.rightShoulder.add(topDir.multiply(-ARM_HALFWIDTH));
-		final Point2dExpression topLeftTop = this.leftShoulder.add(leftDir.multiply(ARM_HALFWIDTH));
-		final Point2dExpression topRightTop = this.rightShoulder.add(rightDir.multiply(ARM_HALFWIDTH));
-		final Point2dExpression botLeft = this.leftPelvic.add(botDir.multiply(LEG_HALFWIDTH));
-		final Point2dExpression botRight = this.rightPelvic.add(botDir.multiply(-LEG_HALFWIDTH));
+		final Point2dExpression topLeftSide = this.leftShoulder.add(topDir.multiply(ARM_HALFWIDTH + outset));
+		final Point2dExpression topRightSide = this.rightShoulder.add(topDir.multiply(-ARM_HALFWIDTH - outset));
+		final Point2dExpression topLeftTop = this.leftShoulder.add(leftDir.multiply(ARM_HALFWIDTH + outset));
+		final Point2dExpression topRightTop = this.rightShoulder.add(rightDir.multiply(ARM_HALFWIDTH + outset));
+		final Point2dExpression botLeft = this.leftPelvic.add(botDir.multiply(LEG_HALFWIDTH + outset));
+		final Point2dExpression botRight = this.rightPelvic.add(botDir.multiply(-LEG_HALFWIDTH - outset));
 		
 		final Path retval = new Path(
 			newBoundMoveTo(botRight),
@@ -255,9 +290,8 @@ final class WritableLancerControlPoints {
 			newBoundLineTo(topRightSide),
 			new ClosePath()
 		);
-		retval.setStroke(Color.BLACK);
-		retval.setFill(Color.RED);
-		retval.setStrokeWidth(1);
+		retval.setFill(fill);
+		retval.setStrokeWidth(0);
 		return retval;
 	}
 	
@@ -277,15 +311,31 @@ final class WritableLancerControlPoints {
 	public Group createFigure() {
 		return new Group(
 			  this.createStickFigure()
-			, this.createLeftArm()
+			, this.createTorsoBorder()
+			, this.createLeftElbowBorder()
+			, this.createLeftUpperarmBorder()
+			, this.createLeftElbow()
+			, this.createLeftUpperarm()
+			, this.createPantSeatBorder()
+			, this.createLeftLegBorder()
 			, this.createLeftLeg()
 			, this.createTorso()
 			, this.createHead()
 			, this.createPantSeat()
+			, this.createRightLegBorder()
 			, this.createRightLeg()
-			, this.createRightArm()
+			, this.createLeftForearmBorder()
+			, this.createLeftForearm()
+			, this.createRightUpperarmBorder()
+			, this.createRightElbowBorder()
+			, this.createRightForearmBorder()
+			, this.createRightUpperarm()
+			, this.createRightElbow()
+			, this.createRightForearm()
 			, this.createLance()
+			, this.createLeftHandBorder()
 			, this.createLeftHand()
+			, this.createRightHandBorder()
 			, this.createRightHand()
 		);
 	}
