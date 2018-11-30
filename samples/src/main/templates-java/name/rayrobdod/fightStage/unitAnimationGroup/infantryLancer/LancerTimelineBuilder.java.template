@@ -15,6 +15,7 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 
@@ -29,14 +30,17 @@ import javafx.util.Duration;
 final class LancerTimelineBuilder {
 	private final WritableLancerControlPoints keys;
 	private LancerControlPoints values;
-	private final java.util.ArrayList<KeyFrame> timeline;
+	private final ArrayList<KeyFrame> completedFrames;
+	private Duration currentFrameTime;
+	private ArrayList<KeyValue> currentFrame;
+	
 	
 	public LancerTimelineBuilder(WritableLancerControlPoints keys, LancerControlPoints initialValues) {
 		this.keys = keys;
 		this.values = initialValues;
-		this.timeline = new java.util.ArrayList<>();
-		
-		this.timeline.add(new KeyFrame(Duration.ZERO,
+		this.completedFrames = new ArrayList<>();
+		this.currentFrameTime = Duration.ZERO;
+		this.currentFrame = new ArrayList<>(java.util.Arrays.asList(
 			<%
 				print fields.stream().flatMap({attr ->
 					java.util.stream.Stream.of("X", "Y").map({dir ->
@@ -52,7 +56,19 @@ final class LancerTimelineBuilder {
 	}
 	
 	public LancerControlPoints currentValues() {return values;}
-	public Timeline timeline() {return new Timeline(timeline.stream().toArray(KeyFrame[]::new));}
+	public Timeline timeline() {
+		if (! currentFrame.isEmpty()) {
+			completedFrames.add(new KeyFrame(currentFrameTime, null, null, currentFrame));
+			currentFrame = new ArrayList<>();
+		}
+		return new Timeline(completedFrames.stream().toArray(KeyFrame[]::new));
+	}
+	
+	public void nextFrame(Duration deltaTime) {
+		completedFrames.add(new KeyFrame(currentFrameTime, null, null, currentFrame));
+		currentFrameTime = currentFrameTime.add(deltaTime);
+		currentFrame = new ArrayList<>();
+	}
 	
 	public void storeInMap(Map<WritableDoubleValue, Double> store) {
 		<%
@@ -77,12 +93,10 @@ final class LancerTimelineBuilder {
 	<%
 		print fields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendSet${sTitle}(Point2D value, Duration time, Interpolator interp) {
+			"""public void appendSet${sTitle}(Point2D value, Interpolator interp) {
 				this.values = this.values.copyWith${sTitle}(value);
-				this.timeline.add(new KeyFrame(time,
-					new KeyValue(keys.${s}.writableX, value.getX(), interp),
-					new KeyValue(keys.${s}.writableY, value.getY(), interp)
-				));
+				this.currentFrame.add(new KeyValue(keys.${s}.writableX, value.getX(), interp));
+				this.currentFrame.add(new KeyValue(keys.${s}.writableY, value.getY(), interp));
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
@@ -90,8 +104,8 @@ final class LancerTimelineBuilder {
 	<%
 		print fields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendAdd${sTitle}(Point2D value, Duration time, Interpolator interp) {
-				this.appendSet${sTitle}(this.values.${s}.add(value), time, interp);
+			"""public void appendAdd${sTitle}(Point2D value, Interpolator interp) {
+				this.appendSet${sTitle}(this.values.${s}.add(value), interp);
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
@@ -119,14 +133,14 @@ final class LancerTimelineBuilder {
 			String targetTitle = target.substring(0, 1).toUpperCase() + target.substring(1);
 			String sourceTitle = source.substring(0, 1).toUpperCase() + source.substring(1);
 			
-			print """public void appendSet${targetTitle}RelativeTo${sourceTitle}(Point2D delta, Duration time, Interpolator interp) {
-				this.appendSet${targetTitle}(this.values.${source}.add(delta), time, interp);
+			print """public void appendSet${targetTitle}RelativeTo${sourceTitle}(Point2D delta, Interpolator interp) {
+				this.appendSet${targetTitle}(this.values.${source}.add(delta), interp);
 			}
 			"""
 		}
 	%>
 	
-	public void appendSetHeadRelativeToShoulders(BinaryOperator<Point2D> op, Duration time, Interpolator interp) {
-		this.appendSetHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), time, interp);
+	public void appendSetHeadRelativeToShoulders(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.appendSetHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), interp);
 	}
 }
