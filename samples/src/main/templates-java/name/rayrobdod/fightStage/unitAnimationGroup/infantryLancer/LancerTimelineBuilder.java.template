@@ -16,6 +16,7 @@
 package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
 
 import java.util.Map;
+import java.util.function.BinaryOperator;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -95,4 +96,37 @@ final class LancerTimelineBuilder {
 			"""
 		}).collect(java.util.stream.Collectors.joining())
 	%>
+	
+	<%
+		String[][] adjacentPairs = [
+			["leftKnee", "leftFoot"],
+			["rightKnee", "rightFoot"],
+			["leftPelvic", "leftKnee"],
+			["rightPelvic", "rightKnee"],
+			["leftShoulder", "leftPelvic"],
+			["rightShoulder", "rightPelvic"],
+			["leftElbow", "leftShoulder"],
+			["rightElbow", "rightShoulder"],
+			["leftHand", "leftElbow"],
+			["rightHand", "rightElbow"],
+			["lanceCenter", "rightHand"],
+			["lanceControl", "lanceCenter"],
+		]
+		
+		for (String[] adjacentPair : adjacentPairs) {
+			String target = adjacentPair[0];
+			String source = adjacentPair[1];
+			String targetTitle = target.substring(0, 1).toUpperCase() + target.substring(1);
+			String sourceTitle = source.substring(0, 1).toUpperCase() + source.substring(1);
+			
+			print """public void appendSet${targetTitle}RelativeTo${sourceTitle}(Point2D delta, Duration time, Interpolator interp) {
+				this.appendSet${targetTitle}(this.values.${source}.add(delta), time, interp);
+			}
+			"""
+		}
+	%>
+	
+	public void appendSetHeadRelativeToShoulders(BinaryOperator<Point2D> op, Duration time, Interpolator interp) {
+		this.appendSetHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), time, interp);
+	}
 }

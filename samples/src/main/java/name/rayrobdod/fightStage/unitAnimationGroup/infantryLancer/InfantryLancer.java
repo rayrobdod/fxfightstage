@@ -183,36 +183,26 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	) {
 		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		
-		retval.put(controlPoints.leftFoot.writableX, footPoint.getX() + 6);
-		retval.put(controlPoints.leftFoot.writableY, footPoint.getY() - 0);
-		retval.put(controlPoints.rightFoot.writableX, footPoint.getX() - 6);
-		retval.put(controlPoints.rightFoot.writableY, footPoint.getY() - 0);
-		retval.put(controlPoints.leftKnee.writableX, footPoint.getX() + 6);
-		retval.put(controlPoints.leftKnee.writableY, footPoint.getY() - 15);
-		retval.put(controlPoints.rightKnee.writableX, footPoint.getX() - 6);
-		retval.put(controlPoints.rightKnee.writableY, footPoint.getY() - 15);
-		retval.put(controlPoints.leftPelvic.writableX, footPoint.getX() + 6);
-		retval.put(controlPoints.leftPelvic.writableY, footPoint.getY() - 30);
-		retval.put(controlPoints.rightPelvic.writableX, footPoint.getX() - 6);
-		retval.put(controlPoints.rightPelvic.writableY, footPoint.getY() - 30);
-		retval.put(controlPoints.leftHand.writableX, footPoint.getX() + 30);
-		retval.put(controlPoints.leftHand.writableY, footPoint.getY() - 65);
-		retval.put(controlPoints.rightHand.writableX, footPoint.getX() - 30);
-		retval.put(controlPoints.rightHand.writableY, footPoint.getY() - 60);
-		retval.put(controlPoints.leftElbow.writableX, footPoint.getX() + 20);
-		retval.put(controlPoints.leftElbow.writableY, footPoint.getY() - 65);
-		retval.put(controlPoints.rightElbow.writableX, footPoint.getX() - 20);
-		retval.put(controlPoints.rightElbow.writableY, footPoint.getY() - 60);
-		retval.put(controlPoints.leftShoulder.writableX, footPoint.getX() + 10);
-		retval.put(controlPoints.leftShoulder.writableY, footPoint.getY() - 65);
-		retval.put(controlPoints.rightShoulder.writableX, footPoint.getX() - 10);
-		retval.put(controlPoints.rightShoulder.writableY, footPoint.getY() - 65);
-		retval.put(controlPoints.head.writableX, footPoint.getX() + 0);
-		retval.put(controlPoints.head.writableY, footPoint.getY() - 85);
-		retval.put(controlPoints.lanceCenter.writableX, footPoint.getX() - 30);
-		retval.put(controlPoints.lanceCenter.writableY, footPoint.getY() - 60);
-		retval.put(controlPoints.lanceControl.writableX, footPoint.getX() - 30);
-		retval.put(controlPoints.lanceControl.writableY, footPoint.getY() - 0);
+		final LancerTimelineBuilder vals = new LancerTimelineBuilder(controlPoints, new LancerControlPoints(Point2D.ZERO));
+		
+		vals.appendSetLeftFoot(footPoint.add(6, -2), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLeftKneeRelativeToLeftFoot(new Point2D(0, -15), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLeftPelvicRelativeToLeftKnee(new Point2D(0, -15), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLeftElbowRelativeToLeftShoulder(new Point2D(10, -2), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLeftHandRelativeToLeftElbow(new Point2D(10, -2), Duration.ZERO, Interpolator.LINEAR);
+		
+		vals.appendSetRightFoot(footPoint.add(-6, 2), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetRightKneeRelativeToRightFoot(new Point2D(0, -15), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetRightPelvicRelativeToRightKnee(new Point2D(0, -15), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetRightElbowRelativeToRightShoulder(new Point2D(-10, 2), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetRightHandRelativeToRightElbow(new Point2D(-10, 7), Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Duration.ZERO, Interpolator.LINEAR);
+		vals.appendSetLanceControlRelativeToLanceCenter(new Point2D(0, 60), Duration.ZERO, Interpolator.LINEAR);
+		
+		vals.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Duration.ZERO, Interpolator.LINEAR);
+		vals.storeInMap(retval);
 		
 		return retval;
 	}
