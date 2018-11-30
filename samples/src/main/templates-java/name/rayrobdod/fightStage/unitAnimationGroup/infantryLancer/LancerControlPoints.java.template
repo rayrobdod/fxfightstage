@@ -47,7 +47,6 @@ final class LancerControlPoints {
 		%>
 	}
 	
-	public LancerControlPoints self() {return this;}
 	public LancerControlPoints zipMap(LancerControlPoints rhs, BinaryOperator<Point2D> op) {
 		return new LancerControlPoints(
 			<%
@@ -94,8 +93,8 @@ final class LancerControlPoints {
 	}
 	
 	public final Point2D lanceTip() {
-		final Point2D center = self().lanceCenter;
-		final Point2D direction = center.subtract(self().lanceControl).normalize();
+		final Point2D center = this.lanceCenter;
+		final Point2D direction = center.subtract(this.lanceControl).normalize();
 		
 		return center.add(direction.multiply(70));
 	}

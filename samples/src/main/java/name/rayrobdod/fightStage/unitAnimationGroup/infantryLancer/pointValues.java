@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableObjectValue;
@@ -42,7 +43,7 @@ import name.rayrobdod.fightStage.PathElements;
  * 
  * Most of the methods mirror those in {@link javafx.geometry.Point2D}
  */
-interface Point2dExpression extends javafx.beans.Observable, javafx.beans.value.ObservableObjectValue<javafx.geometry.Point2D> {
+interface Point2dExpression extends Observable, ObservableObjectValue<Point2D> {
 	Point2D getValue();
 	
 	default Point2dBinding add(Point2D rhs) {
@@ -178,7 +179,7 @@ final class WritablePoint2dValue implements WritableValue<Point2D>, ObservableOb
 	@Override public void removeListener(ChangeListener<? super Point2D> ex) {this.changeListeners.remove(ex);}
 }
 
-abstract class Point2dBinding extends javafx.beans.binding.ObjectBinding<javafx.geometry.Point2D> implements Point2dExpression {
+abstract class Point2dBinding extends ObjectBinding<Point2D> implements Point2dExpression {
 	
 	/**
 	 * @note Unlike {@link Bindings}, func is a {@link Supplier}, not a {@link java.util.concurrent.Callable}, meaning no exceptions allowed
