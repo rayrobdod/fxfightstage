@@ -42,10 +42,14 @@ final class LancerTimelineBuilder {
 		this.currentFrameTime = Duration.ZERO;
 		this.currentFrame = new ArrayList<>(java.util.Arrays.asList(
 			<%
-				print fields.stream().flatMap({attr ->
+				print pointFields.stream().flatMap({attr ->
 					java.util.stream.Stream.of("X", "Y").map({dir ->
 						"new KeyValue(keys.${attr}.writable${dir}, values.${attr}.get${dir}(), Interpolator.DISCRETE)"
 					})
+				}).collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
+				print ",\n\t\t\t"
+				print doubleFields.stream().map({attr ->
+					"new KeyValue(keys.${attr}, values.${attr}, Interpolator.DISCRETE)"
 				}).collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
 			%>
 		));
@@ -72,26 +76,31 @@ final class LancerTimelineBuilder {
 	
 	public void storeInMap(Map<WritableDoubleValue, Double> store) {
 		<%
-			print fields.stream().flatMap({attr ->
+			print pointFields.stream().flatMap({attr ->
 				java.util.stream.Stream.of("X", "Y").map({dir ->
-					"store.put(keys.${attr}.writable${dir}, values.${attr}.get${dir}());"
+					"store.put(keys.${attr}.writable${dir}, values.${attr}.get${dir}());\n\t\t\t"
 				})
-			}).collect(java.util.stream.Collectors.joining())
+			}).collect(java.util.stream.Collectors.joining());
+			print doubleFields.stream().map({s -> "store.put(keys.${s}, values.${s});\n\t\t\t"}).collect(java.util.stream.Collectors.joining());
 		%>
 	}
 	
 	private static LancerControlPoints extractFromMap(Map<WritableDoubleValue, Double> store, WritableLancerControlPoints keys) {
 		return new LancerControlPoints(
 			<%
-			print fields.stream().map(
+				print pointFields.stream().map(
 					{s -> """new Point2D(store.get(keys.${s}.writableX), store.get(keys.${s}.writableY))"""}
-				).collect(java.util.stream.Collectors.joining(",\n\t\t"))
+				).collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
+				print ",\n\t\t\t"
+				print doubleFields.stream().map(
+					{s -> """store.get(keys.${s})"""}
+				).collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
 			%>
 		);
 	}
 	
 	<%
-		print fields.stream().map({s ->
+		print pointFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
 			"""public void appendSet${sTitle}(Point2D value, Interpolator interp) {
 				this.values = this.values.copyWith${sTitle}(value);
@@ -100,12 +109,27 @@ final class LancerTimelineBuilder {
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
+		print doubleFields.stream().map({s ->
+			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+			"""public void appendSet${sTitle}(double value, Interpolator interp) {
+				this.values = this.values.copyWith${sTitle}(value);
+				this.currentFrame.add(new KeyValue(keys.${s}, value, interp));
+			}
+			"""
+		}).collect(java.util.stream.Collectors.joining())
 	%>
 	<%
-		print fields.stream().map({s ->
+		print pointFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
 			"""public void appendAdd${sTitle}(Point2D value, Interpolator interp) {
 				this.appendSet${sTitle}(this.values.${s}.add(value), interp);
+			}
+			"""
+		}).collect(java.util.stream.Collectors.joining())
+		print doubleFields.stream().map({s ->
+			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
+			"""public void appendAdd${sTitle}(double value, Interpolator interp) {
+				this.appendSet${sTitle}(this.values.${s} + value, interp);
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
@@ -124,7 +148,6 @@ final class LancerTimelineBuilder {
 			["leftHand", "leftElbow"],
 			["rightHand", "rightElbow"],
 			["lanceCenter", "rightHand"],
-			["lanceControl", "lanceCenter"],
 		]
 		
 		for (String[] adjacentPair : adjacentPairs) {

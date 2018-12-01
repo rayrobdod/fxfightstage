@@ -20,23 +20,26 @@ import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundLineTo;
 import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundMoveTo;
 
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ClosePath;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.scene.shape.Path;
 
 final class WritableLancerControlPoints {
-	public final WritablePoint2dValue ${fields.join(";\n\tpublic final WritablePoint2dValue ")};
+	public final WritablePoint2dValue ${pointFields.join(";\n\tpublic final WritablePoint2dValue ")};
+	public final ObservableWritableDoubleValue ${doubleFields.join(";\n\tpublic final ObservableWritableDoubleValue ")};
 	
 	public WritableLancerControlPoints() {
 		<%
-			for (String field : fields) {
-				print "this."
-				print field
-				print " = new WritablePoint2dValue();\n\t\t"
+			for (String field : pointFields) {
+				print "this.${field} = new WritablePoint2dValue();\n\t\t"
+			}
+			for (String field : doubleFields) {
+				print "this.${field} = new ObservableWritableDoubleValue();\n\t\t"
 			}
 		%>
 	}
@@ -79,31 +82,32 @@ final class WritableLancerControlPoints {
 	}
 	
 	private Node createLance() {
-		final Point2dExpression center = this.lanceCenter;
-		final Point2dExpression direction = center.subtract(this.lanceControl).normalize();
+		final Point2dExpression tip = this.lanceTip();
+		final Point2dExpression butt = this.lanceButt();
+		final Point2dExpression direction = this.lanceDirection();
 		final Point2dExpression perp = direction.perpendicular();
 		
 		
 		final Path shaft = new Path(
-			  newBoundMoveTo(center.add(direction.multiply(60)).add(perp.multiply(LANCE_HALFWIDTH)))
-			, newBoundLineTo(center.add(direction.multiply(60)).add(perp.multiply(-LANCE_HALFWIDTH)))
-			, newBoundLineTo(center.add(direction.multiply(-60)).add(perp.multiply(-LANCE_HALFWIDTH)))
+			  newBoundMoveTo(tip.add(perp.multiply(LANCE_HALFWIDTH)))
+			, newBoundLineTo(tip.add(perp.multiply(-LANCE_HALFWIDTH)))
+			, newBoundLineTo(butt.add(perp.multiply(-LANCE_HALFWIDTH)))
 			, newBoundCubicCurveTo(
-				  center.add(direction.multiply(-65)).add(perp.multiply(-LANCE_HALFWIDTH))
-				, center.add(direction.multiply(-65)).add(perp.multiply(LANCE_HALFWIDTH))
-				, center.add(direction.multiply(-60)).add(perp.multiply(LANCE_HALFWIDTH))
+				  butt.add(direction.multiply(-5)).add(perp.multiply(-LANCE_HALFWIDTH))
+				, butt.add(direction.multiply(-5)).add(perp.multiply(LANCE_HALFWIDTH))
+				, butt.add(perp.multiply(LANCE_HALFWIDTH))
 			  )
-			, newBoundLineTo(center.add(direction.multiply(60)).add(perp.multiply(LANCE_HALFWIDTH)))
+			, newBoundLineTo(tip.add(perp.multiply(LANCE_HALFWIDTH)))
 		);
 		shaft.setStroke(Color.BLACK);
 		shaft.setFill(Color.BROWN);
 		shaft.setStrokeWidth(1);
 		
 		final Path head = new Path(
-			  newBoundMoveTo(center.add(direction.multiply(55)).add(perp.multiply(7.5)))
-			, newBoundLineTo(center.add(direction.multiply(55)).add(perp.multiply(-7.5)))
-			, newBoundLineTo(center.add(direction.multiply(70)).add(perp.multiply(0)))
-			, newBoundLineTo(center.add(direction.multiply(55)).add(perp.multiply(7.5)))
+			  newBoundMoveTo(tip.add(direction.multiply(-5)).add(perp.multiply(7.5)))
+			, newBoundLineTo(tip.add(direction.multiply(-5)).add(perp.multiply(-7.5)))
+			, newBoundLineTo(tip.add(direction.multiply(10)).add(perp.multiply(0)))
+			, newBoundLineTo(tip.add(direction.multiply(-5)).add(perp.multiply(7.5)))
 		);
 		head.setStroke(Color.BLACK);
 		head.setFill(Color.SILVER);
@@ -342,25 +346,20 @@ final class WritableLancerControlPoints {
 	
 	
 	
-	private static Point2D roundJoinPoint(Point2D center, Point2D edge1, Point2D dir1, Point2D edge2, Point2D dir2, int polarity) {
-		Point2D intercept = Point2Ds.interception(edge1, dir1, edge2, dir2);
-		double controlDistance = edge1.distance(edge2) * -0.75;
-		
-		if (edge1.add(dir1).distance(intercept) < edge1.distance(intercept)) {
-			return intercept;
-		} else {
-			switch (polarity % 4) {
-				case 0: return edge1;
-				case 1: return edge1.add(dir1.multiply(controlDistance));
-				case 2: return edge2.add(dir2.multiply(controlDistance));
-				case 3: return edge2;
-				default: return edge1.midpoint(edge2);
-			}
-		}
+	
+	
+	
+	private Point2dExpression lanceButt() {
+		return createPoint2dBinding(() -> this.lanceCenter.get().add(Point2Ds.polar(-this.lanceButtDistance.get(), this.lanceAngle.get())),
+				lanceCenter, lanceButtDistance, lanceAngle);
 	}
 	
-	private static Point2dExpression roundJoinPoint(ObservableValue<Point2D> center, ObservableValue<Point2D> edge1, ObservableValue<Point2D> dir1, ObservableValue<Point2D> edge2, ObservableValue<Point2D> dir2, int polarity) {
-		return createPoint2dBinding(() -> roundJoinPoint(center.getValue(), edge1.getValue(), dir1.getValue(), edge2.getValue(), dir2.getValue(), polarity),
-					center, edge1, dir1, edge2, dir2);
+	private Point2dExpression lanceTip() {
+		return createPoint2dBinding(() -> this.lanceCenter.get().add(Point2Ds.polar(this.lanceTipDistance.get(), this.lanceAngle.get())),
+				lanceCenter, lanceButtDistance, lanceAngle);
+	}
+	
+	private Point2dExpression lanceDirection() {
+		return createPoint2dBinding(() -> Point2Ds.polar(1, lanceAngle.get()), lanceAngle);
 	}
 }

@@ -207,6 +207,9 @@ final class Point2dPathElements {
 	}
 }
 
+/**
+ * Static methods related to {@link Point2D}s
+ */
 final class Point2Ds {
 	private Point2Ds() {}
 	
@@ -244,5 +247,12 @@ final class Point2Ds {
 				return new Point2D(x, y);
 			}
 		}
+	}
+	
+	/**
+	 * A Point2D representing the vector with the specified radius and angle
+	 */
+	public static Point2D polar(double radius, double angle) {
+		return new Point2D(radius * Math.cos(angle), radius * Math.sin(angle));
 	}
 }

@@ -20,82 +20,61 @@ import java.util.function.UnaryOperator;
 
 import javafx.geometry.Point2D;
 
+<%
+	List<String> fields = java.util.stream.Stream.concat(pointFields.stream(), doubleFields.stream())
+			.collect(java.util.stream.Collectors.toList());
+%>
+
 final class LancerControlPoints {
-	public final Point2D ${fields.join(";\n\tpublic final Point2D ")};
+	public final Point2D ${pointFields.join(";\n\tpublic final Point2D ")};
+	public final double ${doubleFields.join(";\n\tpublic final double ")};
+	
+	public static final LancerControlPoints ZERO = new LancerControlPoints(
+		<%
+			print java.util.stream.Stream.concat(
+				pointFields.stream().map({x -> "Point2D.ZERO"}),
+				doubleFields.stream().map({x -> "0.0"})
+			).collect(java.util.stream.Collectors.joining(",\n\t\t"))
+		%>
+	);
 	
 	public LancerControlPoints(
-		final Point2D ${fields.join(",\n\t\tfinal Point2D ")}
+		final Point2D ${pointFields.join(",\n\t\tfinal Point2D ")},
+		final double ${doubleFields.join(",\n\t\tfinal double ")}
 	){
 		<%
 			for (String field : fields) {
-				print "this."
-				print field
-				print " = "
-				print field
-				print ";\n\t\t"
+				print "this.${field} = ${field};\n\t\t"
 			}
 		%>
-	}
-	
-	public LancerControlPoints(Point2D value) {
-		<%
-			for (String field : fields) {
-				print "this."
-				print field
-				print " = value;\n\t\t"
-			}
-		%>
-	}
-	
-	public LancerControlPoints zipMap(LancerControlPoints rhs, BinaryOperator<Point2D> op) {
-		return new LancerControlPoints(
-			<%
-				print fields.stream()
-					.map({field -> "op.apply(this.${field}, rhs.${field})"})
-					.collect(java.util.stream.Collectors.joining(",\n\t\t\t"))
-			%>
-		);
-	}
-	public LancerControlPoints map(UnaryOperator<Point2D> op) {
-		return new LancerControlPoints(
-			op.apply(this.${fields.join("),\n\t\t\top.apply(this.")})
-		);
 	}
 	
 	@Override public String toString() {
 		return "LancerControlPoints [" +
 			<%
 				for (String field : fields) {
-					print "\""
-					print field
-					print " : \" + "
-					print field
-					print " + \", \" +\n\t\t\t"
+					print "\"${field} : \" + ${field} + \", \" +\n\t\t\t"
 				}
 			%>
 		"]";
 	}
 	
 	<%
-		print fields.stream().map({outer ->
+		print pointFields.stream().map({outer ->
 			String outerTitle = "${outer.charAt(0).toUpperCase()}${outer.substring(1)}"
 			fields.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(java.util.stream.Collectors.joining(
 				", ", "public LancerControlPoints copyWith$outerTitle(Point2D value) {return new LancerControlPoints(", ");}"
 			))
 		}).collect(java.util.stream.Collectors.joining("\n\t"))
+		print doubleFields.stream().map({outer ->
+			String outerTitle = "${outer.charAt(0).toUpperCase()}${outer.substring(1)}"
+			fields.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(java.util.stream.Collectors.joining(
+				", ", "public LancerControlPoints copyWith$outerTitle(double value) {return new LancerControlPoints(", ");}"
+			))
+		}).collect(java.util.stream.Collectors.joining("\n\t"))
 	%>
 	
-	public final LancerControlPoints add(LancerControlPoints rhs) {
-		return this.zipMap(rhs, Point2D::add);
-	}
-	public final LancerControlPoints multiply(int factor) {
-		return this.map(s -> s.multiply(factor));
-	}
-	
 	public final Point2D lanceTip() {
-		final Point2D center = this.lanceCenter;
-		final Point2D direction = center.subtract(this.lanceControl).normalize();
-		
-		return center.add(direction.multiply(70));
+		return this.lanceCenter.add(Point2Ds.polar(this.lanceTipDistance, this.lanceAngle));
 	}
 }

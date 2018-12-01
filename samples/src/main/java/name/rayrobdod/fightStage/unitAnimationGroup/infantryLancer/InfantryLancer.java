@@ -87,8 +87,8 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	) {
 		final LancerTimelineBuilder beforeSpellAnimationBuilder = new LancerTimelineBuilder(controlPoints, rolloverKeyValues);
 		beforeSpellAnimationBuilder.nextFrame(lanceLift);
-		beforeSpellAnimationBuilder.appendAddLanceCenter(new Point2D(0, -10), Interpolator.EASE_BOTH);
 		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(0, -10), Interpolator.EASE_BOTH);
+		beforeSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
 		
 		beforeSpellAnimationBuilder.nextFrame(windup.divide(2).subtract(lanceLift));
 		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(0, 0), Interpolator.LINEAR);
@@ -109,7 +109,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-10, 5), Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendSetLeftHand(beforeSpellAnimationBuilder.currentValues().rightHand.add(30, 0), Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddHead(new Point2D(-20, 5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendSetLanceControl(beforeSpellAnimationBuilder.currentValues().lanceCenter.add(-60, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLanceAngle(2 * Math.PI, Interpolator.LINEAR);
 		
 		beforeSpellAnimationBuilder.nextFrame(thrust.subtract(windup));
 		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
@@ -126,7 +126,8 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(20, 0), Interpolator.LINEAR);
 		beforeSpellAnimationBuilder.appendAddLeftHand(new Point2D(80, 0), Interpolator.EASE_IN);
 		beforeSpellAnimationBuilder.appendAddHead(new Point2D(20, 1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLanceControl(new Point2D(-40, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLanceTipDistance(20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLanceButtDistance(-20, Interpolator.LINEAR);
 		
 		final LancerControlPoints midValues = beforeSpellAnimationBuilder.currentValues();
 		final LancerTimelineBuilder afterSpellAnimationBuilder = new LancerTimelineBuilder(controlPoints, midValues);
@@ -162,7 +163,9 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(10, -5), Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendSetLeftHand(afterSpellAnimationBuilder.currentValues().leftElbow.add(10, 5), Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddHead(new Point2D(20, -5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendSetLanceControl(afterSpellAnimationBuilder.currentValues().lanceCenter.add(0, 60), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddLanceTipDistance(-20, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddLanceButtDistance(20, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLanceAngle(3 * Math.PI / 2, Interpolator.LINEAR);
 		
 		
 		afterSpellAnimationBuilder.storeInMap(rolloverKeyValues);
@@ -189,7 +192,7 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	) {
 		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		
-		final LancerTimelineBuilder vals = new LancerTimelineBuilder(controlPoints, new LancerControlPoints(Point2D.ZERO));
+		final LancerTimelineBuilder vals = new LancerTimelineBuilder(controlPoints, LancerControlPoints.ZERO);
 		
 		vals.appendSetLeftFoot(footPoint.add(6, -2), Interpolator.LINEAR);
 		vals.appendSetLeftKneeRelativeToLeftFoot(new Point2D(0, -15), Interpolator.LINEAR);
@@ -205,7 +208,9 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		vals.appendSetRightElbowRelativeToRightShoulder(new Point2D(-10, 2), Interpolator.LINEAR);
 		vals.appendSetRightHandRelativeToRightElbow(new Point2D(-10, 7), Interpolator.LINEAR);
 		vals.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
-		vals.appendSetLanceControlRelativeToLanceCenter(new Point2D(0, 60), Interpolator.LINEAR);
+		vals.appendSetLanceAngle(3 * Math.PI / 2, Interpolator.LINEAR);
+		vals.appendSetLanceTipDistance(60, Interpolator.LINEAR);
+		vals.appendSetLanceButtDistance(60, Interpolator.LINEAR);
 		
 		vals.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
 		vals.storeInMap(retval);

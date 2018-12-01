@@ -39,12 +39,15 @@ class TemplateJavaCompile extends SourceTask {
 	@TaskAction void process() {
 		def encoding = "UTF-8"
 		
-		List<String> fields = [
+		List<String> pointFields = [
 			"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
 			"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
-			"head", "lanceCenter", "lanceControl"
+			"head", "lanceCenter"
 		]
-		def binding = ["fields": fields]
+		List<String> doubleFields = [
+			"lanceAngle", "lanceTipDistance", "lanceButtDistance"
+		]
+		def binding = ["pointFields": pointFields, "doubleFields": doubleFields]
 		def engine = new groovy.text.SimpleTemplateEngine()
 		
 		getSource().each {srcFile ->
