@@ -341,7 +341,7 @@ public final class SwordGuy implements UnitAnimationGroup {
 		if (null == filename) {
 			return null;
 		} else {
-			final java.net.URL fileurl = SwordGuy.class.getClassLoader().getResource(filename);
+			final java.net.URL fileurl = ClassLoader.getSystemResource(filename);
 			if (null == fileurl) {
 				System.out.println("Resource not found: " + filename);
 				return null;
