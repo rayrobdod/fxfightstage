@@ -102,7 +102,7 @@ final class LancerTimelineBuilder {
 	<%
 		print pointFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendSet${sTitle}(Point2D value, Interpolator interp) {
+			"""public void set${sTitle}(Point2D value, Interpolator interp) {
 				this.values = this.values.copyWith${sTitle}(value);
 				this.currentFrame.add(new KeyValue(keys.${s}.writableX, value.getX(), interp));
 				this.currentFrame.add(new KeyValue(keys.${s}.writableY, value.getY(), interp));
@@ -111,7 +111,7 @@ final class LancerTimelineBuilder {
 		}).collect(java.util.stream.Collectors.joining())
 		print doubleFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendSet${sTitle}(double value, Interpolator interp) {
+			"""public void set${sTitle}(double value, Interpolator interp) {
 				this.values = this.values.copyWith${sTitle}(value);
 				this.currentFrame.add(new KeyValue(keys.${s}, value, interp));
 			}
@@ -121,15 +121,15 @@ final class LancerTimelineBuilder {
 	<%
 		print pointFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendAdd${sTitle}(Point2D value, Interpolator interp) {
-				this.appendSet${sTitle}(this.values.${s}.add(value), interp);
+			"""public void add${sTitle}(Point2D value, Interpolator interp) {
+				this.set${sTitle}(this.values.${s}.add(value), interp);
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
 		print doubleFields.stream().map({s ->
 			String sTitle = "${s.charAt(0).toUpperCase()}${s.substring(1)}"
-			"""public void appendAdd${sTitle}(double value, Interpolator interp) {
-				this.appendSet${sTitle}(this.values.${s} + value, interp);
+			"""public void add${sTitle}(double value, Interpolator interp) {
+				this.set${sTitle}(this.values.${s} + value, interp);
 			}
 			"""
 		}).collect(java.util.stream.Collectors.joining())
@@ -164,46 +164,46 @@ final class LancerTimelineBuilder {
 			String targetTitle = target.substring(0, 1).toUpperCase() + target.substring(1);
 			String sourceTitle = source.substring(0, 1).toUpperCase() + source.substring(1);
 			
-			print """public void appendSet${targetTitle}RelativeTo${sourceTitle}(Point2D delta, Interpolator interp) {
-				this.appendSet${targetTitle}(this.values.${source}.add(delta), interp);
+			print """public void set${targetTitle}RelativeTo${sourceTitle}(Point2D delta, Interpolator interp) {
+				this.set${targetTitle}(this.values.${source}.add(delta), interp);
 			}
 			"""
 		}
 	%>
 	
-	public void appendSetHeadRelativeToShoulders(BinaryOperator<Point2D> op, Interpolator interp) {
-		this.appendSetHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), interp);
+	public void setHeadRelativeToShoulders(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.setHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), interp);
 	}
 	
-	public void appendSetRightKneeRelativeToRightLeg(BinaryOperator<Point2D> op, Interpolator interp) {
-		this.appendSetRightKnee(op.apply(this.values.rightPelvic, this.values.rightFoot), interp);
+	public void setRightKneeRelativeToRightLeg(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.setRightKnee(op.apply(this.values.rightPelvic, this.values.rightFoot), interp);
 	}
 	
-	public void appendSetLeftKneeRelativeToLeftLeg(BinaryOperator<Point2D> op, Interpolator interp) {
-		this.appendSetLeftKnee(op.apply(this.values.leftPelvic, this.values.leftFoot), interp);
+	public void setLeftKneeRelativeToLeftLeg(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.setLeftKnee(op.apply(this.values.leftPelvic, this.values.leftFoot), interp);
 	}
 	
-	public void appendSetRightElbowRelativeToRightArm(BinaryOperator<Point2D> op, Interpolator interp) {
-		this.appendSetRightElbow(op.apply(this.values.rightShoulder, this.values.rightHand), interp);
+	public void setRightElbowRelativeToRightArm(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.setRightElbow(op.apply(this.values.rightShoulder, this.values.rightHand), interp);
 	}
 	
-	public void appendSetLeftElbowRelativeToLeftArm(BinaryOperator<Point2D> op, Interpolator interp) {
-		this.appendSetLeftElbow(op.apply(this.values.leftShoulder, this.values.leftHand), interp);
+	public void setLeftElbowRelativeToLeftArm(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.setLeftElbow(op.apply(this.values.leftShoulder, this.values.leftHand), interp);
 	}
 	
-	public void appendSetLeftHandRelativeToLance(double distance, Interpolator interp) {
-		this.appendSetLeftHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
+	public void setLeftHandRelativeToLance(double distance, Interpolator interp) {
+		this.setLeftHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
 	}
 	
-	public void appendSetRightHandRelativeToLance(double distance, Interpolator interp) {
-		this.appendSetRightHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
+	public void setRightHandRelativeToLance(double distance, Interpolator interp) {
+		this.setRightHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
 	}
 	
-	public void appendSetLanceAngleToPointAt(Point2D target, Interpolator interp) {
+	public void setLanceAngleToPointAt(Point2D target, Interpolator interp) {
 		Point2D delta = target.subtract(this.values.lanceCenter);
 		double deltaAngle = Math.atan2(delta.getY(), delta.getX());
 		while (deltaAngle < Math.PI / 4) {deltaAngle += Math.PI * 2;}
 		while (deltaAngle > Math.PI * 9 / 4) {deltaAngle -= Math.PI * 2;}
-		this.appendSetLanceAngle(deltaAngle, interp);
+		this.setLanceAngle(deltaAngle, interp);
 	}
 }
