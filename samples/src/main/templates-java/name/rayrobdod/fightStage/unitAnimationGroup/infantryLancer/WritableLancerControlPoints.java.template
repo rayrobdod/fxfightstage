@@ -151,9 +151,9 @@ final class WritableLancerControlPoints {
 		final Point2dExpression dir2 = pivot.subtract(edge2).normalize();
 		final Point2dExpression perp2 = dir2.perpendicular();
 		
-		final Point2dExpression backOfFoot = edge1.add(perp1.multiply(LEG_HALFWIDTH + outset)).interception(dir1, new Point2D(0, outset), new Point2D(1, 0));
+		final Point2dExpression backOfFoot = edge1.add(perp1.multiply(LEG_HALFWIDTH + outset));
 		final Point2dExpression backOfPelvic = edge2.add(perp2.multiply(LEG_HALFWIDTH + outset));
-		final Point2dExpression frontOfFoot = edge1.add(perp1.multiply(-LEG_HALFWIDTH - outset)).interception(dir1, new Point2D(0, outset), new Point2D(1, 0));
+		final Point2dExpression frontOfFoot = edge1.add(perp1.multiply(-LEG_HALFWIDTH - outset));
 		final Point2dExpression frontOfPelvic = edge2.add(perp2.multiply(-LEG_HALFWIDTH - outset));
 		final Point2dExpression frontOfKnee2 = pivot.add(perp2.multiply(-LEG_HALFWIDTH - outset));
 		final Point2dExpression frontOfKnee1 = pivot.add(perp1.multiply(-LEG_HALFWIDTH - outset));

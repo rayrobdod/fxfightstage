@@ -36,8 +36,8 @@ import name.rayrobdod.fightStage.UnitAnimationGroup;
 
 public final class InfantryLancer implements UnitAnimationGroup {
 	private final Duration lanceLift = Duration.millis(120);
-	private final Duration windup = Duration.millis(600);
-	private final Duration thrust = Duration.millis(900);
+	private final Duration windup = Duration.millis(600 - 120);
+	private final Duration thrust = Duration.millis(300);
 	
 	private final Duration extract = Duration.millis(300);
 	
@@ -85,88 +85,105 @@ public final class InfantryLancer implements UnitAnimationGroup {
 		, Set<AttackModifier> attackerModifiers
 		, boolean isFinisher
 	) {
+		final double side = Math.signum(target.getX() - getCurrentXOffset(rolloverKeyValues));
+		final double leftPerspective = -2 * side;
+		final double rightPerspective = 2 * side;
+		
 		final LancerTimelineBuilder beforeSpellAnimationBuilder = new LancerTimelineBuilder(controlPoints, rolloverKeyValues);
-		beforeSpellAnimationBuilder.nextFrame(lanceLift);
+		beforeSpellAnimationBuilder.nextFrame(lanceLift.divide(2));
 		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(0, -10), Interpolator.EASE_BOTH);
+		beforeSpellAnimationBuilder.appendAddRightElbow(new Point2D(0, -5), Interpolator.EASE_BOTH);
+		beforeSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.nextFrame(lanceLift.divide(2));
+		beforeSpellAnimationBuilder.appendAddLanceTipDistance(20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLanceButtDistance(-20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddRightHand(Point2D.ZERO, Interpolator.EASE_BOTH);
 		beforeSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
 		
 		beforeSpellAnimationBuilder.nextFrame(windup.divide(2).subtract(lanceLift));
-		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(0, 0), Interpolator.LINEAR);
-		
+		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(-5, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftPelvicRelativeToLeftKnee(new Point2D(-15 * Math.sqrt(2), -15 / 2), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightPelvicRelativeToLeftPelvic(new Point2D(-12, rightPerspective - leftPerspective), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(-30, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightKneeRelativeToRightLeg(Point2D::midpoint, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
 		
 		beforeSpellAnimationBuilder.nextFrame(windup.divide(2));
-		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(-10, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(-20, 5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(-30, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightKnee(new Point2D(-20, 3.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightPelvic(new Point2D(-20, 6.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightShoulder(new Point2D(-20, 6.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightElbow(new Point2D(-20, 6.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(-30, 25), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLanceCenter(new Point2D(-30, 25), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(-20, 5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-10, 5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendSetLeftHand(beforeSpellAnimationBuilder.currentValues().rightHand.add(30, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddHead(new Point2D(-20, 5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendSetLanceAngle(2 * Math.PI, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(0, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightKneeRelativeToRightFoot(new Point2D(-2, -13), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightPelvicRelativeToRightKnee(new Point2D(2, -13), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftPelvicRelativeToRightPelvic(new Point2D(12, leftPerspective - rightPerspective), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(-5, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftKneeRelativeToLeftLeg(Point2D::midpoint, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightElbowRelativeToRightShoulder(new Point2D(-3, 10), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightHandRelativeToRightElbow(new Point2D(3, 10), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLanceAngleToPointAt(target, Interpolator.EASE_IN);
+		beforeSpellAnimationBuilder.appendSetLeftHandRelativeToLance(20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftElbowRelativeToLeftArm((a, b) -> a.midpoint(b).add(6, -3), Interpolator.LINEAR);
 		
-		beforeSpellAnimationBuilder.nextFrame(thrust.subtract(windup));
+		beforeSpellAnimationBuilder.nextFrame(thrust.divide(2));
+		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(5, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.nextFrame(thrust.divide(2));
 		beforeSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftKnee(new Point2D(20, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(20, 1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(10, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightKnee(new Point2D(15, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightPelvic(new Point2D(20, -1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightShoulder(new Point2D(20, -1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddRightElbow(new Point2D(40, 2.5), Interpolator.EASE_IN);
-		beforeSpellAnimationBuilder.appendAddRightHand(new Point2D(80, 0), Interpolator.EASE_IN);
-		beforeSpellAnimationBuilder.appendAddLanceCenter(new Point2D(100, 0), Interpolator.EASE_IN);
-		beforeSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(20, 1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftElbow(new Point2D(20, 0), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLeftHand(new Point2D(80, 0), Interpolator.EASE_IN);
-		beforeSpellAnimationBuilder.appendAddHead(new Point2D(20, 1.5), Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLanceTipDistance(20, Interpolator.LINEAR);
-		beforeSpellAnimationBuilder.appendAddLanceButtDistance(-20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftKneeRelativeToLeftFoot(new Point2D(4, -12), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftPelvicRelativeToLeftKnee(new Point2D(-4, -12), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightPelvicRelativeToLeftPelvic(new Point2D(-12, rightPerspective - leftPerspective), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendAddRightFoot(new Point2D(5, 0), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightKneeRelativeToRightLeg(Point2D::midpoint, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightHandRelativeToLance(50, Interpolator.EASE_IN);
+		beforeSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftHandRelativeToLance(20, Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetRightElbowRelativeToRightArm((a, b) -> a.midpoint(b), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetLeftElbowRelativeToLeftArm((a, b) -> a.midpoint(b).add(6, -3), Interpolator.LINEAR);
+		beforeSpellAnimationBuilder.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
 		
 		final LancerControlPoints midValues = beforeSpellAnimationBuilder.currentValues();
 		final LancerTimelineBuilder afterSpellAnimationBuilder = new LancerTimelineBuilder(controlPoints, midValues);
 		
 		afterSpellAnimationBuilder.nextFrame(extract);
-		afterSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftKnee(new Point2D(-20, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(-20, -1.5), Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendAddRightFoot(new Point2D(0, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightKnee(new Point2D(-15, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightPelvic(new Point2D(-20, 1.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightShoulder(new Point2D(-20, 1.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightElbow(new Point2D(-40, -2.5), Interpolator.EASE_IN);
-		afterSpellAnimationBuilder.appendAddRightHand(new Point2D(-80, 0), Interpolator.EASE_IN);
-		afterSpellAnimationBuilder.appendAddLanceCenter(new Point2D(-100, 0), Interpolator.EASE_IN);
-		afterSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(-20, -1.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(-20, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftHand(new Point2D(-80, 0), Interpolator.EASE_IN);
-		afterSpellAnimationBuilder.appendAddHead(new Point2D(-20, -1.5), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightKneeRelativeToRightFoot(new Point2D(-2, -13), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightPelvicRelativeToRightKnee(new Point2D(2, -13), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftPelvicRelativeToRightPelvic(new Point2D(12, leftPerspective - rightPerspective), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendAddLeftFoot(new Point2D(-5, 0), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftKneeRelativeToLeftLeg(Point2D::midpoint, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLanceAngleToPointAt(target, Interpolator.EASE_IN);
+		afterSpellAnimationBuilder.appendSetRightHandRelativeToLance(-60, Interpolator.EASE_IN);
+		afterSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftHandRelativeToLance(20, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightElbowRelativeToRightArm((a, b) -> a.midpoint(b), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftElbowRelativeToLeftArm((a, b) -> a.midpoint(b).add(6, -3), Interpolator.LINEAR);
 		
-		afterSpellAnimationBuilder.nextFrame(windup.subtract(extract));
-		afterSpellAnimationBuilder.appendAddLeftFoot(new Point2D(0, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftKnee(new Point2D(10, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftPelvic(new Point2D(20, -5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightFoot(new Point2D(20, 0), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightKnee(new Point2D(20, -3.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightPelvic(new Point2D(20, -6.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightShoulder(new Point2D(20, -6.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightElbow(new Point2D(20, -6.5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddRightHand(new Point2D(30, -15), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLanceCenter(new Point2D(30, -15), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftShoulder(new Point2D(20, -5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLeftElbow(new Point2D(10, -5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendSetLeftHand(afterSpellAnimationBuilder.currentValues().leftElbow.add(10, 5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddHead(new Point2D(20, -5), Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLanceTipDistance(-20, Interpolator.LINEAR);
-		afterSpellAnimationBuilder.appendAddLanceButtDistance(20, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.nextFrame(windup.divide(2));
+		afterSpellAnimationBuilder.appendAddRightFoot(new Point2D(0, 0), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightKneeRelativeToRightFoot(new Point2D(0, -15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightPelvicRelativeToRightKnee(new Point2D(0, -15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftPelvicRelativeToRightPelvic(new Point2D(12, leftPerspective - rightPerspective), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftKneeRelativeToLeftPelvic(new Point2D(0, 15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftFootRelativeToLeftKnee(new Point2D(0, 15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetHeadRelativeToShoulders((a, b) -> a.midpoint(b).add(0, -20), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftElbowRelativeToLeftShoulder(new Point2D(2, 15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLeftHandRelativeToLeftElbow(new Point2D(0, 15), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightElbowRelativeToRightShoulder(new Point2D(-10, 5 + rightPerspective), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetRightHandRelativeToRightElbow(new Point2D(-10, -4 + rightPerspective), Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLanceTipDistance(60, Interpolator.LINEAR);
+		afterSpellAnimationBuilder.appendSetLanceButtDistance(60, Interpolator.LINEAR);
 		afterSpellAnimationBuilder.appendSetLanceAngle(3 * Math.PI / 2, Interpolator.LINEAR);
-		
 		
 		afterSpellAnimationBuilder.storeInMap(rolloverKeyValues);
 		return new SequentialTransition(
@@ -192,21 +209,24 @@ public final class InfantryLancer implements UnitAnimationGroup {
 	) {
 		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		
+		final double leftPerspective = (side == Side.LEFT ? -2 : 2);
+		final double rightPerspective = (side == Side.LEFT ? 2 : -2);
+		
 		final LancerTimelineBuilder vals = new LancerTimelineBuilder(controlPoints, LancerControlPoints.ZERO);
 		
-		vals.appendSetLeftFoot(footPoint.add(6, -2), Interpolator.LINEAR);
+		vals.appendSetLeftFoot(footPoint.add(6, leftPerspective), Interpolator.LINEAR);
 		vals.appendSetLeftKneeRelativeToLeftFoot(new Point2D(0, -15), Interpolator.LINEAR);
 		vals.appendSetLeftPelvicRelativeToLeftKnee(new Point2D(0, -15), Interpolator.LINEAR);
 		vals.appendSetLeftShoulderRelativeToLeftPelvic(new Point2D(4, -35), Interpolator.LINEAR);
-		vals.appendSetLeftElbowRelativeToLeftShoulder(new Point2D(10, -2), Interpolator.LINEAR);
-		vals.appendSetLeftHandRelativeToLeftElbow(new Point2D(10, -2), Interpolator.LINEAR);
+		vals.appendSetLeftElbowRelativeToLeftShoulder(new Point2D(2, 15), Interpolator.LINEAR);
+		vals.appendSetLeftHandRelativeToLeftElbow(new Point2D(0, 15), Interpolator.LINEAR);
 		
-		vals.appendSetRightFoot(footPoint.add(-6, 2), Interpolator.LINEAR);
+		vals.appendSetRightFoot(footPoint.add(-6, rightPerspective), Interpolator.LINEAR);
 		vals.appendSetRightKneeRelativeToRightFoot(new Point2D(0, -15), Interpolator.LINEAR);
 		vals.appendSetRightPelvicRelativeToRightKnee(new Point2D(0, -15), Interpolator.LINEAR);
 		vals.appendSetRightShoulderRelativeToRightPelvic(new Point2D(-4, -35), Interpolator.LINEAR);
-		vals.appendSetRightElbowRelativeToRightShoulder(new Point2D(-10, 2), Interpolator.LINEAR);
-		vals.appendSetRightHandRelativeToRightElbow(new Point2D(-10, 7), Interpolator.LINEAR);
+		vals.appendSetRightElbowRelativeToRightShoulder(new Point2D(-10, 5 + rightPerspective), Interpolator.LINEAR);
+		vals.appendSetRightHandRelativeToRightElbow(new Point2D(-10, -4 + rightPerspective), Interpolator.LINEAR);
 		vals.appendSetLanceCenterRelativeToRightHand(Point2D.ZERO, Interpolator.LINEAR);
 		vals.appendSetLanceAngle(3 * Math.PI / 2, Interpolator.LINEAR);
 		vals.appendSetLanceTipDistance(60, Interpolator.LINEAR);

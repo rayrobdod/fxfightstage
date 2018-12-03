@@ -141,6 +141,14 @@ final class LancerTimelineBuilder {
 			["rightKnee", "rightFoot"],
 			["leftPelvic", "leftKnee"],
 			["rightPelvic", "rightKnee"],
+			
+			["leftFoot", "leftKnee"],
+			["rightFoot", "rightKnee"],
+			["leftKnee", "leftPelvic"],
+			["rightKnee", "rightPelvic"],
+			["leftPelvic", "rightPelvic"],
+			["rightPelvic", "leftPelvic"],
+			
 			["leftShoulder", "leftPelvic"],
 			["rightShoulder", "rightPelvic"],
 			["leftElbow", "leftShoulder"],
@@ -165,5 +173,37 @@ final class LancerTimelineBuilder {
 	
 	public void appendSetHeadRelativeToShoulders(BinaryOperator<Point2D> op, Interpolator interp) {
 		this.appendSetHead(op.apply(this.values.leftShoulder, this.values.rightShoulder), interp);
+	}
+	
+	public void appendSetRightKneeRelativeToRightLeg(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.appendSetRightKnee(op.apply(this.values.rightPelvic, this.values.rightFoot), interp);
+	}
+	
+	public void appendSetLeftKneeRelativeToLeftLeg(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.appendSetLeftKnee(op.apply(this.values.leftPelvic, this.values.leftFoot), interp);
+	}
+	
+	public void appendSetRightElbowRelativeToRightArm(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.appendSetRightElbow(op.apply(this.values.rightShoulder, this.values.rightHand), interp);
+	}
+	
+	public void appendSetLeftElbowRelativeToLeftArm(BinaryOperator<Point2D> op, Interpolator interp) {
+		this.appendSetLeftElbow(op.apply(this.values.leftShoulder, this.values.leftHand), interp);
+	}
+	
+	public void appendSetLeftHandRelativeToLance(double distance, Interpolator interp) {
+		this.appendSetLeftHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
+	}
+	
+	public void appendSetRightHandRelativeToLance(double distance, Interpolator interp) {
+		this.appendSetRightHand(this.values.lanceCenter.add(Point2Ds.polar(distance, this.values.lanceAngle)), interp);
+	}
+	
+	public void appendSetLanceAngleToPointAt(Point2D target, Interpolator interp) {
+		Point2D delta = target.subtract(this.values.lanceCenter);
+		double deltaAngle = Math.atan2(delta.getY(), delta.getX());
+		while (deltaAngle < Math.PI / 4) {deltaAngle += Math.PI * 2;}
+		while (deltaAngle > Math.PI * 9 / 4) {deltaAngle -= Math.PI * 2;}
+		this.appendSetLanceAngle(deltaAngle, interp);
 	}
 }
