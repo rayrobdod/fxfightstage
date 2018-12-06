@@ -15,18 +15,6 @@
  */
 package name.rayrobdod.fightStage;
 
-import java.util.List;
-
-import javafx.animation.Animation;
-import javafx.animation.ParallelTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
-import javafx.beans.value.WritableDoubleValue;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.util.Duration;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public interface SpellAnimationGroupTest {
@@ -35,77 +23,26 @@ public interface SpellAnimationGroupTest {
 	
 	@Test
 	default void getBackground_isStable() {
-		SpellAnimationGroup v = this.getInstance();
-		Node n1 = v.objectBehindLayer();
-		Node n2 = v.objectBehindLayer();
-		Assertions.assertSame(n1, n2);
+		SpellAnimationGroupTests.getBackground_isStable(this::getInstance);
 	}
 	
 	@Test
 	default void getBackground_notStatic() {
-		SpellAnimationGroup v1 = this.getInstance();
-		Node n1 = v1.objectBehindLayer();
-		SpellAnimationGroup v2 = this.getInstance();
-		Node n2 = v2.objectBehindLayer();
-		Assertions.assertNotSame(n1, n2);
+		SpellAnimationGroupTests.getBackground_isStable(this::getInstance);
 	}
 	
 	@Test
 	default void getForeground_isStable() {
-		SpellAnimationGroup v = this.getInstance();
-		Node n1 = v.objectFrontLayer();
-		Node n2 = v.objectFrontLayer();
-		Assertions.assertSame(n1, n2);
+		SpellAnimationGroupTests.getBackground_isStable(this::getInstance);
 	}
 	
 	@Test
 	default void getForeground_notStatic() {
-		SpellAnimationGroup v1 = this.getInstance();
-		Node n1 = v1.objectFrontLayer();
-		SpellAnimationGroup v2 = this.getInstance();
-		Node n2 = v2.objectFrontLayer();
-		Assertions.assertNotSame(n1, n2);
+		SpellAnimationGroupTests.getBackground_isStable(this::getInstance);
 	}
-	
-	// @Test
-	// default void getAnimation_panAnimation????() {
-	// }
 	
 	@Test
 	default void getAnimation_containsHpShakeOnce() {
-		SpellAnimationGroup v = this.getInstance();
-		Animation hpShakeAnim = new PauseTransition(Duration.millis(100));
-		Animation dut = v.getAnimation(
-			new Point2D(5, 5),
-			new Point2D(-5, -5),
-			new BattlePanAnimations(new WritableDoubleValueSink(), new WritableDoubleValueSink(), 0, 0),
-			ShakeAnimationBiFunction.nil(),
-			hpShakeAnim
-		);
-		Assertions.assertEquals(1, SpellAnimationGroupTest.subAnimCount(dut, hpShakeAnim));
+		SpellAnimationGroupTests.getBackground_isStable(this::getInstance);
 	}
-	
-	
-	public static int subAnimCount(Animation haystack, Animation needle) {
-		if (haystack == needle) {
-			return 1;
-		} else if (haystack instanceof SequentialTransition) {
-			List<Animation> childs = ((SequentialTransition) haystack).getChildren();
-			return childs.stream().mapToInt(x -> SpellAnimationGroupTest.subAnimCount(x, needle)).sum();
-		} else if (haystack instanceof ParallelTransition) {
-			List<Animation> childs = ((ParallelTransition) haystack).getChildren();
-			return childs.stream().mapToInt(x -> SpellAnimationGroupTest.subAnimCount(x, needle)).sum();
-		} else {
-			return 0;
-		}
-	}
-	
-	public static final class WritableDoubleValueSink implements WritableDoubleValue {
-		private double backing;
-		@Override public double get() {return backing;}
-		@Override public void set(double v) {this.backing = v;}
-		@Override public void setValue(Number v) {this.set(v.doubleValue());}
-		@Override public Number getValue() {return this.get();}
-	}
-
 }

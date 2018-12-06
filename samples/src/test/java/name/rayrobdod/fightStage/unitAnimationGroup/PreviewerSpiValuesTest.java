@@ -15,16 +15,31 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup;
 
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DynamicContainer;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.UnitAnimationGroupTest;
+import name.rayrobdod.fightStage.UnitAnimationGroupTests;
 
 @ExtendWith(ApplicationExtension.class)
-public class MageGuyTest implements UnitAnimationGroupTest {
-	public UnitAnimationGroup getInstance() {
-		return new MageGuy();
+public class PreviewerSpiValuesTest {
+	
+	@TestFactory
+	public Stream<DynamicContainer> tests() {
+		return new PreviewerSpi().get().stream().map(dut ->
+			dynamicContainer(
+				dut.displayName,
+				UnitAnimationGroupTests.allTests(
+					dut.displayName,
+					dut.supplier
+				)
+			)
+		);
 	}
 }
