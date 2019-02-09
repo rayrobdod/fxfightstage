@@ -51,12 +51,10 @@ import name.rayrobdod.fightStage.SpellAnimationGroup;
 // Gjallarhorn(?)
 public final class Excalibur implements SpellAnimationGroup {
 	
-	private static final Duration fadeToBlackDur = Duration.seconds(1.1);
-	private static final Duration pauseBlackDur = Duration.seconds(0.5);
 	private static final Duration fadeToBurstDur = Duration.seconds(2.0);
-	private static final Duration pauseBurst1Dur = Duration.seconds(3.0);
+	private static final Duration pauseBurst1Dur = Duration.seconds(2.5);
 	private static final Duration pauseBurst2Dur = Duration.seconds(1.0);
-	private static final Duration fadeOutBurstDur = Duration.seconds(1.0);
+	private static final Duration fadeOutBurstDur = Duration.seconds(0.5);
 	
 	
 	private static final int framesPerSecond = 16;
@@ -68,7 +66,6 @@ public final class Excalibur implements SpellAnimationGroup {
 	private final PerlinNoise verticalNoise;
 	
 	private final WritableDoubleValue backgroundDirectionXProperty;
-	private final WritableObjectValue<Paint> blackFillProperty;
 	private final WritableDoubleValue gradientsOpacityProperty;
 	private final WritableObjectValue<Paint> horizFillProperty;
 	private final WritableObjectValue<Paint> vertFillProperty;
@@ -82,7 +79,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		this.horizontalNoise = new PerlinNoise(rng);
 		this.verticalNoise = new PerlinNoise(rng);
 		
-		final Rectangle blackRect = bufferedRectangle();
 		final Rectangle horizGradientRect = bufferedRectangle();
 		final Rectangle vertGradientRect = bufferedRectangle();
 		vertGradientRect.setBlendMode(BlendMode.OVERLAY);
@@ -91,7 +87,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		
 		this.backgroundDirectionXProperty = backgroundScale.xProperty();
 		
-		this.blackFillProperty = blackRect.fillProperty();
 		this.horizFillProperty = horizGradientRect.fillProperty();
 		this.vertFillProperty = vertGradientRect.fillProperty();
 		
@@ -103,7 +98,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		this.gradientsOpacityProperty = gradientsGroup.opacityProperty();
 		
 		this.background = new Group(
-			blackRect,
 			gradientsGroup
 		);
 		this.background.getTransforms().add(backgroundScale);
@@ -130,15 +124,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		final TimelineBuilder builder = new TimelineBuilder();
 		
 		builder.setBackgroundDirectionX(direction);
-		builder.setBlackFill(Color.TRANSPARENT);
 		builder.setGradientsOpacity(0.0);
-		builder.stampFrame();
-		
-		builder.incrementTime(fadeToBlackDur);
-		builder.setBlackFill(Color.BLACK);
-		builder.stampFrame();
-
-		builder.incrementTime(pauseBlackDur);
 		builder.stampFrame();
 		
 		builder.incrementTime(fadeToBurstDur);
@@ -154,7 +140,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		builder.stampFrame();
 		
 		builder.incrementTime(pauseBurst2Dur);
-		builder.setBlackFill(Color.TRANSPARENT);
 		builder.stampFrame();
 		
 		builder.incrementTime(fadeOutBurstDur);
@@ -165,7 +150,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		
 		// Create the gradient frames
 		{
-			final int beforeHitStartIndex = (int) Math.floor(fadeToBlackDur.add(pauseBlackDur).toSeconds() * framesPerSecond);
+			final int beforeHitStartIndex = 0;
 			final int beforeHitEndIndex = beforeHitStartIndex + (int) Math.ceil(fadeToBurstDur.add(pauseBurst1Dur).toSeconds() * framesPerSecond);
 			final int afterHitStartIndex = 0;
 			final int afterHitEndIndex = (int) Math.floor(pauseBurst2Dur.add(fadeOutBurstDur).toSeconds() * framesPerSecond);
@@ -213,7 +198,7 @@ public final class Excalibur implements SpellAnimationGroup {
 		final ArrayList<Stop> gradientStops = new ArrayList<>(gradientPrecision);
 		for (int x = 0; x <= gradientPrecision; x++) {
 			double x2 = ((double) x) / gradientPrecision;
-			double lum = 0.9 + horizontalNoise.sum1D(useHoriz ? (x2 - time / 8) * 16 : x2 * 32, 2, 2, 4) * 2;
+			double lum = 0.9 + horizontalNoise.sum1D(useHoriz ? (x2 - time * Math.max(0.5f, time) / 16) * 16 : x2 * 32, 2, 2, 4) * 2;
 			double colorG = Math.min(0.95f, Math.max(0.05f, lum));
 			double colorB = Math.min(0.95, Math.max(0.05f, lum - 1));
 			Color color = Color.color(colorB, colorG, (colorB + colorG) / 2);
@@ -263,7 +248,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		private Duration currentTime;
 		
 		private double backgroundDirectionX;
-		private Paint blackFill;
 		private double gradientsOpacity;
 		
 		private final ArrayList<KeyFrame> timeline;
@@ -272,7 +256,6 @@ public final class Excalibur implements SpellAnimationGroup {
 			this.currentTime = Duration.ZERO;
 			
 			this.backgroundDirectionX = 1.0;
-			this.blackFill = Color.TRANSPARENT;
 			this.gradientsOpacity = 0.0;
 			
 			this.timeline = new ArrayList<>();
@@ -282,7 +265,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		public void stampFrame() {
 			timeline.add(new KeyFrame(currentTime,
 				new KeyValue(backgroundDirectionXProperty, backgroundDirectionX, Interpolator.LINEAR),
-				new KeyValue(blackFillProperty, blackFill, Interpolator.LINEAR),
 				new KeyValue(gradientsOpacityProperty, gradientsOpacity, Interpolator.LINEAR)
 			));
 		}
@@ -296,7 +278,6 @@ public final class Excalibur implements SpellAnimationGroup {
 		
 		
 		public void setBackgroundDirectionX(double v) {this.backgroundDirectionX = v;}
-		public void setBlackFill(Paint v) {this.blackFill = v;}
 		public void setGradientsOpacity(double v) {this.gradientsOpacity = v;}
 	}
 }
