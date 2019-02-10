@@ -15,16 +15,31 @@
  */
 package name.rayrobdod.fightStage.spellAnimationGroup;
 
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DynamicContainer;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import name.rayrobdod.fightStage.SpellAnimationGroup;
-import name.rayrobdod.fightStage.SpellAnimationGroupTest;
+import name.rayrobdod.fightStage.SpellAnimationGroupTests;
 
 @ExtendWith(ApplicationExtension.class)
-public class RadialLightningTest implements SpellAnimationGroupTest {
-	public SpellAnimationGroup getInstance() {
-		return new RadialLightning();
+public class PreviewerSpiValuesTest {
+	
+	@TestFactory
+	public Stream<DynamicContainer> tests() {
+		return new PreviewerSpi().get().stream().map(dut ->
+			dynamicContainer(
+				dut.displayName,
+				SpellAnimationGroupTests.allTests(
+					dut.displayName,
+					dut.supplier
+				)
+			)
+		);
 	}
 }

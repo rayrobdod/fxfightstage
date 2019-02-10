@@ -142,6 +142,7 @@ subprojects {
 		javadoc {
 			doFirst {
 				options.addStringOption('-module-path', classpath.asPath)
+				classpath = files()
 			}
 		}
 	}
