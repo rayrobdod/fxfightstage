@@ -20,7 +20,7 @@ init:
    - ps: |
            Add-Type -AssemblyName System.IO.Compression.FileSystem
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk11") {
-              & choco install openjdk --version 11.0.1
+              & choco install openjdk --version 11.0.2.01
            }
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\jdk11") {
               & choco install jdk11
