@@ -26,6 +26,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -102,7 +103,7 @@ public final class BowGuy implements UnitAnimationGroup {
 	@Override public Node objectFrontLayer() { return this.frontLayer; }
 	
 	@Override
-	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public Point2D getSpellTarget(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return new Point2D(
 			rolloverKeyValues.get(translateXProp) - rolloverKeyValues.get(scaleXProp) * 5,
 			rolloverKeyValues.get(translateYProp) - 60
@@ -110,11 +111,11 @@ public final class BowGuy implements UnitAnimationGroup {
 	}
 	
 	@Override
-	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public double getCurrentXOffset(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return rolloverKeyValues.get(translateXProp);
 	}
 
-	private Point2D getSpellOrigin(Map<DoubleProperty, Double> rolloverKeyValues) {
+	private Point2D getSpellOrigin(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return new Point2D(
 			rolloverKeyValues.get(translateXProp) - rolloverKeyValues.get(scaleXProp) * 65,
 			rolloverKeyValues.get(translateYProp) - 60
@@ -124,7 +125,7 @@ public final class BowGuy implements UnitAnimationGroup {
 	@Override
 	public Animation getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
-		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> attackerModifiers
@@ -166,7 +167,7 @@ public final class BowGuy implements UnitAnimationGroup {
 	
 	@Override
 	public Animation getHitAnimation(
-		  Map<DoubleProperty, Double> rolloverKeyValues
+		  Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Set<AttackModifier> attackerModifiers
 		, Set<AttackModifier> defenderModifiers
 		, boolean isFinisher
@@ -183,11 +184,11 @@ public final class BowGuy implements UnitAnimationGroup {
 		}
 	}
 	
-	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
+	@Override public Map<WritableDoubleValue, Double> getInitializingKeyValues(
 		  Side side
 		, Point2D footPoint
 	) {
-		final Map<DoubleProperty, Double> retval = new java.util.HashMap<>();
+		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		retval.put(scaleXProp, (side == Side.LEFT ? -1.0 : 1.0));
 		retval.put(translateXProp, footPoint.getX());
 		retval.put(translateYProp, footPoint.getY());

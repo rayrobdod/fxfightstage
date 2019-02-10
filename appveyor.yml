@@ -1,4 +1,4 @@
-version: 'alpha-{build}'
+version: 'yml-{build}'
 os: Windows Server 2012
 cache:
    - '%USERPROFILE%\.gradle\caches\'
@@ -6,14 +6,30 @@ cache:
 environment:
    matrix:
    - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
+     JFX: -PnoExternalJavafx
    - JAVA_HOME: C:\Program Files\Java\jdk9
+     JFX: -PnoExternalJavafx
    - JAVA_HOME: C:\Program Files\Java\jdk10
+     JFX: -PnoExternalJavafx
+   - JAVA_HOME: C:\Program Files\Java\jdk11
+     JFX:
+   - JAVA_HOME: C:\Program Files\Java\openjdk11
+     JFX:
 init:
-   - 'git config --global core.autocrlf true'
+   - cmd: 'git config --global core.autocrlf true'
+   - ps: |
+           Add-Type -AssemblyName System.IO.Compression.FileSystem
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk11") {
+              & choco install openjdk --version 11.0.2.01
+           }
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\jdk11") {
+              & choco install jdk11
+           }
+   - refreshenv
 build_script:
-   - 'gradlew --no-daemon -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
+   - 'gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
 test_script:
-   - 'gradlew --no-daemon check'
+   - 'gradlew --no-daemon %JFX% check'
 artifacts:
    - path: ./maven
      name: maven
@@ -24,4 +40,6 @@ artifacts:
    - path: ./samples/build/libs/*.tar.gz
      name: samples_libs
    - path: ./samples/build/distributions/FxFightStageSamples.jar
-     name: samples_runner
+     name: samples_fatjar
+   - path: ./samples/build/distributions/jlink/
+     name: samples_jlink

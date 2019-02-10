@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import javafx.animation.Animation;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
@@ -51,7 +51,7 @@ public interface UnitAnimationGroup {
 	 * 
 	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
-	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues);
+	public Point2D getSpellTarget(Map<WritableDoubleValue, Double> rolloverKeyValues);
 	
 	/**
 	 * Returns the offset of this unit in the x-direction.
@@ -62,7 +62,7 @@ public interface UnitAnimationGroup {
 	 * 
 	 * @param rolloverKeyValues the return value of `getInitializingKeyValues`. Probably mutable.
 	 */
-	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues);
+	public double getCurrentXOffset(Map<WritableDoubleValue, Double> rolloverKeyValues);
 	
 	/**
 	 * Returns an animation used to represent an attack
@@ -77,7 +77,7 @@ public interface UnitAnimationGroup {
 	 */
 	public Animation getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
-		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> attackerModifiers
@@ -88,7 +88,7 @@ public interface UnitAnimationGroup {
 	 * Returns an animation used to represent being hit by an attack
 	 */
 	default Animation getHitAnimation(
-		  Map<DoubleProperty, Double> rolloverKeyValues
+		  Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Set<AttackModifier> attackerModifiers
 		, Set<AttackModifier> defenderModifiers
 		, boolean isFinisher
@@ -112,7 +112,7 @@ public interface UnitAnimationGroup {
 	 * @param initialOffset The initial 'foot point' of the unit
 	 * @return a map of Properties and their values
 	 */
-	public Map<DoubleProperty, Double> getInitializingKeyValues(
+	public Map<WritableDoubleValue, Double> getInitializingKeyValues(
 		  Side side
 		, Point2D initialOffset
 	);

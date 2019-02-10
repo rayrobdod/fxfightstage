@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup;
+module name.rayrobdod.fightStage.demo {
+	requires name.rayrobdod.fightStage.core;
+	requires javafx.graphics;
+	requires javafx.controls;
+	requires javafx.swing;
 
-import name.rayrobdod.fightStage.SpellAnimationGroup;
-import name.rayrobdod.fightStage.SpellAnimationGroupTest;
-
-public class MultiSparkleTest implements SpellAnimationGroupTest {
-	public SpellAnimationGroup getInstance() {
-		return new MultiSparkle();
-	}
+	exports name.rayrobdod.fightStage.previewer;
+	exports name.rayrobdod.fightStage.previewer.spi;
+	uses name.rayrobdod.fightStage.previewer.spi.UnitAnimationGroups;
+	uses name.rayrobdod.fightStage.previewer.spi.SpellAnimationGroups;
 }

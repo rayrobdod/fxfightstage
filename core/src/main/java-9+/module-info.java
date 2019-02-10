@@ -13,18 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.unitAnimationGroup;
+module name.rayrobdod.fightStage.core {
+	requires javafx.graphics;
+	requires javafx.controls;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.testfx.framework.junit5.ApplicationExtension;
-
-import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.UnitAnimationGroupTest;
-
-@ExtendWith(ApplicationExtension.class)
-public class MageGuyTest implements UnitAnimationGroupTest {
-	public UnitAnimationGroup getInstance() {
-		return new MageGuy();
-	}
+	exports name.rayrobdod.fightStage;
 }

@@ -13,18 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup;
+package name.rayrobdod.fightStage.unitAnimationGroup;
 
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DynamicContainer;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import name.rayrobdod.fightStage.SpellAnimationGroup;
-import name.rayrobdod.fightStage.SpellAnimationGroupTest;
+import name.rayrobdod.fightStage.UnitAnimationGroupTests;
 
 @ExtendWith(ApplicationExtension.class)
-public class RadialLightningTest implements SpellAnimationGroupTest {
-	public SpellAnimationGroup getInstance() {
-		return new RadialLightning();
+public class PreviewerSpiValuesTest {
+	
+	@TestFactory
+	public Stream<DynamicContainer> tests() {
+		return new PreviewerSpi().get().stream().map(dut ->
+			dynamicContainer(
+				dut.displayName,
+				UnitAnimationGroupTests.allTests(
+					dut.displayName,
+					dut.supplier
+				)
+			)
+		);
 	}
 }

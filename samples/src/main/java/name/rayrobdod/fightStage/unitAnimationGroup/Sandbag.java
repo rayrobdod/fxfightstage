@@ -33,6 +33,7 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -134,11 +135,11 @@ public final class Sandbag implements UnitAnimationGroup {
 	
 	@Override public Node objectFrontLayer() { return this.frontLayer; }
 	
-	@Override public Map<DoubleProperty, Double> getInitializingKeyValues(
+	@Override public Map<WritableDoubleValue, Double> getInitializingKeyValues(
 		  Side side
 		, Point2D footPoint
 	) {
-		final Map<DoubleProperty, Double> retval = new java.util.HashMap<>();
+		final Map<WritableDoubleValue, Double> retval = new java.util.HashMap<>();
 		retval.put(scaleXProp, (side == Side.LEFT ? -1.0 : 1.0));
 		retval.put(moveXProp, footPoint.getX());
 		retval.put(moveYProp, footPoint.getY());
@@ -147,7 +148,7 @@ public final class Sandbag implements UnitAnimationGroup {
 	}
 	
 	@Override
-	public Point2D getSpellTarget(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public Point2D getSpellTarget(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return new Point2D(
 			rolloverKeyValues.get(moveXProp),
 			rolloverKeyValues.get(moveYProp) - this.height / 2
@@ -155,11 +156,11 @@ public final class Sandbag implements UnitAnimationGroup {
 	}
 	
 	@Override
-	public double getCurrentXOffset(Map<DoubleProperty, Double> rolloverKeyValues) {
+	public double getCurrentXOffset(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return rolloverKeyValues.get(moveXProp);
 	}
 	
-	private Point2D getSpellOrigin(Map<DoubleProperty, Double> rolloverKeyValues) {
+	private Point2D getSpellOrigin(Map<WritableDoubleValue, Double> rolloverKeyValues) {
 		return new Point2D(
 			rolloverKeyValues.get(moveXProp),
 			rolloverKeyValues.get(moveYProp) - this.height * 1.5
@@ -169,7 +170,7 @@ public final class Sandbag implements UnitAnimationGroup {
 	@Override
 	public Animation getAttackAnimation(
 		  Function<Point2D, Animation> spellAnimationFun
-		, Map<DoubleProperty, Double> rolloverKeyValues
+		, Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Point2D target
 		, ConsecutiveAttackDescriptor consecutiveAttackDesc
 		, Set<AttackModifier> attackerModifiers
@@ -185,7 +186,7 @@ public final class Sandbag implements UnitAnimationGroup {
 	
 	@Override
 	public Animation getHitAnimation(
-		  Map<DoubleProperty, Double> rolloverKeyValues
+		  Map<WritableDoubleValue, Double> rolloverKeyValues
 		, Set<AttackModifier> attackerModifiers
 		, Set<AttackModifier> defenderModifiers
 		, boolean isFinisher

@@ -22,9 +22,9 @@ import java.util.function.Function;
 
 import javafx.animation.Animation;
 import javafx.animation.Animation.Status;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -107,17 +107,17 @@ public final class PlayBattleAnimationEventHandlerTest {
 		private Node front = new Group();
 		public Node objectBehindLayer() {return behind;}
 		public Node objectFrontLayer() {return front;}
-		public Point2D getSpellTarget(Map<DoubleProperty, Double> _1) {return Point2D.ZERO;}
-		public double getCurrentXOffset(Map<DoubleProperty, Double> _1) {return 0;}
+		public Point2D getSpellTarget(Map<WritableDoubleValue, Double> _1) {return Point2D.ZERO;}
+		public double getCurrentXOffset(Map<WritableDoubleValue, Double> _1) {return 0;}
 		public Animation getAttackAnimation(
 			  Function<Point2D, Animation> spellAnimationFun
-			, Map<DoubleProperty, Double> rolloverKeyValues
+			, Map<WritableDoubleValue, Double> rolloverKeyValues
 			, Point2D target
 			, ConsecutiveAttackDescriptor consecutiveAttackDesc
 			, Set<AttackModifier> attackerModifiers
 			, boolean isFinisher
 		) { return Animations.nil(); }
-		public Map<DoubleProperty, Double> getInitializingKeyValues(
+		public Map<WritableDoubleValue, Double> getInitializingKeyValues(
 			  Side side
 			, Point2D initialOffset
 		) {return new java.util.HashMap<>();}

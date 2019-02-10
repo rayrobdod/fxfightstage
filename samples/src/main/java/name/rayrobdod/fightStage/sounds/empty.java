@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.spellAnimationGroup.electricty;
+package name.rayrobdod.fightStage.sounds;
 
-import name.rayrobdod.fightStage.SpellAnimationGroup;
-import name.rayrobdod.fightStage.SpellAnimationGroupTest;
-
-public class ElectricitySkyFadeSpellAnimationGroup implements SpellAnimationGroupTest {
-	public SpellAnimationGroup getInstance() {
-		return new BasicElectricitySpellAnimationGroup(new SkyBoltPoints(), FadeElectricAnimationFactory::new);
-	}
+public final class empty {
 }

@@ -13,18 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.unitAnimationGroup;
+package name.rayrobdod.fightStage.spellAnimationGroup;
 
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DynamicContainer;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import name.rayrobdod.fightStage.UnitAnimationGroup;
-import name.rayrobdod.fightStage.UnitAnimationGroupTest;
+import name.rayrobdod.fightStage.SpellAnimationGroupTests;
 
 @ExtendWith(ApplicationExtension.class)
-public class BowGuyTest implements UnitAnimationGroupTest {
-	public UnitAnimationGroup getInstance() {
-		return new BowGuy();
+public class PreviewerSpiValuesTest {
+	
+	@TestFactory
+	public Stream<DynamicContainer> tests() {
+		return new PreviewerSpi().get().stream().map(dut ->
+			dynamicContainer(
+				dut.displayName,
+				SpellAnimationGroupTests.allTests(
+					dut.displayName,
+					dut.supplier
+				)
+			)
+		);
 	}
 }
