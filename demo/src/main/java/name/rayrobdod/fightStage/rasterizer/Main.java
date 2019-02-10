@@ -97,7 +97,7 @@ public final class Main extends Application {
 				
 				spell.objectFrontLayer().getTransforms().addAll(objectCanvasOffset, scale);
 				spell.objectBehindLayer().getTransforms().addAll(objectCanvasOffset, scale);
-				spell.backgroundLayer().getTransforms().addAll(new Scale(canvasSize.getWidth(), canvasSize.getHeight()));
+				spell.backgroundLayer().getTransforms().add(0, new Scale(canvasSize.getWidth(), canvasSize.getHeight()));
 				if (disableSmoothing) {
 					setSmoothRecursive(spell.objectFrontLayer(), false);
 					setSmoothRecursive(spell.objectBehindLayer(), false);
@@ -253,6 +253,7 @@ public final class Main extends Application {
 		for (int j = 0; j < canvasSize.getHeight(); j++) {
 			if (0 != frames[k].getPixelReader().getArgb(i, j)) {
 				trimmedBounds.add(i, j);
+				trimmedBounds.add(i + 1, j + 1);
 			}
 		}
 		
