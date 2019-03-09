@@ -32,6 +32,23 @@ def List<String> splitIntoTokens(String commandLine) {
 	return result
 }
 
+// https://github.com/gradle/gradle/tree/master/subprojects/docs/src/samples/customModel/languageType
+class TemplateJavaCompile extends SourceTask {
+	@OutputDirectory File targetDir
+	
+	@TaskAction void process() {
+		def encoding = "UTF-8"
+		
+		def binding = ["nil":0]
+		def engine = new groovy.text.SimpleTemplateEngine()
+		
+		getSource().each {srcFile ->
+			File tarFile = new File(targetDir, srcFile.name.replace(".template", ""))
+			tarFile.write(engine.createTemplate(srcFile.getText(encoding)).make(binding).toString(), encoding)
+		}
+	}
+}
+
 def String fxPlatform() {
 	def currentOS = org.gradle.internal.os.OperatingSystem.current()
 	if (currentOS.isWindows()) {
@@ -124,6 +141,10 @@ subprojects {
 	
 	spotless {
 		java {
+			target project.fileTree(project.rootDir) {
+				include '**/*.java'
+				exclude '**/generated/**/*.*'
+			}
 			importOrder 'java', 'javax', 'javafx', 'org.junit', 'org.testfx', '', 'name.rayrobdod'
 			removeUnusedImports()
 			licenseHeaderFile '../spotless-license-java', 'package|module'
@@ -248,12 +269,24 @@ project(":samples") {
 	//TODO: convert to linksOffline after deciding where these will be online
 	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
 	javadoc.options.links(project(":demo").javadoc.destinationDir.toURI().toString())
+	//javadoc.options.showFromPrivate()
 	
 	dependencies {
 		compile project(":core")
 		compile project(":demo")
 		testCompile project(":core").sourceSets.test.output
 	}
+	
+	
+	// https://github.com/gradle/gradle/tree/master/subprojects/docs/src/samples/customModel/languageType
+	// The 'create a new source directory set' part doesn't seem to work though
+	task compileTemplateJava(type: TemplateJavaCompile) {
+		source project.file("src/main/templates-java/")
+		targetDir project.file("${buildDir}/generated/java/")
+	}
+	tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn compileTemplateJava }
+	sourceSets.main.java.srcDir "${buildDir}/generated/java/"
+	
 	
 	if (! project.hasProperty("noExternalJavafx")) {
 		dependencies {
