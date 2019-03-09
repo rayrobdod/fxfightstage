@@ -39,19 +39,11 @@ class TemplateJavaCompile extends SourceTask {
 	@TaskAction void process() {
 		def encoding = "UTF-8"
 		
-		List<String> pointFields = [
-			"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
-			"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
-			"head", "lanceCenter"
-		]
-		List<String> doubleFields = [
-			"lanceAngle", "lanceTipDistance", "lanceButtDistance"
-		]
-		def binding = ["pointFields": pointFields, "doubleFields": doubleFields]
+		def binding = ["nil":0]
 		def engine = new groovy.text.SimpleTemplateEngine()
 		
 		getSource().each {srcFile ->
-	            File tarFile = new File(targetDir, srcFile.name.replace(".template", ""))
+			File tarFile = new File(targetDir, srcFile.name.replace(".template", ""))
 			tarFile.write(engine.createTemplate(srcFile.getText(encoding)).make(binding).toString(), encoding)
 		}
 	}
@@ -289,7 +281,7 @@ project(":samples") {
 	// https://github.com/gradle/gradle/tree/master/subprojects/docs/src/samples/customModel/languageType
 	// The 'create a new source directory set' part doesn't seem to work though
 	task compileTemplateJava(type: TemplateJavaCompile) {
-		source project.file("src/main/templates-java/name/rayrobdod/fightStage/unitAnimationGroup/infantryLancer/")
+		source project.file("src/main/templates-java/")
 		targetDir project.file("${buildDir}/generated/java/")
 	}
 	tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn compileTemplateJava }

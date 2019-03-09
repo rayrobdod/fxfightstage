@@ -20,6 +20,19 @@ import java.util.function.UnaryOperator;
 
 import javafx.geometry.Point2D;
 
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
+
+<%
+	List<String> pointFields = [
+		"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+		"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+		"head", "lanceCenter"
+	]
+	List<String> doubleFields = [
+		"lanceAngle", "lanceTipDistance", "lanceButtDistance"
+	]
+%>
+
 <%
 	List<String> fields = java.util.stream.Stream.concat(pointFields.stream(), doubleFields.stream())
 			.collect(java.util.stream.Collectors.toList());

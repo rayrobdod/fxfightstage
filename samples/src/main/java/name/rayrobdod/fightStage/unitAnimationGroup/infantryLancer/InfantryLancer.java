@@ -33,6 +33,7 @@ import name.rayrobdod.fightStage.AttackModifier;
 import name.rayrobdod.fightStage.ConsecutiveAttackDescriptor;
 import name.rayrobdod.fightStage.Side;
 import name.rayrobdod.fightStage.UnitAnimationGroup;
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
 
 public final class InfantryLancer implements UnitAnimationGroup {
 	private final Duration lanceLift = Duration.millis(120);

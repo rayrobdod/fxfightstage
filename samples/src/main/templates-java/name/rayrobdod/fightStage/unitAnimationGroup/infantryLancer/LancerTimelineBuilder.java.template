@@ -27,6 +27,19 @@ import javafx.beans.value.WritableDoubleValue;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
+
+<%
+	List<String> pointFields = [
+		"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+		"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+		"head", "lanceCenter"
+	]
+	List<String> doubleFields = [
+		"lanceAngle", "lanceTipDistance", "lanceButtDistance"
+	]
+%>
+
 final class LancerTimelineBuilder {
 	private final WritableLancerControlPoints keys;
 	private LancerControlPoints values;

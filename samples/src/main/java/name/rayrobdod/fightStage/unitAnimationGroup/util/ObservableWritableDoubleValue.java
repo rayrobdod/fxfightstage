@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
+package name.rayrobdod.fightStage.unitAnimationGroup.util;
 
 import java.util.ArrayList;
 
@@ -24,17 +24,17 @@ import javafx.beans.value.WritableDoubleValue;
 
 /**
  */
-final class ObservableWritableDoubleValue implements ObservableDoubleValue, WritableDoubleValue {
+public final class ObservableWritableDoubleValue implements ObservableDoubleValue, WritableDoubleValue {
 	private double backing;
 	private final ArrayList<ChangeListener<? super Number>> changeListeners;
 	private final ArrayList<InvalidationListener> invalidationListeners;
-	
+
 	public ObservableWritableDoubleValue() {
 		this.backing = 0.0;
 		this.changeListeners = new ArrayList<>();
 		this.invalidationListeners = new ArrayList<>();
 	}
-	
+
 	@Override public double get() {return this.backing;}
 	@Override public void set(double newval) {
 		double oldval = this.backing;
@@ -48,7 +48,7 @@ final class ObservableWritableDoubleValue implements ObservableDoubleValue, Writ
 	@Override public float floatValue() {return (float) this.get();}
 	@Override public int intValue() {return (int) this.get();}
 	@Override public long longValue() {return (long) this.get();}
-	
+
 	@Override public void addListener(InvalidationListener ex) {this.invalidationListeners.add(ex);}
 	@Override public void addListener(ChangeListener<? super Number> ex) {this.changeListeners.add(ex);}
 	@Override public void removeListener(InvalidationListener ex) {this.invalidationListeners.remove(ex);}

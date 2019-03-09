@@ -15,10 +15,10 @@
  */
 package name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer;
 
-import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dBinding.createPoint2dBinding;
-import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundCubicCurveTo;
-import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundLineTo;
-import static name.rayrobdod.fightStage.unitAnimationGroup.infantryLancer.Point2dPathElements.newBoundMoveTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dBinding.createPoint2dBinding;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundCubicCurveTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundLineTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundMoveTo;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -28,6 +28,19 @@ import javafx.scene.shape.ClosePath;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableDoubleValue;
 import javafx.scene.shape.Path;
+
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
+
+<%
+	List<String> pointFields = [
+		"leftFoot", "rightFoot", "leftKnee", "rightKnee", "leftPelvic", "rightPelvic",
+		"leftHand", "rightHand", "leftElbow", "rightElbow", "leftShoulder", "rightShoulder",
+		"head", "lanceCenter"
+	]
+	List<String> doubleFields = [
+		"lanceAngle", "lanceTipDistance", "lanceButtDistance"
+	]
+%>
 
 final class WritableLancerControlPoints {
 	public final WritablePoint2dValue ${pointFields.join(";\n\tpublic final WritablePoint2dValue ")};
