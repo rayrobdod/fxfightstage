@@ -1,0 +1,20 @@
+*.java	text	diff=java
+*.java.template	text	diff=java
+*.html	text	diff=html
+
+/samples/src/main/resources/META-INF/services/*	text	merge=union
+*.png	binary	diff=png
+*.svg	text	diff=svg
+*.wav	binary	diff=wav
+
+/gradlew	binary
+/gradlew.bat	binary
+/gradle/wrapper/*	binary
+
+/.gitattributes	text
+/.gitignore	text	merge=union
+
+*.gradle	text	diff=gradle
+*.md	text	diff=markdown
+*.yml	text	diff=yaml
+*.txt	text
