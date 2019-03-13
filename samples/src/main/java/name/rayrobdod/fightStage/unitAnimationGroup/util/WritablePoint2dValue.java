@@ -43,8 +43,8 @@ public final class WritablePoint2dValue implements WritableValue<Point2D>, Obser
 	@Override public void setValue(final Point2D newval) {
 		final Point2D oldval = this.value;
 		this.value = newval;
-		changeListeners.forEach(x -> x.changed(this, oldval, newval));
-		invalidationListeners.forEach(x -> x.invalidated(this));
+		new ArrayList<>(changeListeners).forEach(x -> x.changed(this, oldval, newval));
+		new ArrayList<>(invalidationListeners).forEach(x -> x.invalidated(this));
 	}
 
 	public final WritableDoubleValue writableX = new WritableDoubleValue() {

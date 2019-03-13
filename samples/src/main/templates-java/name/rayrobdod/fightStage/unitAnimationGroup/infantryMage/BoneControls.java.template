@@ -1,0 +1,133 @@
+/*
+ * Copyright 2019 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package name.rayrobdod.fightStage.unitAnimationGroup.infantryMage;
+
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dBinding.createPoint2dBinding;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundCubicCurveTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundLineTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundMoveTo;
+
+import java.util.function.BinaryOperator;
+import java.util.function.UnaryOperator;
+
+import javafx.geometry.Point2D;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ClosePath;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WritableDoubleValue;
+import javafx.scene.shape.Path;
+
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
+
+<%
+	boneNames = evaluate new File("samples/src/main/templates-java/name/rayrobdod/fightStage/unitAnimationGroup/infantryMage/data.groovy").readLines().join("\n")
+
+	import java.util.stream.Stream
+	import java.util.stream.Collectors
+	static String toTitleCase(String value) { value.substring(0, 1).toUpperCase() + value.substring(1) }
+
+	boneFieldNames = boneNames.stream().flatMap({x -> x.polarFields()}).collect(Collectors.toList())
+%>
+
+final class BoneControls {
+	final Pivot pivot;
+	<%= boneFieldNames.stream().map({x -> "final double " + x}).collect(Collectors.joining(";\n\t")) %>;
+
+	public static final BoneControls ZERO = new BoneControls(
+		Pivot.DEFAULT, <%= boneFieldNames.stream().map({x -> "0.0"}).collect(Collectors.joining(", ")) %>
+	);
+
+	public BoneControls(
+		final Pivot pivot,
+		<%= boneFieldNames.stream().map({x -> "final double " + x}).collect(Collectors.joining(",\n\t\t")) %>
+	) {
+		this.pivot = pivot;
+		<%= boneFieldNames.stream().map({x -> "this.$x = $x"}).collect(Collectors.joining(";\n\t\t")) %>;
+	}
+
+	public BoneControls copyWithPivot(Pivot value) {return new BoneControls(value, <%= boneFieldNames.join(", ") %>);}
+	<%=
+		boneFieldNames.stream().map({outer ->
+			boneFieldNames.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(Collectors.joining(
+				", ", "public BoneControls copyWith${toTitleCase(outer)}(double value) {return new BoneControls(this.pivot, ", ");}"
+			))
+		}).collect(Collectors.joining("\n\t"))
+	%>
+
+	<%=
+		boneNames.stream().map({outer ->
+			boneNames.stream().map({inner -> (inner == outer ? "len, angle" : "${inner.methodName()}Length, ${inner.methodName()}Angle")}).collect(Collectors.joining(
+				", ", "public BoneControls copyWith${outer.methodNameTitle()}(double len, double angle) {return new BoneControls(this.pivot, ", ");}"
+			))
+		}).collect(Collectors.joining("\n\t"))
+	%>
+
+	public BoneControls copyWith(BoneControlsOptional addend) {
+		return new BoneControls(
+			addend.pivot.orElse(this.pivot),
+			<%= boneFieldNames.stream().map({x -> "addend.${x}.orElse(this.${x})"}).collect(Collectors.joining(",\n\t\t\t")) %>
+		);
+	}
+
+
+
+	public Point2D centerPelvic() {
+		return this.rightPelvic().add(this.leftPelvic()).multiply(0.5);
+	}
+	public Point2D leftFoot() {
+		return this.pivot.typ.fold(
+			  () -> this.pivot.location
+			, () -> this.leftKnee().subtract(Point2Ds.polar(leftFootToLeftKneeLength, leftFootToLeftKneeAngle))
+		);
+	}
+	public Point2D leftKnee() {
+		return this.pivot.typ.fold(
+			  () -> this.leftFoot().add(Point2Ds.polar(leftFootToLeftKneeLength, leftFootToLeftKneeAngle))
+			, () -> this.leftPelvic().subtract(Point2Ds.polar(leftKneeToLeftPelvicLength, leftKneeToLeftPelvicAngle))
+		);
+	}
+	public Point2D leftPelvic() {
+		return this.pivot.typ.fold(
+			  () -> this.leftKnee().add(Point2Ds.polar(leftKneeToLeftPelvicLength, leftKneeToLeftPelvicAngle))
+			, () -> this.rightPelvic().subtract(Point2Ds.polar(leftPelvicToRightPelvicLength, leftPelvicToRightPelvicAngle))
+		);
+	}
+	public Point2D rightPelvic() {
+		return this.pivot.typ.fold(
+			  () -> this.leftPelvic().add(Point2Ds.polar(leftPelvicToRightPelvicLength, leftPelvicToRightPelvicAngle))
+			, () -> this.rightKnee().subtract(Point2Ds.polar(rightPelvicToRightKneeLength, rightPelvicToRightKneeAngle))
+		);
+	}
+	public Point2D rightKnee() {
+		return this.pivot.typ.fold(
+			  () -> this.rightPelvic().add(Point2Ds.polar(rightPelvicToRightKneeLength, rightPelvicToRightKneeAngle))
+			, () -> this.rightFoot().subtract(Point2Ds.polar(rightKneeToRightFootLength, rightKneeToRightFootAngle))
+		);
+	}
+	public Point2D rightFoot() {
+		return this.pivot.typ.fold(
+			  () -> this.rightKnee().add(Point2Ds.polar(rightKneeToRightFootLength, rightKneeToRightFootAngle))
+			, () -> this.pivot.location
+		);
+	}
+	<%=
+		boneNames.stream().filter({x -> ! x.to.contains("Foot") && ! x.to.contains("Knee") && ! x.to.contains("Pelvic") }).map({x -> "public Point2D " + x.to + "() { " +
+			"return this." + x.from + "().add(Point2Ds.polar(${x.methodName()}Length, ${x.methodName()}Angle)); }"
+		}).collect(Collectors.joining("\n\t"))
+	%>
+}

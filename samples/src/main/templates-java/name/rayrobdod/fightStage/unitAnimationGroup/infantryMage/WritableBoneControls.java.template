@@ -1,0 +1,190 @@
+/*
+ * Copyright 2019 Raymond Dodge
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package name.rayrobdod.fightStage.unitAnimationGroup.infantryMage;
+
+import static javafx.beans.binding.DoubleExpression.doubleExpression;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dBinding.createPoint2dBinding;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundCubicCurveTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundLineTo;
+import static name.rayrobdod.fightStage.unitAnimationGroup.util.Point2dPathElements.newBoundMoveTo;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.geometry.Point2D;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ClosePath;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.WritableDoubleValue;
+import javafx.beans.value.WritableValue;
+import javafx.scene.shape.Path;
+import javafx.util.Duration;
+
+import name.rayrobdod.fightStage.unitAnimationGroup.util.*;
+
+<%
+	boneNames = evaluate new File("samples/src/main/templates-java/name/rayrobdod/fightStage/unitAnimationGroup/infantryMage/data.groovy").readLines().join("\n")
+
+	import java.util.stream.Stream
+	import java.util.stream.Collectors
+
+	boneFieldNames = boneNames.stream().flatMap({x -> x.polarFields()}).collect(Collectors.toList())
+%>
+
+final class WritableBoneControls {
+	private final ObservableWritableDoubleValue pivotType;
+	private final WritablePoint2dValue pivot;
+	<%= boneFieldNames.stream().map({x -> "private final ObservableWritableDoubleValue ${x};"}).collect(Collectors.joining("\n\t")) %>
+
+	public WritableBoneControls() {
+		this.pivotType = new ObservableWritableDoubleValue();
+		this.pivot = new WritablePoint2dValue();
+		<%= boneFieldNames.stream().map({x -> "this.$x = new ObservableWritableDoubleValue();"}).collect(Collectors.joining("\n\t\t")) %>
+	}
+
+	public void storeInMap(Map<WritableDoubleValue, Double> store, BoneControls values) {
+		store.put(this.pivotType, (double) values.pivot.typ.ordinal());
+		store.put(this.pivot.writableX, values.pivot.location.getX());
+		store.put(this.pivot.writableY, values.pivot.location.getY());
+		<%= boneFieldNames.stream().map({x -> "store.put( this.${x}, values.${x} );"}).collect(Collectors.joining("\n\t\t")) %>
+	}
+	public BoneControls extractFromMap(Map<WritableDoubleValue, Double> store) {
+		return new BoneControls(
+			new Pivot(
+				PivotType.values()[(int)(double) store.get(pivotType)],
+				new Point2D(
+					store.get(this.pivot.writableX),
+					store.get(this.pivot.writableY)
+				)
+			),
+			<%= boneFieldNames.stream().map({x -> "store.get( this.${x} )"}).collect(Collectors.joining(",\n\t\t\t")) %>
+		);
+	}
+	public KeyFrame createKeyFrame(Duration time, BoneControlsOptional values) {
+		final ArrayList<KeyValue> keyValues = new ArrayList<KeyValue>();
+		if (values.pivot.isPresent()) {
+			keyValues.add(new KeyValue(this.pivotType, (double) values.pivot.get().typ.ordinal()));
+			keyValues.add(new KeyValue(this.pivot, values.pivot.get().location));
+		}
+		<%= boneFieldNames.stream().map({x -> "if (values.${x}.isPresent()) { keyValues.add(new KeyValue(this.${x}, values.${x}.getAsDouble())); }" }).collect(Collectors.joining("\n\t\t")) %>
+		<% boneFieldNames.stream().map({x -> "values.${x}.ifPresent((y) -> keyValues.add(new KeyValue(this.${x}, y)));" }).collect(Collectors.joining("\n\t\t")) %>
+		return new KeyFrame(time, null, null, keyValues);
+	}
+	public KeyFrame createKeyFrame(Duration time, BoneControls values) {
+		final ArrayList<KeyValue> keyValues = new ArrayList<KeyValue>();
+		keyValues.add(new KeyValue(this.pivotType, (double) values.pivot.typ.ordinal()));
+		keyValues.add(new KeyValue(this.pivot, values.pivot.location));
+		<%= boneFieldNames.stream().map({x -> "keyValues.add(new KeyValue(this.${x}, values.${x}));" }).collect(Collectors.joining("\n\t\t")) %>
+		return new KeyFrame(time, null, null, keyValues);
+	}
+	
+	private final class WritablePivotValue implements javafx.beans.value.WritableObjectValue<Pivot> {
+		public Pivot get() { return new Pivot(PivotType.values()[(int) pivotType.get()], pivot.get()); }
+		public Pivot getValue() { return this.get(); }
+		public void set(Pivot p) { WritableBoneControls.this.pivotType.set(p.typ.ordinal()); WritableBoneControls.this.pivot.setValue(p.location); }
+		public void setValue(Pivot p) { this.set(p); }
+	}
+
+	public WritableValue<Pivot> pivot() { return new WritablePivotValue(); }
+	<%= boneFieldNames.stream().map({x -> "public WritableDoubleValue ${x}() {return this.${x};}"}).collect(Collectors.joining("\n\t")) %>
+
+	private static Point2dExpression boundPolarPoint2d(ObservableDoubleValue len, ObservableDoubleValue ang) {
+		return createPoint2dBinding(() -> Point2Ds.polar(len.get(), ang.get()), len, ang);
+	}
+	
+	private final class PivotTypeBinding extends Point2dBinding {
+		private final Supplier<ObservableValue<Point2D>> ifLeft;
+		private final Supplier<ObservableValue<Point2D>> ifRight;
+		private ObservableValue<Point2D> transientDep;
+		public PivotTypeBinding(Supplier<ObservableValue<Point2D>> ifLeft, Supplier<ObservableValue<Point2D>> ifRight) {
+			this.ifLeft = ifLeft;
+			this.ifRight = ifRight;
+			this.bind(pivotType);
+		}
+		protected void onInvalidating() {
+			// `ConcurrentModificationException` if unbind is used here
+		}
+		protected Point2D computeValue() {
+			if (transientDep != null) {
+				this.unbind(transientDep);
+			}
+			PivotType typ = PivotType.values()[(int)(double) pivotType.get()];
+			Supplier<ObservableValue<Point2D>> using;
+			switch (typ) {
+				case LeftFoot : using = ifLeft;
+				case RightFoot : using = ifRight;
+				default: using = ifLeft;
+			}
+			transientDep = using.get();
+			this.bind(transientDep);
+			return transientDep.getValue();
+		}
+		
+	}
+
+	public Point2dExpression centerPelvic() {
+		return this.rightPelvic().add(this.leftPelvic()).multiply(0.5);
+	}
+	public Point2dExpression leftFoot() {
+		return new PivotTypeBinding(
+			  () -> this.pivot
+			, () -> this.leftKnee().subtract(boundPolarPoint2d(leftFootToLeftKneeLength, leftFootToLeftKneeAngle))
+		);
+	}
+	public Point2dExpression leftKnee() {
+		return new PivotTypeBinding(
+			  () -> this.leftFoot().add(boundPolarPoint2d(leftFootToLeftKneeLength, leftFootToLeftKneeAngle))
+			, () -> this.leftPelvic().subtract(boundPolarPoint2d(leftKneeToLeftPelvicLength, leftKneeToLeftPelvicAngle))
+		);
+	}
+	public Point2dExpression leftPelvic() {
+		return new PivotTypeBinding(
+			  () -> this.leftKnee().add(boundPolarPoint2d(leftKneeToLeftPelvicLength, leftKneeToLeftPelvicAngle))
+			, () -> this.rightPelvic().subtract(boundPolarPoint2d(leftPelvicToRightPelvicLength, leftPelvicToRightPelvicAngle))
+		);
+	}
+	public Point2dExpression rightPelvic() {
+		return new PivotTypeBinding(
+			  () -> this.leftPelvic().add(boundPolarPoint2d(leftPelvicToRightPelvicLength, leftPelvicToRightPelvicAngle))
+			, () -> this.rightKnee().subtract(boundPolarPoint2d(rightPelvicToRightKneeLength, rightPelvicToRightKneeAngle))
+		);
+	}
+	public Point2dExpression rightKnee() {
+		return new PivotTypeBinding(
+			  () -> this.rightPelvic().add(boundPolarPoint2d(rightPelvicToRightKneeLength, rightPelvicToRightKneeAngle))
+			, () -> this.rightFoot().subtract(boundPolarPoint2d(rightKneeToRightFootLength, rightKneeToRightFootAngle))
+		);
+	}
+	public Point2dExpression rightFoot() {
+		return new PivotTypeBinding(
+			  () -> this.rightKnee().add(boundPolarPoint2d(rightKneeToRightFootLength, rightKneeToRightFootAngle))
+			, () -> this.pivot
+		);
+	}
+	<%=
+		boneNames.stream().filter({x -> ! x.to.contains("Foot") && ! x.to.contains("Knee") && ! x.to.contains("Pelvic") }).map({x -> "public Point2dExpression " + x.to + "() { " +
+			"return this." + x.from + "().add(boundPolarPoint2d(${x.methodName()}Length, ${x.methodName()}Angle)); }"
+		}).collect(Collectors.joining("\n\t"))
+	%>
+}

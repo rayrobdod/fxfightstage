@@ -39,8 +39,8 @@ public final class ObservableWritableDoubleValue implements ObservableDoubleValu
 	@Override public void set(double newval) {
 		double oldval = this.backing;
 		this.backing = newval;
-		changeListeners.forEach(x -> x.changed(this, oldval, newval));
-		invalidationListeners.forEach(x -> x.invalidated(this));
+		new ArrayList<>(changeListeners).forEach(x -> x.changed(this, oldval, newval));
+		new ArrayList<>(invalidationListeners).forEach(x -> x.invalidated(this));
 	}
 	@Override public Number getValue() {return this.get();}
 	@Override public void setValue(Number v) {this.set(v.doubleValue());}
