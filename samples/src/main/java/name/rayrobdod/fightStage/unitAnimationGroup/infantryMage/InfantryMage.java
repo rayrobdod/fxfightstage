@@ -49,24 +49,11 @@ public final class InfantryMage implements UnitAnimationGroup {
 	//@Override public Node objectFrontLayer() { return this.frontLayer; }
 
 	@Override public Point2D getSpellTarget(Map<WritableDoubleValue, Double> rolloverKeyValues) {
-		return Point2D.ZERO;
-		/*
-		BoneControls data = writables.extractFromMap(rolloverKeyValues);
-		return new Point2D(
-			(
-				  rolloverKeyValues.get(writables.centerPelvic().)
-				+ rolloverKeyValues.get(writables.neck().writableX)
-				) / 2,
-			(
-				  rolloverKeyValues.get(writables.centerPelvic().writableY)
-				+ rolloverKeyValues.get(writables.neck().writableY)
-			) / 4
-		);
-		*/
+		return writables.extractFromMap(rolloverKeyValues).spellTarget();
 	}
 
 	@Override public double getCurrentXOffset(Map<WritableDoubleValue, Double> rolloverKeyValues) {
-		return 12 + writables.extractFromMap(rolloverKeyValues).centerPelvic().getX();
+		return writables.extractFromMap(rolloverKeyValues).xOffset();
 	}
 
 	@Override public Animation getAttackAnimation(
@@ -82,6 +69,9 @@ public final class InfantryMage implements UnitAnimationGroup {
 		final double rightPerspective = 2 * side;
 
 		final TimelineBuilder beforeTimeline = new TimelineBuilder(writables, writables.extractFromMap(rolloverKeyValues));
+		beforeTimeline.append(Duration.ONE, BoneControlsOptional.NIL
+				.copyWithSomePivot(new Pivot(PivotType.LeftFoot, beforeTimeline.currentValues().leftFoot()))
+		);
 		beforeTimeline.append(Duration.seconds(0.5), BoneControlsOptional.NIL
 				.copyWithSomeLeftElbowToLeftHandAngle(Math.PI / 2)
 				.copyWithSomeLeftShoulderToLeftElbowAngle(Math.PI / 2)

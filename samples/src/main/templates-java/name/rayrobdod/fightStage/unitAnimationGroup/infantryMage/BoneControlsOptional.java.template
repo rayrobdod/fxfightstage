@@ -63,6 +63,7 @@ final class BoneControlsOptional {
 	}
 
 	public BoneControlsOptional copyWithPivot(Optional<Pivot> value) {return new BoneControlsOptional(value, <%= boneFieldNames.join(", ") %>);}
+	public BoneControlsOptional copyWithSomePivot(Pivot value) {return new BoneControlsOptional(Optional.of(value), <%= boneFieldNames.join(", ") %>);}
 	<%=
 		boneFieldNames.stream().map({outer ->
 			boneFieldNames.stream().map({inner -> (inner == outer ? "value" : inner)}).collect(Collectors.joining(
