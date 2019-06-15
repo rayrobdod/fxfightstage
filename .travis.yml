@@ -1,28 +1,19 @@
 language: java
 
+services:
+  - xvfb
+
 matrix:
    include:
-      - jdk: oraclejdk8
-        env: JFX=-PnoExternalJavafx
-      - jdk: oraclejdk9
-        env: JFX=-PnoExternalJavafx
       - jdk: oraclejdk11
-        env: JFX=
-      - jdk: openjdk10
-        env: JFX=
       - jdk: openjdk11
-        env: JFX=
       - jdk: openjdk-ea
-        env: JFX=
-
-before_install:
-  - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
 
 install:
-   ./gradlew assemble $JFX
+   ./gradlew assemble
 
 script:
-   ./gradlew check $JFX
+   ./gradlew check
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

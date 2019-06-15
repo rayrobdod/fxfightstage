@@ -7,29 +7,48 @@ environment:
    matrix:
    - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
      JFX: -PnoExternalJavafx
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\jdk9
      JFX: -PnoExternalJavafx
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\jdk10
      JFX: -PnoExternalJavafx
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\jdk11
      JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\openjdk11
      JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: C:\Program Files\Java\openjdk-latest
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: C:\Program Files\Java\zulu11
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
 init:
    - cmd: 'git config --global core.autocrlf true'
    - ps: |
            Add-Type -AssemblyName System.IO.Compression.FileSystem
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk11") {
-              & choco install openjdk --version 11.0.2.01
+              & choco install openjdk11
            }
-           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\jdk11") {
-              & choco install jdk11
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk-latest") {
+              & choco install openjdk
            }
-   - refreshenv
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu11") {
+              & choco install zulu11
+           }
+   - cmd: refreshenv
 build_script:
-   - 'gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
+   - cmd: './gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
+   - sh: './gradlew --no-daemon $JFX -PlocalPublishLocation=file:////home/appveyor/projects/fxfightstage/maven/ assemble uploadArchives'
 test_script:
-   - 'gradlew --no-daemon %JFX% check'
+   - cmd: './gradlew --no-daemon %JFX% check'
+   - sh: 'xvfb-run ./gradlew --no-daemon $JFX check'
 artifacts:
    - path: ./maven
      name: maven
