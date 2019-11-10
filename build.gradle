@@ -1,5 +1,5 @@
 plugins {
-	id "com.diffplug.gradle.spotless" version "3.10.0"
+	id "com.diffplug.gradle.spotless" version "3.25.0"
 }
 
 /**
@@ -45,7 +45,6 @@ def String fxPlatform() {
 
 subprojects {
 	apply plugin: 'java'
-	apply plugin: 'maven'
 	apply plugin: "com.diffplug.gradle.spotless"
 	
 	sourceCompatibility = (org.gradle.api.JavaVersion.current() == org.gradle.api.JavaVersion.VERSION_1_8 ? 8 : 9)
@@ -76,9 +75,9 @@ subprojects {
 	}
 	
 	dependencies {
-		testCompile("org.junit.jupiter:junit-jupiter-api:5.1.0")
-		testRuntime("org.junit.jupiter:junit-jupiter-engine:5.1.0")
-		testCompile "org.testfx:testfx-junit5:4.0.13-alpha"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.1.0"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.1.0"
+		testImplementation "org.testfx:testfx-junit5:4.0.13-alpha"
 	}
 	
 	if (! project.hasProperty("noExternalJavafx")) {
@@ -89,11 +88,11 @@ subprojects {
 			compileOnly "org.openjfx:javafx-swing:11:${fxPlatform()}"
 			compileOnly "org.openjfx:javafx-media:11:${fxPlatform()}"
 			
-			testCompile "org.openjfx:javafx-base:11:${fxPlatform()}"
-			testCompile "org.openjfx:javafx-graphics:11:${fxPlatform()}"
-			testCompile "org.openjfx:javafx-controls:11:${fxPlatform()}"
-			testCompile "org.openjfx:javafx-swing:11:${fxPlatform()}"
-			testCompile "org.openjfx:javafx-media:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-base:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-graphics:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-controls:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-swing:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-media:11:${fxPlatform()}"
 		}
 	}
 
@@ -141,44 +140,30 @@ subprojects {
 	
 	task javadocJar(dependsOn: javadoc, type: Jar) {
 		from(javadoc.destinationDir)
-		destinationDir(project.libsDir)
 		classifier("javadoc")
 	}
 	assemble.dependsOn(javadocJar)
 	task javadocTar(dependsOn: javadoc, type: Tar) {
 		from(javadoc.destinationDir)
-		destinationDir(project.libsDir)
+		destinationDirectory = javadocJar.destinationDirectory
 		classifier("javadoc")
 		compression(Compression.GZIP)
-		extension("tar.gz")
+		archiveExtension = "tar.gz"
 	}
 	assemble.dependsOn(javadocTar)
 	task sourceJar(type: Jar) {
 		from(sourceSets.main.allSource)
-		destinationDir(project.libsDir)
 		classifier("sources")
 	}
 	assemble.dependsOn(sourceJar)
 	task sourceTar(type: Tar) {
 		from(sourceSets.main.allSource)
-		destinationDir(project.libsDir)
+		destinationDirectory = sourceJar.destinationDirectory
 		classifier("sources")
 		compression(Compression.GZIP)
-		extension("tar.gz")
+		archiveExtension = "tar.gz"
 	}
 	assemble.dependsOn(sourceTar)
-	
-	if (project.hasProperty("localPublishLocation")) {
-		uploadArchives {
-			repositories {
-				mavenDeployer {
-					repository(url: localPublishLocation)
-					pom.groupId = project.group
-					pom.version = project.version
-				}
-			}
-		}
-	}
 	
 	artifacts {
 		archives javadocJar
@@ -208,9 +193,6 @@ subprojects {
 project(":core") {
 	project.ext.mainClassName = null
 	project.ext.artifactId = "fxfightstage"
-	if (project.hasProperty("localPublishLocation")) {
-		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
-	}
 	
 	jar.manifest.attributes (
 		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.core'
@@ -221,15 +203,12 @@ project(":core") {
 project(":demo") {
 	project.ext.mainClassName = null
 	project.ext.artifactId = "fxfightstage-demo"
-	if (project.hasProperty("localPublishLocation")) {
-		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
-	}
 	
 	//TODO: convert to linksOffline after deciding where these will be online
 	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
 	
 	dependencies {
-		compile project(":core")
+		implementation project(":core")
 	}
 	
 	jar.manifest.attributes (
@@ -241,27 +220,24 @@ project(":demo") {
 project(":samples") {
 	project.ext.mainClassName = "name.rayrobdod.fightStage.previewer.Main"
 	project.ext.artifactId = "fxfightstage-samples"
-	if (project.hasProperty("localPublishLocation")) {
-		uploadArchives.repositories.mavenDeployer.pom.artifactId = project.ext.artifactId
-	}
 	
 	//TODO: convert to linksOffline after deciding where these will be online
 	javadoc.options.links(project(":core").javadoc.destinationDir.toURI().toString())
 	javadoc.options.links(project(":demo").javadoc.destinationDir.toURI().toString())
 	
 	dependencies {
-		compile project(":core")
-		compile project(":demo")
-		testCompile project(":core").sourceSets.test.output
+		implementation project(":core")
+		implementation project(":demo")
+		testImplementation project(":core").sourceSets.test.output
 	}
 	
 	if (! project.hasProperty("noExternalJavafx")) {
 		dependencies {
-			compile "org.openjfx:javafx-base:11:${fxPlatform()}"
-			compile "org.openjfx:javafx-graphics:11:${fxPlatform()}"
-			compile "org.openjfx:javafx-controls:11:${fxPlatform()}"
-			compile "org.openjfx:javafx-swing:11:${fxPlatform()}"
-			compile "org.openjfx:javafx-media:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-base:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-graphics:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-controls:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-swing:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-media:11:${fxPlatform()}"
 		}
 	}
 	
@@ -302,9 +278,9 @@ project(":samples") {
 	task fatjar(dependsOn: classes, type: Jar) {
 		// delay execution of expandZips unitil after the classpath is created
 		from({ -> expandZips(sourceSets.main.runtimeClasspath)})
-		baseName = "FxFightStageSamples"
-		version = null
-		destinationDir(project.distsDir)
+		archiveBaseName = "FxFightStageSamples"
+		archiveVersion = ""
+		destinationDirectory = project.layout.buildDirectory.dir(project.distsDirName)
 		manifest.attributes (
 			  'Main-Class': project.mainClassName
 			, 'Implementation-Title': (project.ext.artifactId + "-fatjar")
@@ -324,34 +300,35 @@ project(":samples") {
 			into "$buildDir/tmp/mod/libs"
 		}
 		task mod(type: Exec) {
+			def outFile = project.layout.buildDirectory.dir(project.libsDirName).map{f -> f.file("fightstage-samples.jmod")}
 			dependsOn 'jar'
 			dependsOn 'extractLicenseToDir'
 			dependsOn 'extractSoundToDir'
 			dependsOn 'cleanMod'
 			workingDir buildDir
-			outputs.file "${buildDir}/libs/samples.jmod"
+			outputs.file outFile
 			
 			commandLine "${System.properties.'java.home'}/bin/jmod",
 					'create',
 					'--class-path', "${jar.archivePath}",
 					'--legal-notices', "$buildDir/tmp/mod/legal",
 					'--libs', "$buildDir/tmp/mod/libs",
-					'distributions/fightstage-samples.jmod'
+					outFile.get().toString()
 		}
 		
 		
 		task link(type: Exec) {
+			def outFile = project.layout.buildDirectory.dir(project.distsDirName).map{f -> f.dir("jlink")}
 			dependsOn 'mod'
 			dependsOn 'cleanLink'
 			workingDir buildDir
-			outputs.file "${buildDir}/distributions/jlink"
+			outputs.file outFile
 			
 			commandLine "${System.properties.'java.home'}/bin/jlink",
-					//'--module-path', "${project.configurations.runtime.asPath}${File.pathSeparatorChar}${jar.archivePath}${File.pathSeparatorChar}${System.properties.'java.home'}/jmods",
-					'--module-path', "${project.configurations.runtime.asPath}${File.pathSeparatorChar}distributions/fightstage-samples.jmod${File.pathSeparatorChar}${System.properties.'java.home'}/jmods",
+					'--module-path', "${project.configurations.runtimeClasspath.asPath}${File.pathSeparatorChar}libs/fightstage-samples.jmod${File.pathSeparatorChar}${System.properties.'java.home'}/jmods",
 					'--add-modules', 'name.rayrobdod.fightStage.samples',
 					'--launcher', "samples=name.rayrobdod.fightStage.demo/${project.mainClassName}",
-					'--output', 'distributions/jlink',
+					'--output', outFile.get().toString(),
 					//'--bind-services',
 					'--strip-debug',
 					'--compress', '0',

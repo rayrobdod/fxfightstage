@@ -17,6 +17,12 @@ environment:
    - JAVA_HOME: C:\Program Files\Java\jdk11
      JFX:
      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: C:\Program Files\Java\jdk12
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: C:\Program Files\Java\jdk13
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\openjdk11
      JFX:
      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -24,6 +30,9 @@ environment:
      JFX:
      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: C:\Program Files\Java\zulu11
+     JFX:
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+   - JAVA_HOME: C:\Program Files\Java\zulu
      JFX:
      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -42,13 +51,16 @@ init:
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu11") {
               & choco install zulu11
            }
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu-latest") {
+              & choco install zulu
+           }
    - cmd: refreshenv
 build_script:
    - cmd: './gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
    - sh: './gradlew --no-daemon $JFX -PlocalPublishLocation=file:////home/appveyor/projects/fxfightstage/maven/ assemble uploadArchives'
 test_script:
-   - cmd: './gradlew --no-daemon %JFX% check'
-   - sh: 'xvfb-run ./gradlew --no-daemon $JFX check'
+   - cmd: './gradlew --no-daemon --warning-mode all %JFX% check'
+   - sh: 'xvfb-run ./gradlew --no-daemon --warning-mode all $JFX check'
 artifacts:
    - path: ./maven
      name: maven

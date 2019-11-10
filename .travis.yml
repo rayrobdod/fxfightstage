@@ -8,6 +8,8 @@ matrix:
       - jdk: oraclejdk11
       - jdk: openjdk11
       - jdk: openjdk-ea
+   allow_failures:
+      - jdk: openjdk-ea
 
 install:
    ./gradlew assemble
