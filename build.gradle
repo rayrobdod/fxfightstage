@@ -1,5 +1,5 @@
 plugins {
-	id "com.diffplug.gradle.spotless" version "3.25.0"
+	id 'com.diffplug.spotless' version '6.11.0'
 }
 
 /**
@@ -43,9 +43,13 @@ def String fxPlatform() {
 	}
 }
 
+def String fxVersion() {
+	return '17'
+}
+
 subprojects {
 	apply plugin: 'java'
-	apply plugin: "com.diffplug.gradle.spotless"
+	apply plugin: 'com.diffplug.spotless'
 	
 	sourceCompatibility = (org.gradle.api.JavaVersion.current() == org.gradle.api.JavaVersion.VERSION_1_8 ? 8 : 9)
 	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -59,10 +63,6 @@ subprojects {
 	if (JavaVersion.current().isJava8()) {
 		javadoc.options.links("https://docs.oracle.com/javase/8/docs/api/")
 		javadoc.options.links("https://docs.oracle.com/javase/8/javafx/api/")
-	} else if (JavaVersion.current().isJava9()) {
-		javadoc.options.links("https://docs.oracle.com/javase/9/docs/api/")
-	} else if (JavaVersion.current().isJava10()) {
-		javadoc.options.links("https://docs.oracle.com/javase/10/docs/api/")
 	} else if (JavaVersion.current().isJava11()) {
 		javadoc.options.links("https://docs.oracle.com/en/java/javase/11/docs/api/")
 		javadoc.options.links("https://openjfx.io/javadoc/11/")
@@ -75,24 +75,24 @@ subprojects {
 	}
 	
 	dependencies {
-		testImplementation "org.junit.jupiter:junit-jupiter-api:5.1.0"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.1.0"
-		testImplementation "org.testfx:testfx-junit5:4.0.13-alpha"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.0"
+		testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 	}
 	
 	if (! project.hasProperty("noExternalJavafx")) {
 		dependencies {
-			compileOnly "org.openjfx:javafx-base:11:${fxPlatform()}"
-			compileOnly "org.openjfx:javafx-graphics:11:${fxPlatform()}"
-			compileOnly "org.openjfx:javafx-controls:11:${fxPlatform()}"
-			compileOnly "org.openjfx:javafx-swing:11:${fxPlatform()}"
-			compileOnly "org.openjfx:javafx-media:11:${fxPlatform()}"
+			compileOnly "org.openjfx:javafx-base:${fxVersion()}:${fxPlatform()}"
+			compileOnly "org.openjfx:javafx-graphics:${fxVersion()}:${fxPlatform()}"
+			compileOnly "org.openjfx:javafx-controls:${fxVersion()}:${fxPlatform()}"
+			compileOnly "org.openjfx:javafx-swing:${fxVersion()}:${fxPlatform()}"
+			compileOnly "org.openjfx:javafx-media:${fxVersion()}:${fxPlatform()}"
 			
-			testImplementation "org.openjfx:javafx-base:11:${fxPlatform()}"
-			testImplementation "org.openjfx:javafx-graphics:11:${fxPlatform()}"
-			testImplementation "org.openjfx:javafx-controls:11:${fxPlatform()}"
-			testImplementation "org.openjfx:javafx-swing:11:${fxPlatform()}"
-			testImplementation "org.openjfx:javafx-media:11:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-base:${fxVersion()}:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-graphics:${fxVersion()}:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-controls:${fxVersion()}:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-swing:${fxVersion()}:${fxPlatform()}"
+			testImplementation "org.openjfx:javafx-media:${fxVersion()}:${fxPlatform()}"
 		}
 	}
 
@@ -115,7 +115,7 @@ subprojects {
 		}
 		javadoc {
 			doFirst {
-				options.addStringOption('-module-path', classpath.asPath)
+				options.modulePath(new java.util.ArrayList(classpath.files))
 				classpath = files()
 			}
 		}
@@ -137,38 +137,6 @@ subprojects {
 		, 'Implementation-Version': version
 		, 'Implementation-Vendor': group
 	)
-	
-	task javadocJar(dependsOn: javadoc, type: Jar) {
-		from(javadoc.destinationDir)
-		classifier("javadoc")
-	}
-	assemble.dependsOn(javadocJar)
-	task javadocTar(dependsOn: javadoc, type: Tar) {
-		from(javadoc.destinationDir)
-		destinationDirectory = javadocJar.destinationDirectory
-		classifier("javadoc")
-		compression(Compression.GZIP)
-		archiveExtension = "tar.gz"
-	}
-	assemble.dependsOn(javadocTar)
-	task sourceJar(type: Jar) {
-		from(sourceSets.main.allSource)
-		classifier("sources")
-	}
-	assemble.dependsOn(sourceJar)
-	task sourceTar(type: Tar) {
-		from(sourceSets.main.allSource)
-		destinationDirectory = sourceJar.destinationDirectory
-		classifier("sources")
-		compression(Compression.GZIP)
-		archiveExtension = "tar.gz"
-	}
-	assemble.dependsOn(sourceTar)
-	
-	artifacts {
-		archives javadocJar
-		archives sourceJar
-	}
 	
 	// Run the thing that will tell me why the java will not compile
 	// before running the thing that doesn't tell my why the java
@@ -212,6 +180,7 @@ project(":demo") {
 	}
 	
 	jar.manifest.attributes (
+		'Created-By' : "Gradle ${gradle.gradleVersion}",
 		  'Automatic-Module-Name': 'name.rayrobdod.fightStage.demo'
 		, 'Implementation-Title': project.ext.artifactId
 	)
@@ -233,11 +202,11 @@ project(":samples") {
 	
 	if (! project.hasProperty("noExternalJavafx")) {
 		dependencies {
-			implementation "org.openjfx:javafx-base:11:${fxPlatform()}"
-			implementation "org.openjfx:javafx-graphics:11:${fxPlatform()}"
-			implementation "org.openjfx:javafx-controls:11:${fxPlatform()}"
-			implementation "org.openjfx:javafx-swing:11:${fxPlatform()}"
-			implementation "org.openjfx:javafx-media:11:${fxPlatform()}"
+			implementation "org.openjfx:javafx-base:${fxVersion()}:${fxPlatform()}"
+			implementation "org.openjfx:javafx-graphics:${fxVersion()}:${fxPlatform()}"
+			implementation "org.openjfx:javafx-controls:${fxVersion()}:${fxPlatform()}"
+			implementation "org.openjfx:javafx-swing:${fxVersion()}:${fxPlatform()}"
+			implementation "org.openjfx:javafx-media:${fxVersion()}:${fxPlatform()}"
 		}
 	}
 	
@@ -248,7 +217,7 @@ project(":samples") {
 	)
 	
 	task run(dependsOn: classes, type: JavaExec) {
-		main = project.mainClassName
+		mainClass = project.mainClassName
 		classpath = sourceSets.main.runtimeClasspath
 		args = splitIntoTokens(project.hasProperty("args") ? project.args : "")
 		standardInput = System.in
@@ -257,7 +226,7 @@ project(":samples") {
 	
 	//example: `gradlew runRasterize "-Pargs=--spell=Tornado --d=out.png --fps=60 --bitDepth=8 --no-smooth"`
 	task runRasterize(dependsOn: classes, type: JavaExec) {
-		main = "name.rayrobdod.fightStage.rasterizer.Main"
+		mainClass = "name.rayrobdod.fightStage.rasterizer.Main"
 		classpath = sourceSets.main.runtimeClasspath
 		args = splitIntoTokens(project.hasProperty("args") ? project.args : "")
 		standardInput = System.in
@@ -274,21 +243,6 @@ project(":samples") {
 			}
 		}
 	}
-	
-	task fatjar(dependsOn: classes, type: Jar) {
-		// delay execution of expandZips unitil after the classpath is created
-		from({ -> expandZips(sourceSets.main.runtimeClasspath)})
-		archiveBaseName = "FxFightStageSamples"
-		archiveVersion = ""
-		destinationDirectory = project.layout.buildDirectory.dir(project.distsDirName)
-		manifest.attributes (
-			  'Main-Class': project.mainClassName
-			, 'Implementation-Title': (project.ext.artifactId + "-fatjar")
-			, 'Implementation-Version': project.version
-			, 'Implementation-Vendor': project.group
-		)
-	}
-	assemble.dependsOn(fatjar)
 
 	if (JavaVersion.current().isJava9Compatible()) {
 		task extractLicenseToDir(type: Copy) {

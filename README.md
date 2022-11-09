@@ -1,6 +1,5 @@
 # fx_fightStage
 
-[![Build Status](https://travis-ci.org/rayrobdod/fxfightstage.svg?branch=master)](https://travis-ci.org/rayrobdod/fxfightstage)
 [![Build status](https://ci.appveyor.com/api/projects/status/1x30vq22tqeo7l4k/branch/master?svg=true)](https://ci.appveyor.com/project/rayrobdod/fxfightstage/branch/master)
 
 This creates an animation of two units attacking each other. In javafx and with

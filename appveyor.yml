@@ -1,5 +1,5 @@
 version: 'yml-{build}'
-os: Windows Server 2012
+os: Windows Server 2019
 cache:
    - '%USERPROFILE%\.gradle\caches\'
    - '%USERPROFILE%\.gradle\wrapper\'
@@ -7,70 +7,55 @@ environment:
    matrix:
    - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
      JFX: -PnoExternalJavafx
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\jdk9
-     JFX: -PnoExternalJavafx
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\jdk10
-     JFX: -PnoExternalJavafx
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
    - JAVA_HOME: C:\Program Files\Java\jdk11
      JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\jdk12
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+   - JAVA_HOME: C:\Program Files\Java\jdk17
      JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\jdk13
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+   - JAVA_HOME: C:\Program Files\Java\openjdk17
      JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\openjdk11
-     JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
    - JAVA_HOME: C:\Program Files\Java\openjdk-latest
      JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\zulu11
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+   - JAVA_HOME: C:\Program Files\Java\zulu17
      JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: C:\Program Files\Java\zulu
-     JFX:
-     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-   - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+   - JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
      JFX:
      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+matrix:
+  allow_failures:
+    # gradle consistently fails to support the latest jdk, somehow, but might as well try anyway
+    - JAVA_HOME: C:\Program Files\Java\openjdk-latest
 init:
    - cmd: 'git config --global core.autocrlf true'
    - ps: |
            Add-Type -AssemblyName System.IO.Compression.FileSystem
-           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk11") {
-              & choco install openjdk11
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk17") {
+              & choco install openjdk17
            }
            IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\openjdk-latest") {
               & choco install openjdk
            }
-           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu11") {
-              & choco install zulu11
-           }
-           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu-latest") {
-              & choco install zulu
+           IF ("$ENV:JAVA_HOME" -eq "C:\Program Files\Java\zulu17") {
+              & choco install zulu17
            }
    - cmd: refreshenv
 build_script:
-   - cmd: './gradlew --no-daemon %JFX% -PlocalPublishLocation=file:///C:/projects/fxfightstage/maven/ assemble uploadArchives'
-   - sh: './gradlew --no-daemon $JFX -PlocalPublishLocation=file:////home/appveyor/projects/fxfightstage/maven/ assemble uploadArchives'
+   - cmd: './gradlew --no-daemon %JFX% assemble'
+   - sh: './gradlew --no-daemon $JFX assemble'
 test_script:
    - cmd: './gradlew --no-daemon --warning-mode all %JFX% check'
    - sh: 'xvfb-run ./gradlew --no-daemon --warning-mode all $JFX check'
 artifacts:
-   - path: ./maven
-     name: maven
-   - path: ./core/build/libs/*.tar.gz
+   - path: ./core/build/libs/*
      name: core_libs
-   - path: ./demo/build/libs/*.tar.gz
+   - path: ./demo/build/libs/*
      name: demo_libs
-   - path: ./samples/build/libs/*.tar.gz
+   - path: ./samples/build/libs/*
      name: samples_libs
-   - path: ./samples/build/distributions/FxFightStageSamples.jar
-     name: samples_fatjar
    - path: ./samples/build/distributions/jlink/
      name: samples_jlink
